@@ -1,0 +1,49 @@
+Unhandled exception:
+By default, this package downloads a pre-compiled SQLite library.
+This failed (attepted to download https://github.com/simolus3/sqlite3.dart/releases/download/sqlite3-3.5.2/libsqlite3.x64.linux.so).
+For alternatives to downloading SQLite, see https://pub.dev/documentation/sqlite3/latest/topics/hook-topic.html
+Original cause: SocketException: Connection timed out (OS Error: Connection timed out, errno = 110), address = github.com, port = 49216
+#0      _NativeSocket.startConnect (dart:io-patch/socket_patch.dart:849:35)
+#1      _RawSocket.startConnect (dart:io-patch/socket_patch.dart:2313:26)
+#2      RawSocket.startConnect (dart:io-patch/socket_patch.dart:41:23)
+#3      RawSecureSocket.startConnect (dart:io/secure_socket.dart:334:22)
+#4      SecureSocket.startConnect (dart:io/secure_socket.dart:85:28)
+#5      _ConnectionTarget.connect (dart:_http/http_impl.dart:2694:26)
+#6      _HttpClient._getConnection.connect (dart:_http/http_impl.dart:3200:12)
+#7      _HttpClient._getConnection (dart:_http/http_impl.dart:3205:12)
+#8      _HttpClient._openUrl (dart:_http/http_impl.dart:3026:12)
+#9      _HttpClient.getUrl (dart:_http/http_impl.dart:2873:48)
+#10     PrecompiledFromGithubAssets._fetchFromSource (package:sqlite3/src/hook/compile/description.dart:265:36)
+<asynchronous suspension>
+#11     PrecompiledBinary.fetch.<anonymous closure>.<anonymous closure> (package:sqlite3/src/hook/compile/description.dart:160:9)
+<asynchronous suspension>
+
+  Building assets for package:sqlite3 failed.
+  build.dart returned with exit code: 255.
+  To reproduce run:
+  (cd /home/afanasev.m.a@sbertech.ru/.pub-cache/hosted/pub.dev/sqlite3-3.5.2/; /home/afanasev.m.a@sbertech.ru/flutter/bin/cache/dart-sdk/bin/dart --packages=/home/afanasev.m.a@sbertech.ru/Загрузки/МС/ms_app/.dart_tool/package_config.json /home/afanasev.m.a@sbertech.ru/Загрузки/МС/ms_app/.dart_tool/hooks_runner/sqlite3/6b4ebf10e7/hook.dill --config=/home/afanasev.m.a@sbertech.ru/Загрузки/МС/ms_app/.dart_tool/hooks_runner/sqlite3/6b4ebf10e7/input.json )
+  stderr:
+  Unhandled exception:
+By default, this package downloads a pre-compiled SQLite library.
+This failed (attepted to download https://github.com/simolus3/sqlite3.dart/releases/download/sqlite3-3.5.2/libsqlite3.x64.linux.so).
+For alternatives to downloading SQLite, see https://pub.dev/documentation/sqlite3/latest/topics/hook-topic.html
+Original cause: SocketException: Connection timed out (OS Error: Connection timed out, errno = 110), address = github.com, port = 49216
+#0      _NativeSocket.startConnect (dart:io-patch/socket_patch.dart:849:35)
+#1      _RawSocket.startConnect (dart:io-patch/socket_patch.dart:2313:26)
+#2      RawSocket.startConnect (dart:io-patch/socket_patch.dart:41:23)
+#3      RawSecureSocket.startConnect (dart:io/secure_socket.dart:334:22)
+#4      SecureSocket.startConnect (dart:io/secure_socket.dart:85:28)
+#5      _ConnectionTarget.connect (dart:_http/http_impl.dart:2694:26)
+#6      _HttpClient._getConnection.connect (dart:_http/http_impl.dart:3200:12)
+#7      _HttpClient._getConnection (dart:_http/http_impl.dart:3205:12)
+#8      _HttpClient._openUrl (dart:_http/http_impl.dart:3026:12)
+#9      _HttpClient.getUrl (dart:_http/http_impl.dart:2873:48)
+#10     PrecompiledFromGithubAssets._fetchFromSource (package:sqlite3/src/hook/compile/description.dart:265:36)
+<asynchronous suspension>
+#11     PrecompiledBinary.fetch.<anonymous closure>.<anonymous closure> (package:sqlite3/src/hook/compile/description.dart:160:9)
+<asynchronous suspension>
+
+  stdout:
+
+
+Building native assets failed. See the logs for more details.

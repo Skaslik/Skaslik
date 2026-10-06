@@ -1,0 +1,1479 @@
+00:00 +0: loading test/crypto_test.dart
+00:00 +0 -1: loading test/crypto_test.dart [E]
+  Failed to load "test/crypto_test.dart":
+  lib/src/sync/engine.dart:23:16: Error: 'Transport' is already declared in this scope.
+  abstract class Transport {
+                 ^^^^^^^^^
+  lib/src/sync/engine.dart:16:6: Context: Previous declaration of 'Transport'.
+  enum Transport { ble, webrtc, disk }
+       ^^^^^^^^^
+  lib/src/domain/delight.dart:58:9: Error: Type 'Replica' not found.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:132:9: Error: Type 'Replica' not found.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:192:9: Error: Type 'Replica' not found.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:287:9: Error: Type 'Replica' not found.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/crypto/primitives.dart:13:19: Error: Too many positional arguments: 0 allowed, but 1 found.
+  Try removing the extra positional arguments.
+  final _hkdf = Hkdf(_sha256);
+                    ^
+  ../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/algorithms.dart:1281:11: Context: Found this candidate, but the arguments don't match.
+    factory Hkdf({required Hmac hmac, required int outputLength}) {
+            ^
+  lib/src/crypto/primitives.dart:15:18: Error: Method not found: 'XChaCha20Poly1305'.
+  final _xchacha = XChaCha20Poly1305();
+                   ^^^^^^^^^^^^^^^^^
+  lib/src/crypto/primitives.dart:16:17: Error: Couldn't find constructor 'AesGcm'.
+  final _aesGcm = AesGcm();
+                  ^^^^^^
+  lib/src/crypto/primitives.dart:17:14: Error: Undefined name 'Random'.
+  final _rng = Random.secure();
+               ^^^^^^
+  lib/src/domain/calendar.dart:163:44: Error: Undefined name 'defaults'.
+        this.reminders = const ReminderRules(defaults),
+                                             ^^^^^^^^
+  test/crypto_test.dart:25:65: Error: The argument type 'List<int>' can't be assigned to the parameter type 'Uint8List'.
+   - 'List' is from 'dart:core'.
+   - 'Uint8List' is from 'dart:typed_data'.
+        final sealed = await xchachaSeal(Uint8List.fromList(key), utf8Encode('x'));
+                                                                  ^
+  test/crypto_test.dart:35:65: Error: The argument type 'List<int>' can't be assigned to the parameter type 'Uint8List'.
+   - 'List' is from 'dart:core'.
+   - 'Uint8List' is from 'dart:typed_data'.
+        final sealed = await xchachaSeal(Uint8List.fromList(key), utf8Encode('x'),
+                                                                  ^
+  test/crypto_test.dart:47:64: Error: The argument type 'List<int>' can't be assigned to the parameter type 'Uint8List'.
+   - 'List' is from 'dart:core'.
+   - 'Uint8List' is from 'dart:typed_data'.
+        final sealed = await xchachaSeal(Uint8List.fromList(k1), utf8Encode('x'));
+                                                                 ^
+  test/crypto_test.dart:54:61: Error: The argument type 'List<int>' can't be assigned to the parameter type 'Uint8List'.
+   - 'List' is from 'dart:core'.
+   - 'Uint8List' is from 'dart:typed_data'.
+        final s1 = await xchachaSeal(Uint8List.fromList(key), utf8Encode('x'));
+                                                              ^
+  test/crypto_test.dart:55:61: Error: The argument type 'List<int>' can't be assigned to the parameter type 'Uint8List'.
+   - 'List' is from 'dart:core'.
+   - 'Uint8List' is from 'dart:typed_data'.
+        final s2 = await xchachaSeal(Uint8List.fromList(key), utf8Encode('x'));
+                                                              ^
+  test/crypto_test.dart:63:64: Error: The argument type 'List<int>' can't be assigned to the parameter type 'Uint8List'.
+   - 'List' is from 'dart:core'.
+   - 'Uint8List' is from 'dart:typed_data'.
+        final sealed = await aesGcmSeal(Uint8List.fromList(key), utf8Encode('doc.pdf-медиa'));
+                                                                 ^
+  test/crypto_test.dart:70:64: Error: The argument type 'List<int>' can't be assigned to the parameter type 'Uint8List'.
+   - 'List' is from 'dart:core'.
+   - 'Uint8List' is from 'dart:typed_data'.
+        final sealed = await aesGcmSeal(Uint8List.fromList(key), utf8Encode('y'));
+                                                                 ^
+  test/crypto_test.dart:84:26: Error: The getter 'bytes' isn't defined for the type 'PublicKey'.
+   - 'PublicKey' is from 'package:cryptography/src/cryptography/key_pair.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/key_pair.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'bytes'.
+            bytesToHex(pub.bytes),
+                           ^^^^^
+  lib/src/crypto/primitives.dart:39:66: Error: The getter 'privateKey' isn't defined for the type 'Future<SimpleKeyPair>'.
+   - 'Future' is from 'dart:async'.
+   - 'SimpleKeyPair' is from 'package:cryptography/src/cryptography/simple_key_pair.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/simple_key_pair.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'privateKey'.
+  Future<SecretKey> generateX25519Secret() => _x25519.newKeyPair().privateKey;
+                                                                   ^^^^^^^^^^
+  lib/src/crypto/primitives.dart:43:13: Error: The method 'extractPublicKey' isn't defined for the type 'X25519'.
+   - 'X25519' is from 'package:cryptography/src/cryptography/algorithms.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/algorithms.dart').
+  Try correcting the name to the name of an existing method, or defining a method named 'extractPublicKey'.
+      _x25519.extractPublicKey(secret);
+              ^^^^^^^^^^^^^^^^
+  lib/src/crypto/primitives.dart:47:6: Error: The method 'sharedSecretFromKeyPair' isn't defined for the type 'X25519'.
+   - 'X25519' is from 'package:cryptography/src/cryptography/algorithms.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/algorithms.dart').
+  Try correcting the name to the name of an existing method, or defining a method named 'sharedSecretFromKeyPair'.
+      .sharedSecretFromKeyPair(peer, secret)
+       ^^^^^^^^^^^^^^^^^^^^^^^
+  lib/src/crypto/primitives.dart:100:5: Error: Undefined name 'SealedBox'.
+      SealedBox.fromBytes(box),
+      ^^^^^^^^^
+  lib/src/crypto/primitives.dart:130:5: Error: Undefined name 'SealedBox'.
+      SealedBox.fromBytes(box),
+      ^^^^^^^^^
+  lib/src/crypto/primitives.dart:149:18: Error: Method not found: 'Argon2Parameters'.
+    final params = Argon2Parameters(
+                   ^^^^^^^^^^^^^^^^
+  lib/src/crypto/primitives.dart:154:29: Error: Method not found: 'deriveKey'.
+    final hash = await argon2.deriveKey(secret, params: params, length: 32);
+                              ^^^^^^^^^
+  lib/src/crypto/pairing.dart:122:45: Error: The getter 'bytes' isn't defined for the type 'SecretKey'.
+   - 'SecretKey' is from 'package:cryptography/src/cryptography/secret_key.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/secret_key.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'bytes'.
+        secretB64: conv.base64Encode(p.secret.bytes),
+                                              ^^^^^
+  lib/src/crypto/pairing.dart:123:39: Error: The getter 'bytes' isn't defined for the type 'PublicKey'.
+   - 'PublicKey' is from 'package:cryptography/src/cryptography/key_pair.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/key_pair.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'bytes'.
+        pubB64: conv.base64Encode(p.pub.bytes),
+                                        ^^^^^
+  lib/src/crypto/pairing.dart:132:24: Error: The getter 'bytes' isn't defined for the type 'PublicKey'.
+   - 'PublicKey' is from 'package:cryptography/src/cryptography/key_pair.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/key_pair.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'bytes'.
+    if (!_bytesEqual(pub.bytes, storedPub)) {
+                         ^^^^^
+  lib/src/crypto/seed_phrase.dart:132:53: Error: Expected '}' before this.
+      ...words.asMap().entries.map((e) => '${e.key + 1:>2}. ${e.value}'),
+                                                      ^
+  lib/src/sync/engine.dart:85:17: Error: The argument type 'List<int>' can't be assigned to the parameter type 'int'.
+   - 'List' is from 'dart:core'.
+      _outbox.add(data);
+                  ^
+  lib/src/domain/calendar.dart:241:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in e.toFields().entries) {
+                 ^
+  lib/src/domain/calendar.dart:242:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + e.id, k, v);
+                               ^
+  lib/src/domain/calendar.dart:242:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + e.id, k, v);
+                                  ^
+  lib/src/domain/banks.dart:129:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in b.toFields().entries) {
+                 ^
+  lib/src/domain/banks.dart:130:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_bank + b.id, k, v);
+                                  ^
+  lib/src/domain/banks.dart:130:36: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_bank + b.id, k, v);
+                                     ^
+  lib/src/domain/banks.dart:173:15: Error: The argument type 'Map<String, int>' can't be assigned to the parameter type 'int'.
+   - 'Map' is from 'dart:core'.
+        byUser: byUser,
+                ^
+  lib/src/domain/banks.dart:181:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in e.toFields().entries) {
+                 ^
+  lib/src/domain/banks.dart:182:23: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(id, k, v);
+                        ^
+  lib/src/domain/banks.dart:182:26: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(id, k, v);
+                           ^
+  lib/src/domain/banks.dart:189:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in e.toFields().entries) {
+                 ^
+  lib/src/domain/banks.dart:190:23: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(id, k, v);
+                        ^
+  lib/src/domain/banks.dart:190:26: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(id, k, v);
+                           ^
+  lib/src/domain/cards.dart:95:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in c.toFields().entries) {
+                 ^
+  lib/src/domain/cards.dart:96:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + c.id, k, v);
+                               ^
+  lib/src/domain/cards.dart:96:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + c.id, k, v);
+                                  ^
+  lib/src/domain/cards.dart:134:19: Error: The type 'String' used in the 'for' loop must implement 'Iterable<dynamic>'.
+   - 'Iterable' is from 'dart:core'.
+    for (final c in code) {
+                    ^
+  lib/src/domain/messages.dart:98:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in m.toFields().entries) {
+                 ^
+  lib/src/domain/messages.dart:99:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + m.id, k, v);
+                               ^
+  lib/src/domain/messages.dart:99:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + m.id, k, v);
+                                  ^
+  lib/src/domain/messages.dart:220:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in n.toFields().entries) {
+                 ^
+  lib/src/domain/messages.dart:221:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + n.id, k, v);
+                               ^
+  lib/src/domain/messages.dart:221:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + n.id, k, v);
+                                  ^
+  lib/src/domain/messages.dart:294:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in c.toFields().entries) {
+                 ^
+  lib/src/domain/messages.dart:295:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + c.id, k, v);
+                               ^
+  lib/src/domain/messages.dart:295:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + c.id, k, v);
+                                  ^
+  lib/src/domain/delight.dart:58:9: Error: 'Replica' isn't a type.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:63:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in c.toFields().entries) {
+                 ^
+  lib/src/domain/delight.dart:132:9: Error: 'Replica' isn't a type.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:137:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in r.toFields().entries) {
+                 ^
+  lib/src/domain/delight.dart:192:9: Error: 'Replica' isn't a type.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:197:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in p.toFields().entries) {
+                 ^
+  lib/src/domain/delight.dart:287:9: Error: 'Replica' isn't a type.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:292:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in p.toFields().entries) {
+                 ^
+  lib/src/integrations/yandex_disk.dart:57:70: Error: The method 'map' isn't defined for the type 'HttpHeaders'.
+   - 'HttpHeaders' is from 'dart:_http'.
+  Try correcting the name to the name of an existing method, or defining a method named 'map'.
+      return (status: res.statusCode, body: body, headers: res.headers.map((k, v) => MapEntry(k, v.join(','))));
+                                                                       ^^^
+  lib/src/integrations/yandex_disk.dart:57:25: Error: A value of type '({String body, dynamic headers, int status})' can't be returned from an async function with return type 'Future<({String body, Map<String, String> headers, int status})>'.
+   - 'Future' is from 'dart:async'.
+   - 'Map' is from 'dart:core'.
+      return (status: res.statusCode, body: body, headers: res.headers.map((k, v) => MapEntry(k, v.join(','))));
+                          ^
+  lib/src/integrations/yandex_disk.dart:65:36: Error: Undefined name 'MediaType'.
+        req.headers.contentType = io.MediaType.parse(contentType);
+                                     ^^^^^^^^^
+  lib/src/integrations/yandex_disk.dart:74:74: Error: The method 'map' isn't defined for the type 'HttpHeaders'.
+   - 'HttpHeaders' is from 'dart:_http'.
+  Try correcting the name to the name of an existing method, or defining a method named 'map'.
+      return (status: res.statusCode, body: respBody, headers: res.headers.map((k, v) => MapEntry(k, v.join(','))));
+                                                                           ^^^
+  lib/src/integrations/yandex_disk.dart:74:25: Error: A value of type '({String body, dynamic headers, int status})' can't be returned from an async function with return type 'Future<({String body, Map<String, String> headers, int status})>'.
+   - 'Future' is from 'dart:async'.
+   - 'Map' is from 'dart:core'.
+      return (status: res.statusCode, body: respBody, headers: res.headers.map((k, v) => MapEntry(k, v.join(','))));
+                          ^
+  lib/src/integrations/yandex_disk.dart:91:36: Error: Undefined name 'MediaType'.
+        req.headers.contentType = io.MediaType.parse('application/octet-stream');
+                                     ^^^^^^^^^
+  lib/src/integrations/yandex_disk.dart:120:29: Error: The method 'toBytes' isn't defined for the type 'HttpClientResponse'.
+   - 'HttpClientResponse' is from 'dart:_http'.
+  Try correcting the name to the name of an existing method, or defining a method named 'toBytes'.
+      final bytes = await res.toBytes();
+                              ^^^^^^^
+00:00 +0 -2: loading test/domain_test.dart [E]
+  Failed to load "test/domain_test.dart":
+  test/domain_test.dart:103:23: Error: The operator '[]' isn't defined for the type 'int'.
+  Try correcting the operator to an existing operator, or defining a '[]' operator.
+        expect(st.byUser['michael'], 5000);
+                        ^
+  test/domain_test.dart:104:23: Error: The operator '[]' isn't defined for the type 'int'.
+  Try correcting the operator to an existing operator, or defining a '[]' operator.
+        expect(st.byUser['sofia'], 3000);
+                        ^
+  lib/src/integrations/yandex_disk.dart:57:70: Error: The method 'map' isn't defined for the type 'HttpHeaders'.
+   - 'HttpHeaders' is from 'dart:_http'.
+  Try correcting the name to the name of an existing method, or defining a method named 'map'.
+      return (status: res.statusCode, body: body, headers: res.headers.map((k, v) => MapEntry(k, v.join(','))));
+                                                                       ^^^
+  lib/src/integrations/yandex_disk.dart:57:25: Error: A value of type '({String body, dynamic headers, int status})' can't be returned from an async function with return type 'Future<({String body, Map<String, String> headers, int status})>'.
+   - 'Future' is from 'dart:async'.
+   - 'Map' is from 'dart:core'.
+      return (status: res.statusCode, body: body, headers: res.headers.map((k, v) => MapEntry(k, v.join(','))));
+                          ^
+  lib/src/integrations/yandex_disk.dart:65:36: Error: Undefined name 'MediaType'.
+        req.headers.contentType = io.MediaType.parse(contentType);
+                                     ^^^^^^^^^
+  lib/src/integrations/yandex_disk.dart:74:74: Error: The method 'map' isn't defined for the type 'HttpHeaders'.
+   - 'HttpHeaders' is from 'dart:_http'.
+  Try correcting the name to the name of an existing method, or defining a method named 'map'.
+      return (status: res.statusCode, body: respBody, headers: res.headers.map((k, v) => MapEntry(k, v.join(','))));
+                                                                           ^^^
+  lib/src/integrations/yandex_disk.dart:74:25: Error: A value of type '({String body, dynamic headers, int status})' can't be returned from an async function with return type 'Future<({String body, Map<String, String> headers, int status})>'.
+   - 'Future' is from 'dart:async'.
+   - 'Map' is from 'dart:core'.
+      return (status: res.statusCode, body: respBody, headers: res.headers.map((k, v) => MapEntry(k, v.join(','))));
+                          ^
+  lib/src/integrations/yandex_disk.dart:91:36: Error: Undefined name 'MediaType'.
+        req.headers.contentType = io.MediaType.parse('application/octet-stream');
+                                     ^^^^^^^^^
+  lib/src/integrations/yandex_disk.dart:120:29: Error: The method 'toBytes' isn't defined for the type 'HttpClientResponse'.
+   - 'HttpClientResponse' is from 'dart:_http'.
+  Try correcting the name to the name of an existing method, or defining a method named 'toBytes'.
+      final bytes = await res.toBytes();
+                              ^^^^^^^
+  lib/src/domain/delight.dart:58:9: Error: Type 'Replica' not found.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:132:9: Error: Type 'Replica' not found.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:192:9: Error: Type 'Replica' not found.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:287:9: Error: Type 'Replica' not found.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:58:9: Error: 'Replica' isn't a type.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:63:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in c.toFields().entries) {
+                 ^
+  lib/src/domain/delight.dart:132:9: Error: 'Replica' isn't a type.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:137:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in r.toFields().entries) {
+                 ^
+  lib/src/domain/delight.dart:192:9: Error: 'Replica' isn't a type.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:197:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in p.toFields().entries) {
+                 ^
+  lib/src/domain/delight.dart:287:9: Error: 'Replica' isn't a type.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:292:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in p.toFields().entries) {
+                 ^
+  lib/src/domain/messages.dart:98:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in m.toFields().entries) {
+                 ^
+  lib/src/domain/messages.dart:99:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + m.id, k, v);
+                               ^
+  lib/src/domain/messages.dart:99:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + m.id, k, v);
+                                  ^
+  lib/src/domain/messages.dart:220:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in n.toFields().entries) {
+                 ^
+  lib/src/domain/messages.dart:221:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + n.id, k, v);
+                               ^
+  lib/src/domain/messages.dart:221:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + n.id, k, v);
+                                  ^
+  lib/src/domain/messages.dart:294:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in c.toFields().entries) {
+                 ^
+  lib/src/domain/messages.dart:295:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + c.id, k, v);
+                               ^
+  lib/src/domain/messages.dart:295:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + c.id, k, v);
+                                  ^
+  lib/src/domain/cards.dart:95:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in c.toFields().entries) {
+                 ^
+  lib/src/domain/cards.dart:96:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + c.id, k, v);
+                               ^
+  lib/src/domain/cards.dart:96:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + c.id, k, v);
+                                  ^
+  lib/src/domain/cards.dart:134:19: Error: The type 'String' used in the 'for' loop must implement 'Iterable<dynamic>'.
+   - 'Iterable' is from 'dart:core'.
+    for (final c in code) {
+                    ^
+  lib/src/domain/banks.dart:129:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in b.toFields().entries) {
+                 ^
+  lib/src/domain/banks.dart:130:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_bank + b.id, k, v);
+                                  ^
+  lib/src/domain/banks.dart:130:36: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_bank + b.id, k, v);
+                                     ^
+  lib/src/domain/banks.dart:173:15: Error: The argument type 'Map<String, int>' can't be assigned to the parameter type 'int'.
+   - 'Map' is from 'dart:core'.
+        byUser: byUser,
+                ^
+  lib/src/domain/banks.dart:181:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in e.toFields().entries) {
+                 ^
+  lib/src/domain/banks.dart:182:23: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(id, k, v);
+                        ^
+  lib/src/domain/banks.dart:182:26: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(id, k, v);
+                           ^
+  lib/src/domain/banks.dart:189:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in e.toFields().entries) {
+                 ^
+  lib/src/domain/banks.dart:190:23: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(id, k, v);
+                        ^
+  lib/src/domain/banks.dart:190:26: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(id, k, v);
+                           ^
+  lib/src/domain/calendar.dart:163:44: Error: Undefined name 'defaults'.
+        this.reminders = const ReminderRules(defaults),
+                                             ^^^^^^^^
+  lib/src/domain/calendar.dart:241:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in e.toFields().entries) {
+                 ^
+  lib/src/domain/calendar.dart:242:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + e.id, k, v);
+                               ^
+  lib/src/domain/calendar.dart:242:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + e.id, k, v);
+                                  ^
+  lib/src/sync/engine.dart:23:16: Error: 'Transport' is already declared in this scope.
+  abstract class Transport {
+                 ^^^^^^^^^
+  lib/src/sync/engine.dart:16:6: Context: Previous declaration of 'Transport'.
+  enum Transport { ble, webrtc, disk }
+       ^^^^^^^^^
+  lib/src/sync/engine.dart:85:17: Error: The argument type 'List<int>' can't be assigned to the parameter type 'int'.
+   - 'List' is from 'dart:core'.
+      _outbox.add(data);
+                  ^
+  lib/src/crypto/seed_phrase.dart:132:53: Error: Expected '}' before this.
+      ...words.asMap().entries.map((e) => '${e.key + 1:>2}. ${e.value}'),
+                                                      ^
+  lib/src/crypto/primitives.dart:13:19: Error: Too many positional arguments: 0 allowed, but 1 found.
+  Try removing the extra positional arguments.
+  final _hkdf = Hkdf(_sha256);
+                    ^
+  ../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/algorithms.dart:1281:11: Context: Found this candidate, but the arguments don't match.
+    factory Hkdf({required Hmac hmac, required int outputLength}) {
+            ^
+  lib/src/crypto/primitives.dart:15:18: Error: Method not found: 'XChaCha20Poly1305'.
+  final _xchacha = XChaCha20Poly1305();
+                   ^^^^^^^^^^^^^^^^^
+  lib/src/crypto/primitives.dart:16:17: Error: Couldn't find constructor 'AesGcm'.
+  final _aesGcm = AesGcm();
+                  ^^^^^^
+  lib/src/crypto/primitives.dart:17:14: Error: Undefined name 'Random'.
+  final _rng = Random.secure();
+               ^^^^^^
+  lib/src/crypto/primitives.dart:39:66: Error: The getter 'privateKey' isn't defined for the type 'Future<SimpleKeyPair>'.
+   - 'Future' is from 'dart:async'.
+   - 'SimpleKeyPair' is from 'package:cryptography/src/cryptography/simple_key_pair.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/simple_key_pair.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'privateKey'.
+  Future<SecretKey> generateX25519Secret() => _x25519.newKeyPair().privateKey;
+                                                                   ^^^^^^^^^^
+  lib/src/crypto/primitives.dart:43:13: Error: The method 'extractPublicKey' isn't defined for the type 'X25519'.
+   - 'X25519' is from 'package:cryptography/src/cryptography/algorithms.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/algorithms.dart').
+  Try correcting the name to the name of an existing method, or defining a method named 'extractPublicKey'.
+      _x25519.extractPublicKey(secret);
+              ^^^^^^^^^^^^^^^^
+  lib/src/crypto/primitives.dart:47:6: Error: The method 'sharedSecretFromKeyPair' isn't defined for the type 'X25519'.
+   - 'X25519' is from 'package:cryptography/src/cryptography/algorithms.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/algorithms.dart').
+  Try correcting the name to the name of an existing method, or defining a method named 'sharedSecretFromKeyPair'.
+      .sharedSecretFromKeyPair(peer, secret)
+       ^^^^^^^^^^^^^^^^^^^^^^^
+  lib/src/crypto/primitives.dart:100:5: Error: Undefined name 'SealedBox'.
+      SealedBox.fromBytes(box),
+      ^^^^^^^^^
+  lib/src/crypto/primitives.dart:130:5: Error: Undefined name 'SealedBox'.
+      SealedBox.fromBytes(box),
+      ^^^^^^^^^
+  lib/src/crypto/primitives.dart:149:18: Error: Method not found: 'Argon2Parameters'.
+    final params = Argon2Parameters(
+                   ^^^^^^^^^^^^^^^^
+  lib/src/crypto/primitives.dart:154:29: Error: Method not found: 'deriveKey'.
+    final hash = await argon2.deriveKey(secret, params: params, length: 32);
+                              ^^^^^^^^^
+  lib/src/crypto/pairing.dart:122:45: Error: The getter 'bytes' isn't defined for the type 'SecretKey'.
+   - 'SecretKey' is from 'package:cryptography/src/cryptography/secret_key.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/secret_key.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'bytes'.
+        secretB64: conv.base64Encode(p.secret.bytes),
+                                              ^^^^^
+  lib/src/crypto/pairing.dart:123:39: Error: The getter 'bytes' isn't defined for the type 'PublicKey'.
+   - 'PublicKey' is from 'package:cryptography/src/cryptography/key_pair.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/key_pair.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'bytes'.
+        pubB64: conv.base64Encode(p.pub.bytes),
+                                        ^^^^^
+  lib/src/crypto/pairing.dart:132:24: Error: The getter 'bytes' isn't defined for the type 'PublicKey'.
+   - 'PublicKey' is from 'package:cryptography/src/cryptography/key_pair.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/key_pair.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'bytes'.
+    if (!_bytesEqual(pub.bytes, storedPub)) {
+                         ^^^^^
+00:00 +0 -3: loading test/seed_phrase_test.dart [E]
+  Failed to load "test/seed_phrase_test.dart":
+  test/seed_phrase_test.dart:101:39: Error: Expected '}' before this.
+          expect(human.contains('${i + 1:>2}. ${words[i]}'), true);
+                                        ^
+  lib/src/integrations/yandex_disk.dart:57:70: Error: The method 'map' isn't defined for the type 'HttpHeaders'.
+   - 'HttpHeaders' is from 'dart:_http'.
+  Try correcting the name to the name of an existing method, or defining a method named 'map'.
+      return (status: res.statusCode, body: body, headers: res.headers.map((k, v) => MapEntry(k, v.join(','))));
+                                                                       ^^^
+  lib/src/integrations/yandex_disk.dart:57:25: Error: A value of type '({String body, dynamic headers, int status})' can't be returned from an async function with return type 'Future<({String body, Map<String, String> headers, int status})>'.
+   - 'Future' is from 'dart:async'.
+   - 'Map' is from 'dart:core'.
+      return (status: res.statusCode, body: body, headers: res.headers.map((k, v) => MapEntry(k, v.join(','))));
+                          ^
+  lib/src/integrations/yandex_disk.dart:65:36: Error: Undefined name 'MediaType'.
+        req.headers.contentType = io.MediaType.parse(contentType);
+                                     ^^^^^^^^^
+  lib/src/integrations/yandex_disk.dart:74:74: Error: The method 'map' isn't defined for the type 'HttpHeaders'.
+   - 'HttpHeaders' is from 'dart:_http'.
+  Try correcting the name to the name of an existing method, or defining a method named 'map'.
+      return (status: res.statusCode, body: respBody, headers: res.headers.map((k, v) => MapEntry(k, v.join(','))));
+                                                                           ^^^
+  lib/src/integrations/yandex_disk.dart:74:25: Error: A value of type '({String body, dynamic headers, int status})' can't be returned from an async function with return type 'Future<({String body, Map<String, String> headers, int status})>'.
+   - 'Future' is from 'dart:async'.
+   - 'Map' is from 'dart:core'.
+      return (status: res.statusCode, body: respBody, headers: res.headers.map((k, v) => MapEntry(k, v.join(','))));
+                          ^
+  lib/src/integrations/yandex_disk.dart:91:36: Error: Undefined name 'MediaType'.
+        req.headers.contentType = io.MediaType.parse('application/octet-stream');
+                                     ^^^^^^^^^
+  lib/src/integrations/yandex_disk.dart:120:29: Error: The method 'toBytes' isn't defined for the type 'HttpClientResponse'.
+   - 'HttpClientResponse' is from 'dart:_http'.
+  Try correcting the name to the name of an existing method, or defining a method named 'toBytes'.
+      final bytes = await res.toBytes();
+                              ^^^^^^^
+  lib/src/domain/delight.dart:58:9: Error: Type 'Replica' not found.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:132:9: Error: Type 'Replica' not found.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:192:9: Error: Type 'Replica' not found.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:287:9: Error: Type 'Replica' not found.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:58:9: Error: 'Replica' isn't a type.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:63:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in c.toFields().entries) {
+                 ^
+  lib/src/domain/delight.dart:132:9: Error: 'Replica' isn't a type.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:137:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in r.toFields().entries) {
+                 ^
+  lib/src/domain/delight.dart:192:9: Error: 'Replica' isn't a type.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:197:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in p.toFields().entries) {
+                 ^
+  lib/src/domain/delight.dart:287:9: Error: 'Replica' isn't a type.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:292:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in p.toFields().entries) {
+                 ^
+  lib/src/domain/messages.dart:98:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in m.toFields().entries) {
+                 ^
+  lib/src/domain/messages.dart:99:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + m.id, k, v);
+                               ^
+  lib/src/domain/messages.dart:99:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + m.id, k, v);
+                                  ^
+  lib/src/domain/messages.dart:220:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in n.toFields().entries) {
+                 ^
+  lib/src/domain/messages.dart:221:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + n.id, k, v);
+                               ^
+  lib/src/domain/messages.dart:221:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + n.id, k, v);
+                                  ^
+  lib/src/domain/messages.dart:294:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in c.toFields().entries) {
+                 ^
+  lib/src/domain/messages.dart:295:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + c.id, k, v);
+                               ^
+  lib/src/domain/messages.dart:295:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + c.id, k, v);
+                                  ^
+  lib/src/domain/cards.dart:95:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in c.toFields().entries) {
+                 ^
+  lib/src/domain/cards.dart:96:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + c.id, k, v);
+                               ^
+  lib/src/domain/cards.dart:96:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + c.id, k, v);
+                                  ^
+  lib/src/domain/cards.dart:134:19: Error: The type 'String' used in the 'for' loop must implement 'Iterable<dynamic>'.
+   - 'Iterable' is from 'dart:core'.
+    for (final c in code) {
+                    ^
+  lib/src/domain/banks.dart:129:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in b.toFields().entries) {
+                 ^
+  lib/src/domain/banks.dart:130:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_bank + b.id, k, v);
+                                  ^
+  lib/src/domain/banks.dart:130:36: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_bank + b.id, k, v);
+                                     ^
+  lib/src/domain/banks.dart:173:15: Error: The argument type 'Map<String, int>' can't be assigned to the parameter type 'int'.
+   - 'Map' is from 'dart:core'.
+        byUser: byUser,
+                ^
+  lib/src/domain/banks.dart:181:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in e.toFields().entries) {
+                 ^
+  lib/src/domain/banks.dart:182:23: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(id, k, v);
+                        ^
+  lib/src/domain/banks.dart:182:26: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(id, k, v);
+                           ^
+  lib/src/domain/banks.dart:189:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in e.toFields().entries) {
+                 ^
+  lib/src/domain/banks.dart:190:23: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(id, k, v);
+                        ^
+  lib/src/domain/banks.dart:190:26: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(id, k, v);
+                           ^
+  lib/src/domain/calendar.dart:163:44: Error: Undefined name 'defaults'.
+        this.reminders = const ReminderRules(defaults),
+                                             ^^^^^^^^
+  lib/src/domain/calendar.dart:241:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in e.toFields().entries) {
+                 ^
+  lib/src/domain/calendar.dart:242:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + e.id, k, v);
+                               ^
+  lib/src/domain/calendar.dart:242:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + e.id, k, v);
+                                  ^
+  lib/src/sync/engine.dart:23:16: Error: 'Transport' is already declared in this scope.
+  abstract class Transport {
+                 ^^^^^^^^^
+  lib/src/sync/engine.dart:16:6: Context: Previous declaration of 'Transport'.
+  enum Transport { ble, webrtc, disk }
+       ^^^^^^^^^
+  lib/src/sync/engine.dart:85:17: Error: The argument type 'List<int>' can't be assigned to the parameter type 'int'.
+   - 'List' is from 'dart:core'.
+      _outbox.add(data);
+                  ^
+  lib/src/crypto/seed_phrase.dart:132:53: Error: Expected '}' before this.
+      ...words.asMap().entries.map((e) => '${e.key + 1:>2}. ${e.value}'),
+                                                      ^
+  lib/src/crypto/primitives.dart:13:19: Error: Too many positional arguments: 0 allowed, but 1 found.
+  Try removing the extra positional arguments.
+  final _hkdf = Hkdf(_sha256);
+                    ^
+  ../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/algorithms.dart:1281:11: Context: Found this candidate, but the arguments don't match.
+    factory Hkdf({required Hmac hmac, required int outputLength}) {
+            ^
+  lib/src/crypto/primitives.dart:15:18: Error: Method not found: 'XChaCha20Poly1305'.
+  final _xchacha = XChaCha20Poly1305();
+                   ^^^^^^^^^^^^^^^^^
+  lib/src/crypto/primitives.dart:16:17: Error: Couldn't find constructor 'AesGcm'.
+  final _aesGcm = AesGcm();
+                  ^^^^^^
+  lib/src/crypto/primitives.dart:17:14: Error: Undefined name 'Random'.
+  final _rng = Random.secure();
+               ^^^^^^
+  lib/src/crypto/primitives.dart:39:66: Error: The getter 'privateKey' isn't defined for the type 'Future<SimpleKeyPair>'.
+   - 'Future' is from 'dart:async'.
+   - 'SimpleKeyPair' is from 'package:cryptography/src/cryptography/simple_key_pair.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/simple_key_pair.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'privateKey'.
+  Future<SecretKey> generateX25519Secret() => _x25519.newKeyPair().privateKey;
+                                                                   ^^^^^^^^^^
+  lib/src/crypto/primitives.dart:43:13: Error: The method 'extractPublicKey' isn't defined for the type 'X25519'.
+   - 'X25519' is from 'package:cryptography/src/cryptography/algorithms.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/algorithms.dart').
+  Try correcting the name to the name of an existing method, or defining a method named 'extractPublicKey'.
+      _x25519.extractPublicKey(secret);
+              ^^^^^^^^^^^^^^^^
+  lib/src/crypto/primitives.dart:47:6: Error: The method 'sharedSecretFromKeyPair' isn't defined for the type 'X25519'.
+   - 'X25519' is from 'package:cryptography/src/cryptography/algorithms.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/algorithms.dart').
+  Try correcting the name to the name of an existing method, or defining a method named 'sharedSecretFromKeyPair'.
+      .sharedSecretFromKeyPair(peer, secret)
+       ^^^^^^^^^^^^^^^^^^^^^^^
+  lib/src/crypto/primitives.dart:100:5: Error: Undefined name 'SealedBox'.
+      SealedBox.fromBytes(box),
+      ^^^^^^^^^
+  lib/src/crypto/primitives.dart:130:5: Error: Undefined name 'SealedBox'.
+      SealedBox.fromBytes(box),
+      ^^^^^^^^^
+  lib/src/crypto/primitives.dart:149:18: Error: Method not found: 'Argon2Parameters'.
+    final params = Argon2Parameters(
+                   ^^^^^^^^^^^^^^^^
+  lib/src/crypto/primitives.dart:154:29: Error: Method not found: 'deriveKey'.
+    final hash = await argon2.deriveKey(secret, params: params, length: 32);
+                              ^^^^^^^^^
+  lib/src/crypto/pairing.dart:122:45: Error: The getter 'bytes' isn't defined for the type 'SecretKey'.
+   - 'SecretKey' is from 'package:cryptography/src/cryptography/secret_key.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/secret_key.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'bytes'.
+        secretB64: conv.base64Encode(p.secret.bytes),
+                                              ^^^^^
+  lib/src/crypto/pairing.dart:123:39: Error: The getter 'bytes' isn't defined for the type 'PublicKey'.
+   - 'PublicKey' is from 'package:cryptography/src/cryptography/key_pair.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/key_pair.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'bytes'.
+        pubB64: conv.base64Encode(p.pub.bytes),
+                                        ^^^^^
+  lib/src/crypto/pairing.dart:132:24: Error: The getter 'bytes' isn't defined for the type 'PublicKey'.
+   - 'PublicKey' is from 'package:cryptography/src/cryptography/key_pair.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/key_pair.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'bytes'.
+    if (!_bytesEqual(pub.bytes, storedPub)) {
+                         ^^^^^
+00:00 +0 -4: loading test/sync_test.dart [E]
+  Failed to load "test/sync_test.dart":
+  test/sync_test.dart:12:20: Error: Non-optional parameters can't have a default value.
+  Try removing the default value or making the parameter optional.
+    void tick(int by = 1) => t += by;
+                     ^
+  test/sync_test.dart:37:17: Error: Too few positional arguments: 1 required, 0 given.
+        clock.tick();
+                  ^
+  test/sync_test.dart:40:17: Error: Too few positional arguments: 1 required, 0 given.
+        clock.tick();
+                  ^
+  test/sync_test.dart:48:25: Error: Property 'isNotEmpty' cannot be accessed on 'String?' because it is potentially null.
+  Try accessing using ?. instead.
+        expect(e['title'].isNotEmpty, true);
+                          ^^^^^^^^^^
+  test/sync_test.dart:56:17: Error: Too few positional arguments: 1 required, 0 given.
+        clock.tick();
+                  ^
+  test/sync_test.dart:163:17: Error: Too few positional arguments: 1 required, 0 given.
+        clock.tick();
+                  ^
+  test/sync_test.dart:165:17: Error: Too few positional arguments: 1 required, 0 given.
+        clock.tick();
+                  ^
+  test/sync_test.dart:178:17: Error: Too few positional arguments: 1 required, 0 given.
+        clock.tick();
+                  ^
+  test/sync_test.dart:180:17: Error: Too few positional arguments: 1 required, 0 given.
+        clock.tick();
+                  ^
+  lib/src/integrations/yandex_disk.dart:57:70: Error: The method 'map' isn't defined for the type 'HttpHeaders'.
+   - 'HttpHeaders' is from 'dart:_http'.
+  Try correcting the name to the name of an existing method, or defining a method named 'map'.
+      return (status: res.statusCode, body: body, headers: res.headers.map((k, v) => MapEntry(k, v.join(','))));
+                                                                       ^^^
+  lib/src/integrations/yandex_disk.dart:57:25: Error: A value of type '({String body, dynamic headers, int status})' can't be returned from an async function with return type 'Future<({String body, Map<String, String> headers, int status})>'.
+   - 'Future' is from 'dart:async'.
+   - 'Map' is from 'dart:core'.
+      return (status: res.statusCode, body: body, headers: res.headers.map((k, v) => MapEntry(k, v.join(','))));
+                          ^
+  lib/src/integrations/yandex_disk.dart:65:36: Error: Undefined name 'MediaType'.
+        req.headers.contentType = io.MediaType.parse(contentType);
+                                     ^^^^^^^^^
+  lib/src/integrations/yandex_disk.dart:74:74: Error: The method 'map' isn't defined for the type 'HttpHeaders'.
+   - 'HttpHeaders' is from 'dart:_http'.
+  Try correcting the name to the name of an existing method, or defining a method named 'map'.
+      return (status: res.statusCode, body: respBody, headers: res.headers.map((k, v) => MapEntry(k, v.join(','))));
+                                                                           ^^^
+  lib/src/integrations/yandex_disk.dart:74:25: Error: A value of type '({String body, dynamic headers, int status})' can't be returned from an async function with return type 'Future<({String body, Map<String, String> headers, int status})>'.
+   - 'Future' is from 'dart:async'.
+   - 'Map' is from 'dart:core'.
+      return (status: res.statusCode, body: respBody, headers: res.headers.map((k, v) => MapEntry(k, v.join(','))));
+                          ^
+  lib/src/integrations/yandex_disk.dart:91:36: Error: Undefined name 'MediaType'.
+        req.headers.contentType = io.MediaType.parse('application/octet-stream');
+                                     ^^^^^^^^^
+  lib/src/integrations/yandex_disk.dart:120:29: Error: The method 'toBytes' isn't defined for the type 'HttpClientResponse'.
+   - 'HttpClientResponse' is from 'dart:_http'.
+  Try correcting the name to the name of an existing method, or defining a method named 'toBytes'.
+      final bytes = await res.toBytes();
+                              ^^^^^^^
+  lib/src/domain/delight.dart:58:9: Error: Type 'Replica' not found.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:132:9: Error: Type 'Replica' not found.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:192:9: Error: Type 'Replica' not found.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:287:9: Error: Type 'Replica' not found.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:58:9: Error: 'Replica' isn't a type.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:63:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in c.toFields().entries) {
+                 ^
+  lib/src/domain/delight.dart:132:9: Error: 'Replica' isn't a type.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:137:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in r.toFields().entries) {
+                 ^
+  lib/src/domain/delight.dart:192:9: Error: 'Replica' isn't a type.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:197:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in p.toFields().entries) {
+                 ^
+  lib/src/domain/delight.dart:287:9: Error: 'Replica' isn't a type.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:292:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in p.toFields().entries) {
+                 ^
+  lib/src/domain/messages.dart:98:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in m.toFields().entries) {
+                 ^
+  lib/src/domain/messages.dart:99:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + m.id, k, v);
+                               ^
+  lib/src/domain/messages.dart:99:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + m.id, k, v);
+                                  ^
+  lib/src/domain/messages.dart:220:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in n.toFields().entries) {
+                 ^
+  lib/src/domain/messages.dart:221:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + n.id, k, v);
+                               ^
+  lib/src/domain/messages.dart:221:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + n.id, k, v);
+                                  ^
+  lib/src/domain/messages.dart:294:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in c.toFields().entries) {
+                 ^
+  lib/src/domain/messages.dart:295:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + c.id, k, v);
+                               ^
+  lib/src/domain/messages.dart:295:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + c.id, k, v);
+                                  ^
+  lib/src/domain/cards.dart:95:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in c.toFields().entries) {
+                 ^
+  lib/src/domain/cards.dart:96:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + c.id, k, v);
+                               ^
+  lib/src/domain/cards.dart:96:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + c.id, k, v);
+                                  ^
+  lib/src/domain/cards.dart:134:19: Error: The type 'String' used in the 'for' loop must implement 'Iterable<dynamic>'.
+   - 'Iterable' is from 'dart:core'.
+    for (final c in code) {
+                    ^
+  lib/src/domain/banks.dart:129:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in b.toFields().entries) {
+                 ^
+  lib/src/domain/banks.dart:130:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_bank + b.id, k, v);
+                                  ^
+  lib/src/domain/banks.dart:130:36: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_bank + b.id, k, v);
+                                     ^
+  lib/src/domain/banks.dart:173:15: Error: The argument type 'Map<String, int>' can't be assigned to the parameter type 'int'.
+   - 'Map' is from 'dart:core'.
+        byUser: byUser,
+                ^
+  lib/src/domain/banks.dart:181:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in e.toFields().entries) {
+                 ^
+  lib/src/domain/banks.dart:182:23: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(id, k, v);
+                        ^
+  lib/src/domain/banks.dart:182:26: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(id, k, v);
+                           ^
+  lib/src/domain/banks.dart:189:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in e.toFields().entries) {
+                 ^
+  lib/src/domain/banks.dart:190:23: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(id, k, v);
+                        ^
+  lib/src/domain/banks.dart:190:26: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(id, k, v);
+                           ^
+  lib/src/domain/calendar.dart:163:44: Error: Undefined name 'defaults'.
+        this.reminders = const ReminderRules(defaults),
+                                             ^^^^^^^^
+  lib/src/domain/calendar.dart:241:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in e.toFields().entries) {
+                 ^
+  lib/src/domain/calendar.dart:242:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + e.id, k, v);
+                               ^
+  lib/src/domain/calendar.dart:242:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + e.id, k, v);
+                                  ^
+  lib/src/sync/engine.dart:23:16: Error: 'Transport' is already declared in this scope.
+  abstract class Transport {
+                 ^^^^^^^^^
+  lib/src/sync/engine.dart:16:6: Context: Previous declaration of 'Transport'.
+  enum Transport { ble, webrtc, disk }
+       ^^^^^^^^^
+  lib/src/sync/engine.dart:85:17: Error: The argument type 'List<int>' can't be assigned to the parameter type 'int'.
+   - 'List' is from 'dart:core'.
+      _outbox.add(data);
+                  ^
+  lib/src/crypto/seed_phrase.dart:132:53: Error: Expected '}' before this.
+      ...words.asMap().entries.map((e) => '${e.key + 1:>2}. ${e.value}'),
+                                                      ^
+  lib/src/crypto/primitives.dart:13:19: Error: Too many positional arguments: 0 allowed, but 1 found.
+  Try removing the extra positional arguments.
+  final _hkdf = Hkdf(_sha256);
+                    ^
+  ../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/algorithms.dart:1281:11: Context: Found this candidate, but the arguments don't match.
+    factory Hkdf({required Hmac hmac, required int outputLength}) {
+            ^
+  lib/src/crypto/primitives.dart:15:18: Error: Method not found: 'XChaCha20Poly1305'.
+  final _xchacha = XChaCha20Poly1305();
+                   ^^^^^^^^^^^^^^^^^
+  lib/src/crypto/primitives.dart:16:17: Error: Couldn't find constructor 'AesGcm'.
+  final _aesGcm = AesGcm();
+                  ^^^^^^
+  lib/src/crypto/primitives.dart:17:14: Error: Undefined name 'Random'.
+  final _rng = Random.secure();
+               ^^^^^^
+  lib/src/crypto/primitives.dart:39:66: Error: The getter 'privateKey' isn't defined for the type 'Future<SimpleKeyPair>'.
+   - 'Future' is from 'dart:async'.
+   - 'SimpleKeyPair' is from 'package:cryptography/src/cryptography/simple_key_pair.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/simple_key_pair.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'privateKey'.
+  Future<SecretKey> generateX25519Secret() => _x25519.newKeyPair().privateKey;
+                                                                   ^^^^^^^^^^
+  lib/src/crypto/primitives.dart:43:13: Error: The method 'extractPublicKey' isn't defined for the type 'X25519'.
+   - 'X25519' is from 'package:cryptography/src/cryptography/algorithms.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/algorithms.dart').
+  Try correcting the name to the name of an existing method, or defining a method named 'extractPublicKey'.
+      _x25519.extractPublicKey(secret);
+              ^^^^^^^^^^^^^^^^
+  lib/src/crypto/primitives.dart:47:6: Error: The method 'sharedSecretFromKeyPair' isn't defined for the type 'X25519'.
+   - 'X25519' is from 'package:cryptography/src/cryptography/algorithms.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/algorithms.dart').
+  Try correcting the name to the name of an existing method, or defining a method named 'sharedSecretFromKeyPair'.
+      .sharedSecretFromKeyPair(peer, secret)
+       ^^^^^^^^^^^^^^^^^^^^^^^
+  lib/src/crypto/primitives.dart:100:5: Error: Undefined name 'SealedBox'.
+      SealedBox.fromBytes(box),
+      ^^^^^^^^^
+  lib/src/crypto/primitives.dart:130:5: Error: Undefined name 'SealedBox'.
+      SealedBox.fromBytes(box),
+      ^^^^^^^^^
+  lib/src/crypto/primitives.dart:149:18: Error: Method not found: 'Argon2Parameters'.
+    final params = Argon2Parameters(
+                   ^^^^^^^^^^^^^^^^
+  lib/src/crypto/primitives.dart:154:29: Error: Method not found: 'deriveKey'.
+    final hash = await argon2.deriveKey(secret, params: params, length: 32);
+                              ^^^^^^^^^
+  lib/src/crypto/pairing.dart:122:45: Error: The getter 'bytes' isn't defined for the type 'SecretKey'.
+   - 'SecretKey' is from 'package:cryptography/src/cryptography/secret_key.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/secret_key.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'bytes'.
+        secretB64: conv.base64Encode(p.secret.bytes),
+                                              ^^^^^
+  lib/src/crypto/pairing.dart:123:39: Error: The getter 'bytes' isn't defined for the type 'PublicKey'.
+   - 'PublicKey' is from 'package:cryptography/src/cryptography/key_pair.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/key_pair.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'bytes'.
+        pubB64: conv.base64Encode(p.pub.bytes),
+                                        ^^^^^
+  lib/src/crypto/pairing.dart:132:24: Error: The getter 'bytes' isn't defined for the type 'PublicKey'.
+   - 'PublicKey' is from 'package:cryptography/src/cryptography/key_pair.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/key_pair.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'bytes'.
+    if (!_bytesEqual(pub.bytes, storedPub)) {
+                         ^^^^^
+00:00 +0 -5: loading test/pairing_test.dart [E]
+  Failed to load "test/pairing_test.dart":
+  test/pairing_test.dart:87:34: Error: The getter 'bytes' isn't defined for the type 'PublicKey'.
+   - 'PublicKey' is from 'package:cryptography/src/cryptography/key_pair.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/key_pair.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'bytes'.
+        expect(bytesToHex(back.pub.bytes), bytesToHex(p.pub.bytes));
+                                   ^^^^^
+  test/pairing_test.dart:87:59: Error: The getter 'bytes' isn't defined for the type 'PublicKey'.
+   - 'PublicKey' is from 'package:cryptography/src/cryptography/key_pair.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/key_pair.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'bytes'.
+        expect(bytesToHex(back.pub.bytes), bytesToHex(p.pub.bytes));
+                                                            ^^^^^
+  lib/src/integrations/yandex_disk.dart:57:70: Error: The method 'map' isn't defined for the type 'HttpHeaders'.
+   - 'HttpHeaders' is from 'dart:_http'.
+  Try correcting the name to the name of an existing method, or defining a method named 'map'.
+      return (status: res.statusCode, body: body, headers: res.headers.map((k, v) => MapEntry(k, v.join(','))));
+                                                                       ^^^
+  lib/src/integrations/yandex_disk.dart:57:25: Error: A value of type '({String body, dynamic headers, int status})' can't be returned from an async function with return type 'Future<({String body, Map<String, String> headers, int status})>'.
+   - 'Future' is from 'dart:async'.
+   - 'Map' is from 'dart:core'.
+      return (status: res.statusCode, body: body, headers: res.headers.map((k, v) => MapEntry(k, v.join(','))));
+                          ^
+  lib/src/integrations/yandex_disk.dart:65:36: Error: Undefined name 'MediaType'.
+        req.headers.contentType = io.MediaType.parse(contentType);
+                                     ^^^^^^^^^
+  lib/src/integrations/yandex_disk.dart:74:74: Error: The method 'map' isn't defined for the type 'HttpHeaders'.
+   - 'HttpHeaders' is from 'dart:_http'.
+  Try correcting the name to the name of an existing method, or defining a method named 'map'.
+      return (status: res.statusCode, body: respBody, headers: res.headers.map((k, v) => MapEntry(k, v.join(','))));
+                                                                           ^^^
+  lib/src/integrations/yandex_disk.dart:74:25: Error: A value of type '({String body, dynamic headers, int status})' can't be returned from an async function with return type 'Future<({String body, Map<String, String> headers, int status})>'.
+   - 'Future' is from 'dart:async'.
+   - 'Map' is from 'dart:core'.
+      return (status: res.statusCode, body: respBody, headers: res.headers.map((k, v) => MapEntry(k, v.join(','))));
+                          ^
+  lib/src/integrations/yandex_disk.dart:91:36: Error: Undefined name 'MediaType'.
+        req.headers.contentType = io.MediaType.parse('application/octet-stream');
+                                     ^^^^^^^^^
+  lib/src/integrations/yandex_disk.dart:120:29: Error: The method 'toBytes' isn't defined for the type 'HttpClientResponse'.
+   - 'HttpClientResponse' is from 'dart:_http'.
+  Try correcting the name to the name of an existing method, or defining a method named 'toBytes'.
+      final bytes = await res.toBytes();
+                              ^^^^^^^
+  lib/src/domain/delight.dart:58:9: Error: Type 'Replica' not found.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:132:9: Error: Type 'Replica' not found.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:192:9: Error: Type 'Replica' not found.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:287:9: Error: Type 'Replica' not found.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:58:9: Error: 'Replica' isn't a type.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:63:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in c.toFields().entries) {
+                 ^
+  lib/src/domain/delight.dart:132:9: Error: 'Replica' isn't a type.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:137:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in r.toFields().entries) {
+                 ^
+  lib/src/domain/delight.dart:192:9: Error: 'Replica' isn't a type.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:197:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in p.toFields().entries) {
+                 ^
+  lib/src/domain/delight.dart:287:9: Error: 'Replica' isn't a type.
+    final Replica replica;
+          ^^^^^^^
+  lib/src/domain/delight.dart:292:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in p.toFields().entries) {
+                 ^
+  lib/src/domain/messages.dart:98:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in m.toFields().entries) {
+                 ^
+  lib/src/domain/messages.dart:99:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + m.id, k, v);
+                               ^
+  lib/src/domain/messages.dart:99:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + m.id, k, v);
+                                  ^
+  lib/src/domain/messages.dart:220:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in n.toFields().entries) {
+                 ^
+  lib/src/domain/messages.dart:221:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + n.id, k, v);
+                               ^
+  lib/src/domain/messages.dart:221:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + n.id, k, v);
+                                  ^
+  lib/src/domain/messages.dart:294:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in c.toFields().entries) {
+                 ^
+  lib/src/domain/messages.dart:295:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + c.id, k, v);
+                               ^
+  lib/src/domain/messages.dart:295:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + c.id, k, v);
+                                  ^
+  lib/src/domain/cards.dart:95:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in c.toFields().entries) {
+                 ^
+  lib/src/domain/cards.dart:96:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + c.id, k, v);
+                               ^
+  lib/src/domain/cards.dart:96:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + c.id, k, v);
+                                  ^
+  lib/src/domain/cards.dart:134:19: Error: The type 'String' used in the 'for' loop must implement 'Iterable<dynamic>'.
+   - 'Iterable' is from 'dart:core'.
+    for (final c in code) {
+                    ^
+  lib/src/domain/banks.dart:129:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in b.toFields().entries) {
+                 ^
+  lib/src/domain/banks.dart:130:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_bank + b.id, k, v);
+                                  ^
+  lib/src/domain/banks.dart:130:36: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_bank + b.id, k, v);
+                                     ^
+  lib/src/domain/banks.dart:173:15: Error: The argument type 'Map<String, int>' can't be assigned to the parameter type 'int'.
+   - 'Map' is from 'dart:core'.
+        byUser: byUser,
+                ^
+  lib/src/domain/banks.dart:181:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in e.toFields().entries) {
+                 ^
+  lib/src/domain/banks.dart:182:23: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(id, k, v);
+                        ^
+  lib/src/domain/banks.dart:182:26: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(id, k, v);
+                           ^
+  lib/src/domain/banks.dart:189:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in e.toFields().entries) {
+                 ^
+  lib/src/domain/banks.dart:190:23: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(id, k, v);
+                        ^
+  lib/src/domain/banks.dart:190:26: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(id, k, v);
+                           ^
+  lib/src/domain/calendar.dart:163:44: Error: Undefined name 'defaults'.
+        this.reminders = const ReminderRules(defaults),
+                                             ^^^^^^^^
+  lib/src/domain/calendar.dart:241:16: Error: The matched value of type 'MapEntry<String, String>' isn't assignable to the required type '(Object?, Object?)'.
+   - 'MapEntry' is from 'dart:core'.
+   - 'Object' is from 'dart:core'.
+  Try changing the required type of the pattern, or the matched value type.
+      for (final (k, v) in e.toFields().entries) {
+                 ^
+  lib/src/domain/calendar.dart:242:30: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + e.id, k, v);
+                               ^
+  lib/src/domain/calendar.dart:242:33: Error: The argument type 'Object?' can't be assigned to the parameter type 'String'.
+   - 'Object' is from 'dart:core'.
+        replica.set(_p + e.id, k, v);
+                                  ^
+  lib/src/sync/engine.dart:23:16: Error: 'Transport' is already declared in this scope.
+  abstract class Transport {
+                 ^^^^^^^^^
+  lib/src/sync/engine.dart:16:6: Context: Previous declaration of 'Transport'.
+  enum Transport { ble, webrtc, disk }
+       ^^^^^^^^^
+  lib/src/sync/engine.dart:85:17: Error: The argument type 'List<int>' can't be assigned to the parameter type 'int'.
+   - 'List' is from 'dart:core'.
+      _outbox.add(data);
+                  ^
+  lib/src/crypto/seed_phrase.dart:132:53: Error: Expected '}' before this.
+      ...words.asMap().entries.map((e) => '${e.key + 1:>2}. ${e.value}'),
+                                                      ^
+  lib/src/crypto/primitives.dart:13:19: Error: Too many positional arguments: 0 allowed, but 1 found.
+  Try removing the extra positional arguments.
+  final _hkdf = Hkdf(_sha256);
+                    ^
+  ../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/algorithms.dart:1281:11: Context: Found this candidate, but the arguments don't match.
+    factory Hkdf({required Hmac hmac, required int outputLength}) {
+            ^
+  lib/src/crypto/primitives.dart:15:18: Error: Method not found: 'XChaCha20Poly1305'.
+  final _xchacha = XChaCha20Poly1305();
+                   ^^^^^^^^^^^^^^^^^
+  lib/src/crypto/primitives.dart:16:17: Error: Couldn't find constructor 'AesGcm'.
+  final _aesGcm = AesGcm();
+                  ^^^^^^
+  lib/src/crypto/primitives.dart:17:14: Error: Undefined name 'Random'.
+  final _rng = Random.secure();
+               ^^^^^^
+  lib/src/crypto/primitives.dart:39:66: Error: The getter 'privateKey' isn't defined for the type 'Future<SimpleKeyPair>'.
+   - 'Future' is from 'dart:async'.
+   - 'SimpleKeyPair' is from 'package:cryptography/src/cryptography/simple_key_pair.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/simple_key_pair.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'privateKey'.
+  Future<SecretKey> generateX25519Secret() => _x25519.newKeyPair().privateKey;
+                                                                   ^^^^^^^^^^
+  lib/src/crypto/primitives.dart:43:13: Error: The method 'extractPublicKey' isn't defined for the type 'X25519'.
+   - 'X25519' is from 'package:cryptography/src/cryptography/algorithms.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/algorithms.dart').
+  Try correcting the name to the name of an existing method, or defining a method named 'extractPublicKey'.
+      _x25519.extractPublicKey(secret);
+              ^^^^^^^^^^^^^^^^
+  lib/src/crypto/primitives.dart:47:6: Error: The method 'sharedSecretFromKeyPair' isn't defined for the type 'X25519'.
+   - 'X25519' is from 'package:cryptography/src/cryptography/algorithms.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/algorithms.dart').
+  Try correcting the name to the name of an existing method, or defining a method named 'sharedSecretFromKeyPair'.
+      .sharedSecretFromKeyPair(peer, secret)
+       ^^^^^^^^^^^^^^^^^^^^^^^
+  lib/src/crypto/primitives.dart:100:5: Error: Undefined name 'SealedBox'.
+      SealedBox.fromBytes(box),
+      ^^^^^^^^^
+  lib/src/crypto/primitives.dart:130:5: Error: Undefined name 'SealedBox'.
+      SealedBox.fromBytes(box),
+      ^^^^^^^^^
+  lib/src/crypto/primitives.dart:149:18: Error: Method not found: 'Argon2Parameters'.
+    final params = Argon2Parameters(
+                   ^^^^^^^^^^^^^^^^
+  lib/src/crypto/primitives.dart:154:29: Error: Method not found: 'deriveKey'.
+    final hash = await argon2.deriveKey(secret, params: params, length: 32);
+                              ^^^^^^^^^
+  lib/src/crypto/pairing.dart:122:45: Error: The getter 'bytes' isn't defined for the type 'SecretKey'.
+   - 'SecretKey' is from 'package:cryptography/src/cryptography/secret_key.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/secret_key.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'bytes'.
+        secretB64: conv.base64Encode(p.secret.bytes),
+                                              ^^^^^
+  lib/src/crypto/pairing.dart:123:39: Error: The getter 'bytes' isn't defined for the type 'PublicKey'.
+   - 'PublicKey' is from 'package:cryptography/src/cryptography/key_pair.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/key_pair.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'bytes'.
+        pubB64: conv.base64Encode(p.pub.bytes),
+                                        ^^^^^
+  lib/src/crypto/pairing.dart:132:24: Error: The getter 'bytes' isn't defined for the type 'PublicKey'.
+   - 'PublicKey' is from 'package:cryptography/src/cryptography/key_pair.dart' ('../../../.pub-cache/hosted/pub.dev/cryptography-2.9.0/lib/src/cryptography/key_pair.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'bytes'.
+    if (!_bytesEqual(pub.bytes, storedPub)) {
+                         ^^^^^
+00:00 +0 -5: Some tests failed.
+
+Failing tests:
+  test/crypto_test.dart: loading test/crypto_test.dart
+  test/domain_test.dart: loading test/domain_test.dart
+  test/pairing_test.dart: loading test/pairing_test.dart
+  test/seed_phrase_test.dart: loading test/seed_phrase_test.dart
+  test/sync_test.dart: loading test/sync_test.dart

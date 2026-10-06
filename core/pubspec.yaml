@@ -1,0 +1,17 @@
+name: ms_core
+description: "Ядро «МС»: crypto (zero-knowledge), pairing, seed-phrase, CRDT-синхронизация и доменные модули. Чистый Dart, без Flutter."
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  # Крипто-первички: X25519 (ECDH), XChaCha20-Poly1305, AES-GCM, HKDF, SHA-256.
+  cryptography: ^2.7.0
+  # Argon2id (derivation секрета семьи).
+  argon2: ^1.0.1
+
+dev_dependencies:
+  lints: ^4.0.0
+  test: ^1.25.0
