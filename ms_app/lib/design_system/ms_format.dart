@@ -59,6 +59,33 @@ String formatMonthTitle(DateTime d) =>
 /// «21:14», «8:12» (no leading zero, as in the prototype).
 String formatTime(DateTime d) => DateFormat('H:mm', kMsLocale).format(d);
 
+/// «50 КБ», «0,6 МБ», «1,4 МБ», «2,3 ГБ» — decimal comma, binary units;
+/// megabytes from 100 КБ, as the prototype writes «0,6 МБ».
+String formatBytes(int bytes) {
+  const k = 1024;
+  if (bytes < k) return '$bytes$kThousandsSepБ';
+  if (bytes < 100 * k) return '${(bytes / k).round()}$kThousandsSepКБ';
+  String one(double v) => v.toStringAsFixed(1).replaceAll('.', ',');
+  if (bytes < k * k * k) return '${one(bytes / (k * k))}$kThousandsSepМБ';
+  return '${one(bytes / (k * k * k))}$kThousandsSepГБ';
+}
+
+/// When a file was added: «сегодня», «вчера», «2 окт», «март 2025».
+String formatWhen(DateTime then, DateTime now) {
+  if (_sameDay(then, now)) return 'сегодня';
+  if (_sameDay(then, DateTime(now.year, now.month, now.day - 1))) {
+    return 'вчера';
+  }
+  if (then.year == now.year) {
+    return DateFormat('d MMM', kMsLocale).format(then).replaceAll('.', '');
+  }
+  return DateFormat('LLLL y', kMsLocale).format(then);
+}
+
+/// «1 декабря 2026».
+String formatFullDate(DateTime d) =>
+    DateFormat('d MMMM y', kMsLocale).format(d);
+
 /// Russian plural: 1 день / 2 дня / 5 дней (one / few / many).
 String ruPlural(int n, String one, String few, String many) {
   final a = n.abs();

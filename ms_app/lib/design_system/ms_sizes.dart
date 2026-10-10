@@ -121,6 +121,22 @@ abstract final class MsSize {
   /// Inline time wheel in the add-event sheet.
   static const double timePickerH = 150;
 
+  // Files (`ScreenFiles.html`: row min 72, padding 10/14/10/10).
+  static const double fileRowMinH = 72;
+  static const double fileRowPadL = 10;
+  static const double fileRowPadR = 14;
+  static const double fileRowPadV = 10;
+  static const double fileThumbW = 44;
+  static const double fileThumbH = 52;
+  static const double fileThumbLabelBottom = 4;
+  static const double badgeH = 20;
+  static const double badgePadH = 8;
+  static const double diskBarH = 4;
+  static const double fabBottom = 16;
+  static const double sheetIconBox = 56;
+  static const double wheelItemH = 34;
+  static const double wheelH = 150;
+
   // Toast.
   static const double toastPadV = 12;
   static const double toastAboveTabbar = 14;
@@ -192,6 +208,14 @@ abstract final class MsTextX {
   /// Day number in the month grid: mono 14 w500.
   static final TextStyle calDay =
       MsText.meta.copyWith(fontSize: 14, height: 1, fontWeight: FontWeight.w500);
+
+  /// File type label in the thumbnail: mono 8 w600 +0.06em.
+  static final TextStyle fileKind = MsText.meta.copyWith(
+      fontSize: 8, height: 1, fontWeight: FontWeight.w600, letterSpacing: 0.48);
+
+  /// Badge text: mono 10 w500 +0.04em («истекает через 54 дня»).
+  static final TextStyle badge = MsText.meta.copyWith(
+      fontSize: 10, height: 1, fontWeight: FontWeight.w500, letterSpacing: 0.4);
 
   /// Toast text: 14/19.
   static final TextStyle toast =

@@ -1,7 +1,7 @@
 import 'package:go_router/go_router.dart';
 
 import '../features/calendar/calendar_screen.dart';
-import '../features/docs/docs_screen.dart';
+import '../features/files/files_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/messages/messages_screen.dart';
 import '../features/room/room_screen.dart';
@@ -43,10 +43,9 @@ GoRouter buildMsRouter({String initialLocation = '/home'}) => GoRouter(
                           state.uri.queryParameters['day']))),
             ]),
             StatefulShellBranch(routes: [
-              // Old documents registry until the Files screen (Phase 5).
               GoRoute(
                   path: MsTab.files.path,
-                  builder: (_, __) => const DocsScreen()),
+                  builder: (_, __) => const FilesScreen()),
             ]),
             StatefulShellBranch(routes: [
               GoRoute(

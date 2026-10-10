@@ -21,6 +21,10 @@ Map<MsDomain, MsStore> allDomainStores(WidgetRef ref) => {
       MsDomain.capsule: ref.read(capsuleProvider),
     };
 
+/// When this session last finished a full sync (shown in Files). Kept by
+/// the app, not by the sync service.
+final lastSyncProvider = StateProvider<DateTime?>((ref) => null);
+
 /// Sync every domain now if Yandex.Disk is connected. Never throws; the
 /// status lives in [SyncService.state].
 Future<void> syncAllNow(WidgetRef ref) async {
@@ -28,6 +32,9 @@ Future<void> syncAllNow(WidgetRef ref) async {
   if (!sync.connected) return;
   try {
     await sync.syncAll(allDomainStores(ref));
+    if (sync.state == SyncState.synced) {
+      ref.read(lastSyncProvider.notifier).state = DateTime.now();
+    }
   } catch (_) {
     // Shown through SyncService.state / detail.
   }

@@ -7,6 +7,7 @@ export 'ms_author_dot.dart';
 export 'ms_button.dart';
 export 'ms_card.dart';
 export 'ms_chip.dart';
+export 'ms_date_wheel.dart';
 export 'ms_date_block.dart';
 export 'ms_eyebrow.dart';
 export 'ms_meta.dart';

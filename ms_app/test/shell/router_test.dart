@@ -11,7 +11,7 @@ import 'package:ms_app/design_system/ms_format.dart';
 import 'package:ms_app/design_system/ms_theme.dart';
 import 'package:ms_app/design_system/widgets/widgets.dart';
 import 'package:ms_app/features/calendar/calendar_screen.dart';
-import 'package:ms_app/features/docs/docs_screen.dart';
+import 'package:ms_app/features/files/files_screen.dart';
 import 'package:ms_app/features/home/home_screen.dart';
 import 'package:ms_app/features/messages/messages_screen.dart';
 import 'package:ms_app/features/together/together_screen.dart';
@@ -68,7 +68,7 @@ void main() {
     expect(currentTab(tester), MsTab.calendar.index);
 
     await tapTab(tester, MsTab.files);
-    expect(find.byType(DocsScreen), findsOneWidget);
+    expect(find.byType(FilesScreen), findsOneWidget);
     expect(currentTab(tester), MsTab.files.index);
   });
 
@@ -105,7 +105,7 @@ void main() {
 
   group('old routes redirect', () {
     final cases = <String, (MsTab, Type, TogetherSeg?)>{
-      '/docs': (MsTab.files, DocsScreen, null),
+      '/docs': (MsTab.files, FilesScreen, null),
       '/banks': (MsTab.together, TogetherScreen, TogetherSeg.banks),
       '/notes': (MsTab.together, TogetherScreen, TogetherSeg.lists),
       '/cards': (MsTab.together, TogetherScreen, TogetherSeg.cards),

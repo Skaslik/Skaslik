@@ -2,7 +2,7 @@
 ///
 /// «New» = the partner created or changed something after this phone last
 /// opened the tab. «Last opened» is local to the phone (not synced).
-/// Sources so far: calendar (Phase 4). Notes join in Phase 7.
+/// Sources so far: calendar (Phase 4), files (Phase 5). Notes: Phase 7.
 library;
 
 import 'dart:convert';
@@ -98,6 +98,17 @@ int? calendarPartnerActivity(Iterable<CalEvent> events, Pair pair) {
   return latest;
 }
 
+/// Latest time (ms) the partner added a file to the shared folder.
+int? filesPartnerActivity(Iterable<DocMeta> docs, Pair pair) {
+  int? latest;
+  for (final d in docs) {
+    final at = d.at;
+    if (at == null || d.uploadedBy == null || pair.isMine(d.uploadedBy)) continue;
+    if (latest == null || at > latest) latest = at;
+  }
+  return latest;
+}
+
 /// Tabs with news from the partner, in the partner's colour.
 final tabBadgesProvider = Provider<Map<MsTab, MsAuthor>>((ref) {
   final pair = ref.watch(pairProvider);
@@ -107,6 +118,11 @@ final tabBadgesProvider = Provider<Map<MsTab, MsAuthor>>((ref) {
   final cal = calendarPartnerActivity(calendar, pair);
   if (cal != null && cal > seen.seenAt(MsTab.calendar)) {
     out[MsTab.calendar] = pair.partner.author;
+  }
+  final files =
+      filesPartnerActivity(DocsRepo(ref.watch(docsProvider).replica).all(), pair);
+  if (files != null && files > seen.seenAt(MsTab.files)) {
+    out[MsTab.files] = pair.partner.author;
   }
   return out;
 });
