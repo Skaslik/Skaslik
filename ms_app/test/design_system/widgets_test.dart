@@ -5,6 +5,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:ms_app/design_system/ms_theme.dart';
 import 'package:ms_app/design_system/widgets/widgets.dart';
 
@@ -391,6 +392,83 @@ void main() {
       await tester.pump(MsMotion.toast);
       await tester.pumpAndSettle();
       expect(find.text(msg), findsNothing);
+    });
+  });
+
+  group('MsTabBar', () {
+    const items = [
+      MsTabItem(icon: Symbols.cottage_rounded, label: 'Дом'),
+      MsTabItem(icon: Symbols.calendar_month_rounded, label: 'Календарь'),
+      MsTabItem(
+          icon: Symbols.favorite_rounded, label: 'Мы', badge: MsAuthor.sofia),
+    ];
+
+    testWidgets('64 high; active: flame pill, filled icon, ink w600 label',
+        (tester) async {
+      int? tapped;
+      await pumpMs(
+        tester,
+        MsTabBar(items: items, currentIndex: 1, onTap: (i) => tapped = i),
+      );
+      expect(tester.getSize(find.byType(MsTabBar)).height, MsSpace.tabbarH);
+      final active = tester.widget<Icon>(find.byIcon(Symbols.calendar_month_rounded));
+      expect(active.fill, 1);
+      expect(active.color, ev.onFlame);
+      final idle = tester.widget<Icon>(find.byIcon(Symbols.cottage_rounded));
+      expect(idle.fill, 0);
+      expect(idle.color, ev.inkMuted);
+      expect(styleOf(tester, 'Календарь').color, ev.ink);
+      expect(styleOf(tester, 'Календарь').fontWeight, FontWeight.w600);
+      expect(styleOf(tester, 'Дом').color, ev.inkMuted);
+      final pills = tester
+          .widgetList<AnimatedContainer>(find.byType(AnimatedContainer))
+          .map((c) => (c.decoration! as BoxDecoration).color)
+          .toList();
+      expect(pills[1], ev.flame);
+      expect(pills[0]!.a, 0);
+      await tester.tap(find.text('Мы'));
+      expect(tapped, 2);
+    });
+
+    testWidgets('badge: 8 px dot in the partner colour', (tester) async {
+      await pumpMs(
+          tester, MsTabBar(items: items, currentIndex: 0, onTap: (_) {}));
+      final dot = tester.widgetList<Container>(find.byType(Container)).where(
+          (c) =>
+              c.decoration is BoxDecoration &&
+              (c.decoration! as BoxDecoration).shape == BoxShape.circle);
+      expect(dot, hasLength(1));
+      expect((dot.single.decoration! as BoxDecoration).color, ev.sofia);
+    });
+  });
+
+  group('MsScreenHeader', () {
+    testWidgets('eyebrow over screenTitle, round 40 px action', (tester) async {
+      var taps = 0;
+      await pumpMs(
+        tester,
+        SizedBox(
+          width: 358,
+          child: MsScreenHeader(
+            eyebrow: 'общая папка',
+            title: 'Файлы',
+            actions: [
+              MsIconButton(
+                  icon: Symbols.search_rounded,
+                  label: 'Поиск',
+                  onPressed: () => taps++),
+            ],
+          ),
+        ),
+      );
+      expect(find.text('ОБЩАЯ ПАПКА'), findsOneWidget);
+      final title = styleOf(tester, 'Файлы');
+      expect(title.fontSize, MsText.screenTitle.fontSize);
+      expect(title.color, ev.ink);
+      expect(tester.getSize(find.byType(MsIconButton)),
+          const Size.square(MsSize.iconButton));
+      await tester.tap(find.byType(MsIconButton));
+      expect(taps, 1);
     });
   });
 }

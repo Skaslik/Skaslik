@@ -69,6 +69,21 @@ abstract final class MsSize {
   static const double sheetPadH = 20;
   static const double sheetPadBottom = 28;
 
+  // Tab bar (`.ms-tabbar`): 64 + system inset, 1 px top line.
+  static const double tabPadTop = 8;
+  static const double tabPadH = 6;
+  static const double tabPillW = 56;
+  static const double tabPillH = 30;
+  static const double tabGap = 3;
+  static const double tabBadge = 8;
+  static const double tabBadgeTop = 3;
+  static const double tabBadgeRight = 12;
+  static const double tabBadgeRing = 2;
+
+  // Screen header (`.ms-screen`, `.ms-screen__title`).
+  static const double screenTitleGap = 4;
+  static const double headerActionGap = 4;
+
   // Toast.
   static const double toastPadV = 12;
   static const double toastAboveTabbar = 14;
