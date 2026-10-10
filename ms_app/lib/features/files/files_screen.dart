@@ -7,6 +7,7 @@ import 'package:ms_core/ms_core.dart' hide Clip;
 import '../../core/pair/pair.dart';
 import '../../core/providers.dart';
 import '../../core/sync/sync_all.dart';
+import '../../core/sync/yandex_auth.dart';
 import '../../design_system/ms_format.dart';
 import '../../design_system/ms_theme.dart';
 import '../../design_system/widgets/widgets.dart';
@@ -168,9 +169,17 @@ class _FilesScreenState extends ConsumerState<FilesScreen> {
   }
 }
 
-/// «☁ Яндекс.Диск · подключён ··· синк 2 мин назад» — where the files
-/// live and when they last synced. Disk usage needs a disk-info call the
-/// client doesn't have yet, so no usage bar is drawn.
+/// Used/total space on the couple's Yandex.Disk (read-only GET), when
+/// connected. Never touches the sync service.
+final diskUsageProvider = FutureProvider<DiskUsage?>((ref) async {
+  final connected = ref.watch(syncServiceProvider.select((s) => s.connected));
+  final token = YandexAuth.instance.accessToken;
+  if (!connected || token == null) return null;
+  return YandexDiskClient(token).diskInfo();
+});
+
+/// «☁ Яндекс.Диск · 2,3 из 10 ГБ ▬▬ синк 2 мин назад» — where the files
+/// live, how full it is, and when they last synced.
 class _StorageLine extends ConsumerWidget {
   const _StorageLine();
 
@@ -179,6 +188,7 @@ class _StorageLine extends ConsumerWidget {
     final ms = context.ms;
     final sync = ref.watch(syncServiceProvider);
     final last = ref.watch(lastSyncProvider);
+    final usage = ref.watch(diskUsageProvider).valueOrNull;
     return Row(
       spacing: MsSpace.space2,
       children: [
@@ -187,11 +197,26 @@ class _StorageLine extends ConsumerWidget {
           size: MsSize.iconSm,
           color: ms.inkMuted,
         ),
-        Expanded(
-          child: MsMeta(sync.connected
-              ? 'Яндекс.Диск · подключён'
-              : 'Яндекс.Диск не подключён'),
-        ),
+        if (usage == null)
+          Expanded(
+            child: MsMeta(sync.connected
+                ? 'Яндекс.Диск · подключён'
+                : 'Яндекс.Диск не подключён'),
+          )
+        else ...[
+          MsMeta('Яндекс.Диск · ${formatDiskUsage(usage.used, usage.total)}'),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(MsRadius.radiusPill),
+              child: LinearProgressIndicator(
+                value: usage.fraction,
+                minHeight: MsSize.diskBarH,
+                backgroundColor: ms.surfaceRaised,
+                color: ms.inkMuted,
+              ),
+            ),
+          ),
+        ],
         if (sync.connected && last != null)
           MsMeta('синк ${ago(last, DateTime.now())}')
         else if (!sync.connected)

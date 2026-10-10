@@ -28,6 +28,21 @@ enum YandexDiskErrorCode {
 }
 
 
+/// Disk usage, bytes (`GET /v1/disk`): «2,3 из 10 ГБ» in Files.
+class DiskUsage {
+  final int total;
+  final int used;
+  const DiskUsage({required this.total, required this.used});
+
+  double get fraction => total <= 0 ? 0 : (used / total).clamp(0.0, 1.0);
+
+  static DiskUsage? fromJson(Map<String, dynamic> j) {
+    final total = j['total_space'], used = j['used_space'];
+    if (total is! num || used is! num) return null;
+    return DiskUsage(total: total.toInt(), used: used.toInt());
+  }
+}
+
 /// Клиент Yandex.Disk.
 class YandexDiskClient {
   final String token; // bearer
@@ -44,6 +59,17 @@ class YandexDiskClient {
       return r.status == 200;
     } catch (_) {
       return false;
+    }
+  }
+
+  /// Read-only: total and used space. `null` when offline or refused.
+  Future<DiskUsage?> diskInfo() async {
+    try {
+      final r = await _get('');
+      if (r.status != 200) return null;
+      return DiskUsage.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+    } catch (_) {
+      return null;
     }
   }
 

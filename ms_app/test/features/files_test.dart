@@ -35,6 +35,11 @@ void main() {
       expect(formatBytes((2.3 * 1024 * 1024 * 1024).round()), '2,3$nbГБ');
     });
 
+    test('disk usage: «2,3 из 10 ГБ»', () {
+      const gb = 1024 * 1024 * 1024;
+      expect(formatDiskUsage((2.3 * gb).round(), 10 * gb), '2,3 из 10$nbГБ');
+    });
+
     test('when: «сегодня», «вчера», «2 окт», «март 2025»', () {
       expect(formatWhen(DateTime(2026, 10, 8, 9), now), 'сегодня');
       expect(formatWhen(DateTime(2026, 10, 7, 23), now), 'вчера');

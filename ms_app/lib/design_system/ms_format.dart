@@ -70,6 +70,17 @@ String formatBytes(int bytes) {
   return '${one(bytes / (k * k * k))}$kThousandsSepГБ';
 }
 
+/// «2,3 из 10 ГБ» — used of total, in gigabytes (or megabytes when small).
+String formatDiskUsage(int used, int total) {
+  const gb = 1024 * 1024 * 1024, mb = 1024 * 1024;
+  final unit = total >= gb ? gb : mb;
+  final word = total >= gb ? 'ГБ' : 'МБ';
+  String n(double v) => v == v.roundToDouble()
+      ? v.round().toString()
+      : v.toStringAsFixed(1).replaceAll('.', ',');
+  return '${n(used / unit)} из ${n(total / unit)}$kThousandsSep$word';
+}
+
 /// When a file was added: «сегодня», «вчера», «2 окт», «март 2025».
 String formatWhen(DateTime then, DateTime now) {
   if (_sameDay(then, now)) return 'сегодня';
