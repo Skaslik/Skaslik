@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ms_core/ms_core.dart';
 
+import '../../core/family/family.dart';
 import '../../core/providers.dart';
 import '../../core/sync/domain_store.dart';
 import '../../design_system/ms_theme.dart';
@@ -131,7 +132,7 @@ class BanksScreen extends ConsumerWidget {
                 if (a <= 0) return;
                 repo.contribute(bankId, BankEntry(
                   id: 'c-${DateTime.now().millisecondsSinceEpoch}',
-                  by: 'local',
+                  by: family.deviceId ?? 'local',
                   amount: a,
                   at: DateTime.now().millisecondsSinceEpoch,
                   note: note.text.trim().isEmpty ? null : note.text.trim(),

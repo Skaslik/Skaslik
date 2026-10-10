@@ -4,6 +4,8 @@
 /// (AlarmManager + setAlarmClock для Android 12+), группировка по категориям.
 library;
 
+import 'dart:typed_data';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tzdata;
@@ -47,6 +49,14 @@ class MsNotifications {
     await androidImpl?.createNotificationChannel(calendarChannel);
     await androidImpl?.createNotificationChannel(banksChannel);
     await androidImpl?.createNotificationChannel(ritualChannel);
+    await androidImpl?.createNotificationChannel(AndroidNotificationChannel(
+      _ritualsId,
+      'Ритуалы',
+      description: 'Свеча и знаки внимания пары',
+      importance: Importance.high,
+      enableVibration: true,
+      vibrationPattern: _oneShortBuzz,
+    ));
     _initialized = true;
   }
 
@@ -77,6 +87,32 @@ class MsNotifications {
     ),
   );
 
+  /// «Ритуалы»: own channel with one short vibration (IMPLEMENTATION
+  /// Phase 3). A new id, because Android fixes vibration per channel.
+  static const String _ritualsId = 'rituals';
+  static final Int64List _oneShortBuzz = Int64List.fromList([0, 120]);
+
+  /// «София зажгла свечу» — the partner's light reached this phone.
+  static Future<void> candleLit({required String text}) async {
+    if (!_initialized) return;
+    await _plugin.show(
+      910001,
+      'МС',
+      text,
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          _ritualsId,
+          'Ритуалы',
+          channelDescription: 'Свеча и знаки внимания пары',
+          importance: Importance.high,
+          priority: Priority.high,
+          enableVibration: true,
+          vibrationPattern: _oneShortBuzz,
+        ),
+      ),
+    );
+  }
+
   /// Напоминание о событии (точное, с таймзоной).
   static Future<void> calendarReminder(
       {required String id,
@@ -103,14 +139,14 @@ class MsNotifications {
       required String goal,
       required int percent}) async {
     await _plugin.show(
-        id.hashCode.abs(), 'Копилка «$goal»', 'Цель на $percent% 🎯',
+        id.hashCode.abs(), 'Копилка «$goal»', 'Цель на $percent %',
         _banksDetails);
   }
 
   /// «Я думал о тебе» (ритуал-пинг).
   static Future<void> ritualPing({required String from}) async {
     await _plugin.show(900000 + (from.hashCode.abs() % 1000), 'МС',
-        '💗 $from думает о тебе', _ritualDetails);
+        '$from думает о тебе', _ritualDetails);
   }
 
   /// Запросить разрешение на уведомления (Android 13+). Best-effort.

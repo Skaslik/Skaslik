@@ -13,6 +13,10 @@ import 'package:ms_core/ms_core.dart';
 
 import '../security/secure_vault.dart';
 
+/// Decision #12 default: three taps on the framed monogram in the room
+/// within this window switch to fake mode.
+const Duration kFakeModeTapWindow = Duration(milliseconds: 800);
+
 class AppLock extends ChangeNotifier {
   final LocalAuthentication _auth;
   final FakeMode _fake;
@@ -118,7 +122,7 @@ class AppLock extends ChangeNotifier {
   /// Тройное нажатие на монограмму → fake mode.
   void onMonogramTap() {
     final now = DateTime.now();
-    if (now.difference(_lastTap) > const Duration(seconds: 1)) {
+    if (now.difference(_lastTap) > kFakeModeTapWindow) {
       _monogramTaps = 0;
     }
     _monogramTaps += 1;

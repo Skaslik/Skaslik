@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ms_core/ms_core.dart';
 
+import '../../core/family/family.dart';
 import '../../core/providers.dart';
 import '../../design_system/ms_theme.dart';
 
@@ -45,7 +46,7 @@ class MessagesScreen extends ConsumerWidget {
           _Composer(onSend: (text, kind, burn, sched) {
             repo.send(Message(
               id: 'msg-${DateTime.now().millisecondsSinceEpoch}',
-              from: 'local',
+              from: family.deviceId ?? 'local',
               kind: kind,
               text: text,
               burn: burn,
@@ -67,7 +68,7 @@ class _Bubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final m = v.m;
-    final isMine = m.from == 'local';
+    final isMine = m.from == 'local' || m.from == family.deviceId;
     final isBurned = v.burnState == BurnState.burned;
     final isScheduled =
         v.m.scheduledFor != null && !v.revealed;
