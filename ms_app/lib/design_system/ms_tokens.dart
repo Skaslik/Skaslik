@@ -397,6 +397,34 @@ abstract final class MsText {
   static const TextStyle monogram = TextStyle(fontFamily: MsFonts.serif, fontSize: 40.0, height: 1.0000, fontWeight: FontWeight.w700);
 }
 
+/// Shadow tokens. Only two exist: the sheet over the room and the candle glow.
+@immutable
+class MsShadows {
+  /// Лист «Сегодня» над комнатой, bottom sheet.
+  final List<BoxShadow> shadowSheet;
+  /// Свечение вокруг значка горящей свечи вне сцены (строка статуса, уведомление).
+  final List<BoxShadow> glowCandle;
+
+  const MsShadows({
+    required this.shadowSheet,
+    required this.glowCandle,
+  });
+
+  static const MsShadows evening = MsShadows(
+    shadowSheet: [BoxShadow(color: Color(0x73000000), offset: Offset(0.0, -10.0), blurRadius: 28.0, spreadRadius: 0.0)],
+    glowCandle: [BoxShadow(color: Color(0x66F2B65E), offset: Offset(0.0, 0.0), blurRadius: 28.0, spreadRadius: 10.0)],
+  );
+
+  static const MsShadows day = MsShadows(
+    shadowSheet: [BoxShadow(color: Color(0x1F462D14), offset: Offset(0.0, -6.0), blurRadius: 22.0, spreadRadius: 0.0)],
+    glowCandle: [BoxShadow(color: Color(0x52E9A445), offset: Offset(0.0, 0.0), blurRadius: 22.0, spreadRadius: 8.0)],
+  );
+
+  /// Shadows for a palette instance.
+  static MsShadows of(MsPalette p) =>
+      identical(p, MsPalette.day) ? day : evening;
+}
+
 /// Theme extension so widgets read tokens via `context.ms`.
 @immutable
 class MsThemeExtension extends ThemeExtension<MsThemeExtension> {
@@ -413,4 +441,5 @@ class MsThemeExtension extends ThemeExtension<MsThemeExtension> {
 
 extension MsThemeContext on BuildContext {
   MsPalette get ms => Theme.of(this).extension<MsThemeExtension>()!.c;
+  MsShadows get msShadows => MsShadows.of(ms);
 }
