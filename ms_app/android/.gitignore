@@ -12,3 +12,6 @@ GeneratedPluginRegistrant.java
 key.properties
 **/*.keystore
 **/*.jks
+# МС's own release key is committed on purpose (two users, owner's call).
+!/key.properties
+!/app/ms-release.jks
