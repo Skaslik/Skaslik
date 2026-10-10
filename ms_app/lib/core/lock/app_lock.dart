@@ -130,6 +130,8 @@ class AppLock extends ChangeNotifier {
     if (_monogramTaps >= 3) {
       _monogramTaps = 0;
       _inFake = true;
+      // Leaving the calculator must need the real PIN: lock as well.
+      _unlocked = false;
       notifyListeners();
     }
   }
@@ -138,6 +140,15 @@ class AppLock extends ChangeNotifier {
   void exitFake() {
     _inFake = false;
     notifyListeners();
+  }
+
+  /// The calculator's way out: the real PIN, then «=». On success the app
+  /// opens unlocked; otherwise nothing happens (it stays a calculator).
+  Future<bool> exitFakeWithPin(String pin) async {
+    if (!_pinSet) return false;
+    final ok = await verifyPin(pin);
+    if (ok) exitFake();
+    return ok;
   }
 
   bool tryFakePassword(String entered) => _fake.tryUnlock(entered);

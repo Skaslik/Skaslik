@@ -19,6 +19,7 @@ Map<MsDomain, MsStore> allDomainStores(WidgetRef ref) => {
       MsDomain.pulse: ref.read(pulseProvider),
       MsDomain.ritual: ref.read(ritualProvider),
       MsDomain.capsule: ref.read(capsuleProvider),
+      MsDomain.profile: ref.read(profileProvider),
     };
 
 /// When this session last finished a full sync (shown in Files). Kept by

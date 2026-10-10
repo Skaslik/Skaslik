@@ -11,6 +11,7 @@ export 'ms_chip.dart';
 export 'ms_date_wheel.dart';
 export 'ms_date_block.dart';
 export 'ms_eyebrow.dart';
+export 'ms_keypad.dart';
 export 'ms_meta.dart';
 export 'ms_monogram.dart';
 export 'ms_progress_split.dart';

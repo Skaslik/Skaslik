@@ -13,9 +13,8 @@ import 'core/storage/app_paths.dart';
 import 'core/weather/weather.dart';
 import 'design_system/ms_format.dart';
 import 'design_system/ms_theme.dart';
-import 'design_system/widgets/ms_monogram.dart';
+import 'features/lock/lock_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
-import 'features/onboarding/pin_pad.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -91,14 +90,14 @@ class _MsRootState extends ConsumerState<MsRoot> {
     final theme = ref.watch(themeControllerProvider);
     LegacyPalette.current = theme.palette;
 
-    // Fake mode: калькулятор — реальных данных нет. Neutral look, no МС
-    // theme (restyled in Phase 7).
+    // Fake mode: калькулятор — реальных данных нет. A neutral system look:
+    // no МС theme, fonts or mark (components/ScreenLock.md).
     if (lock.inFake) {
       return MaterialApp(
         title: 'Калькулятор',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(useMaterial3: true),
-        home: const FakeCalculator(),
+        theme: ThemeData(useMaterial3: true, brightness: Brightness.dark),
+        home: FakeCalculator(lock: lock),
       );
     }
     // Семья ещё не создана → онбординг.
@@ -122,110 +121,10 @@ class _MsRootState extends ConsumerState<MsRoot> {
         darkTheme: MsTheme.evening(),
         themeMode: theme.materialMode,
         builder: msSystemBars,
-        home: _UnlockGate(lock: lock, pinSet: lock.pinSet),
+        home: LockScreen(lock: lock),
       );
     }
     return const MsApp();
   }
 }
 
-/// Гейт разблокировки: монограмма + биометрия / PIN.
-class _UnlockGate extends ConsumerWidget {
-  const _UnlockGate({required this.lock, required this.pinSet});
-  final AppLock lock;
-  final bool pinSet;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(MsTokens.spaceLg),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                GestureDetector(
-                  onTap: lock.onMonogramTap,
-                  child: const MsMonogram(size: 80),
-                ),
-                const SizedBox(height: MsTokens.spaceMd),
-                const Text('МС', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w700)),
-                const SizedBox(height: MsTokens.spaceLg),
-                if (pinSet)
-                  const _PinGate()
-                else ...[
-                  FilledButton.icon(
-                    onPressed: () async {
-                      final ok = await lock.tryUnlock();
-                      if (!ok && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Биометрия не сработала.')),
-                        );
-                      }
-                    },
-                    icon: const Icon(Icons.fingerprint),
-                    label: const Text('Войти'),
-                  ),
-                  TextButton(
-                    onPressed: lock.unlockManually,
-                    child: const Text('Войти без блокировки'),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// PIN-гейт: биометрия в один тап, PIN-клавиатура как fallback.
-class _PinGate extends StatefulWidget {
-  const _PinGate();
-
-  @override
-  State<_PinGate> createState() => _PinGateState();
-}
-
-class _PinGateState extends State<_PinGate> {
-  String? _error;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        FilledButton.icon(
-          onPressed: () async {
-            final ok = await appLock.tryUnlock();
-            if (!ok && context.mounted) {
-              setState(() =>
-                  _error = 'Биометрия не сработала. Введите PIN.');
-            }
-          },
-          icon: const Icon(Icons.fingerprint),
-          label: const Text('Открыть биометрией'),
-        ),
-        const SizedBox(height: MsTokens.spaceSm),
-        const Text('или PIN', style: MsTypography.bodySm),
-        const SizedBox(height: MsTokens.spaceSm),
-        PinPad(
-          length: 4,
-          onComplete: (pin) async {
-            final ok = await appLock.verifyPin(pin);
-            if (!ok && context.mounted) {
-              setState(() => _error = 'Неверный PIN');
-            }
-          },
-        ),
-        if (_error != null) ...[
-          const SizedBox(height: MsTokens.spaceSm),
-          Text(_error!,
-              style: MsTypography.bodySm.copyWith(color: MsColors.danger)),
-        ],
-      ],
-    );
-  }
-}

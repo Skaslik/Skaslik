@@ -51,6 +51,19 @@ class PairMember {
 
   /// Signature initial on the wall note: «С.».
   String get initial => '${name.characters.first}.';
+
+  /// From a synced profile member.
+  factory PairMember.fromMember(Member m, MsAuthor author) {
+    final f = m.gender == MemberGender.f;
+    return PairMember(
+      author: author,
+      name: m.name,
+      addressName: m.addressName,
+      addressGenitive: genitiveName(m.addressName, feminine: f),
+      nameGenitive: genitiveName(m.name, feminine: f),
+      feminine: f,
+    );
+  }
 }
 
 const PairMember kMichael = PairMember(
@@ -93,17 +106,64 @@ class Pair {
 
   PairMember memberOf(String? deviceId) => isMine(deviceId) ? me : partner;
 
-  static Pair fromFamily(Family f) {
-    final iAmSofia = f.color?.toARGB32() == MsPalette.day.sofia.toARGB32();
+  /// Before the profile has anything: «me» from the onboarding colour.
+  static Pair fromFamily(Family f) => resolve(f, null);
+
+  /// From the synced profile (Phase 7); whatever is missing falls back to
+  /// the onboarding colour and the decision #13 defaults.
+  static Pair resolve(Family f, ProfileRepo? profile) {
+    final myId = f.deviceId ?? kLegacyLocalAuthor;
     final peer = f.peerPubBytes;
+    final peerId = peer == null ? null : deviceIdForPub(peer);
+    final mine = profile?.member(myId);
+    final theirs = peerId != null
+        ? profile?.member(peerId) ?? profile?.partnerOf(myId)
+        : profile?.partnerOf(myId);
+
+    final iAmSofia = mine?.color != null
+        ? mine!.color == 'sofia'
+        : f.color?.toARGB32() == MsPalette.day.sofia.toARGB32();
+    final myAuthor = iAmSofia ? MsAuthor.sofia : MsAuthor.michael;
+    // Two people, two colours: the partner always gets the other one.
+    final partnerAuthor = iAmSofia ? MsAuthor.michael : MsAuthor.sofia;
+    final myDefault = iAmSofia ? kSofia : kMichael;
+    final partnerDefault = iAmSofia ? kMichael : kSofia;
+
     return Pair(
-      me: iAmSofia ? kSofia : kMichael,
-      partner: iAmSofia ? kMichael : kSofia,
-      myDeviceId: f.deviceId ?? kLegacyLocalAuthor,
-      partnerDeviceId: peer == null ? null : deviceIdForPub(peer),
+      me: mine == null ? myDefault : PairMember.fromMember(mine, myAuthor),
+      partner: theirs == null
+          ? partnerDefault
+          : PairMember.fromMember(theirs, partnerAuthor),
+      myDeviceId: myId,
+      partnerDeviceId: peerId ?? theirs?.deviceId,
     );
   }
 }
 
-final pairProvider =
-    Provider<Pair>((ref) => Pair.fromFamily(ref.watch(familyProvider)));
+final pairProvider = Provider<Pair>((ref) => Pair.resolve(
+      ref.watch(familyProvider),
+      ProfileRepo(ref.watch(profileProvider).replica),
+    ));
+
+/// Genitive of a Russian first name: «Соня» → «Сони», «Миша» → «Миши»,
+/// «София» → «Софии», «Михаил» → «Михаила», «Игорь» → «Игоря».
+/// Good enough for the couple's names; anything odd is left as is.
+String genitiveName(String name, {required bool feminine}) {
+  if (name.isEmpty) return name;
+  final last = name[name.length - 1];
+  final stem = name.substring(0, name.length - 1);
+  const hush = 'гкхжшщч';
+  final beforeLast = name.length > 1 ? name[name.length - 2] : '';
+  switch (last) {
+    case 'я':
+      return '$stemи';
+    case 'а':
+      return hush.contains(beforeLast) ? '$stemи' : '$stemы';
+    case 'й':
+      return '$stemя';
+    case 'ь':
+      return feminine ? '$stemи' : '$stemя';
+  }
+  if (feminine) return name; // «Мириам», «Любовь» etc. — unchanged
+  return '$nameа';
+}

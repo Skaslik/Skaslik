@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ms_app/core/lock/app_lock.dart';
 import 'package:ms_app/core/providers.dart';
 import 'package:ms_app/design_system/theme_controller.dart';
+import 'package:ms_app/design_system/widgets/widgets.dart';
 import 'package:ms_app/main.dart';
 
 void main() {
@@ -35,7 +36,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     // Приветствие: монограмма «МС» и оба пути входа.
-    expect(find.text('МС'), findsWidgets);
+    expect(find.byType(MsMonogram), findsOneWidget);
     expect(find.text('Создать семью'), findsOneWidget);
     expect(find.text('Присоединиться к семье'), findsOneWidget);
   });

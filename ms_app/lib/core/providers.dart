@@ -38,6 +38,9 @@ final familyProvider = ChangeNotifierProvider<Family>((ref) {
 final ritualProvider = storeProvider(MsDomain.ritual);
 final capsuleProvider = storeProvider(MsDomain.capsule);
 
+/// Names, обращение, gender, colour per member and the start date.
+final profileProvider = storeProvider(MsDomain.profile);
+
 /// Theme mode «Авто / Вечер / День» (decision #2). Read synchronously from
 /// a small prefs file, so the first frame already has the right theme.
 final themeControllerProvider = ChangeNotifierProvider<ThemeController>(
