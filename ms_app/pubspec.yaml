@@ -28,6 +28,8 @@ dependencies:
   material_symbols_icons: ^4.2960.0
   http: ^1.6.0
   intl: ^0.20.3
+  wakelock_plus: ^1.5.2
+  screen_brightness: ^2.1.11
 
 dev_dependencies:
   flutter_test:
