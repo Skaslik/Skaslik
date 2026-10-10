@@ -29,6 +29,8 @@ abstract final class MsSize {
   static const double dateSubGap = 2;
   static const double dateSubH = 12;
   static const double metaGap = 6;
+  /// Title ↔ meta inside a row (`.rmeta`).
+  static const double rowMetaGap = 2;
 
   // Chips and segmented control.
   static const double chipH = 32;
@@ -84,6 +86,14 @@ abstract final class MsSize {
   static const double screenTitleGap = 4;
   static const double headerActionGap = 4;
 
+  // Home sheet (`.crow`, `.lcard`, piggy card).
+  static const double candleRowPadL = 10;
+  static const double cardTileW = 112;
+  static const double cardTileH = 64;
+  static const double cardTilePadV = 10;
+  static const double cardTileBars = 14;
+  static const double piggyGap = 10;
+
   // Toast.
   static const double toastPadV = 12;
   static const double toastAboveTabbar = 14;
@@ -96,6 +106,8 @@ abstract final class MsSize {
 abstract final class MsAlpha {
   static const double disabled = 0.45;
   static const double chipCountOn = 0.75;
+  /// Barcode hint on the home card tiles.
+  static const double cardStripes = 0.55;
 }
 
 /// Motion: fades and slides of 150–250 ms (brand-book «Движение»).

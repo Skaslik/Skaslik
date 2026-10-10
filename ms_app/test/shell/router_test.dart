@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ms_app/core/providers.dart';
 import 'package:ms_app/core/storage/app_paths.dart';
+import 'package:ms_app/core/sync/sync_service.dart';
+import 'package:ms_app/design_system/ms_format.dart';
 import 'package:ms_app/design_system/ms_theme.dart';
 import 'package:ms_app/design_system/widgets/widgets.dart';
 import 'package:ms_app/features/calendar/calendar_screen.dart';
@@ -18,6 +21,8 @@ import 'package:ms_app/shell/ms_shell.dart';
 
 void main() {
   late Directory dir;
+
+  setUpAll(initMsFormat);
 
   setUp(() {
     // Domain stores write their JSON here, not into the project.
@@ -33,6 +38,8 @@ void main() {
   Future<GoRouter> pumpApp(WidgetTester tester, String location) async {
     final router = buildMsRouter(initialLocation: location);
     await tester.pumpWidget(ProviderScope(
+      // The app's provider wraps a global; tests need their own.
+      overrides: [syncServiceProvider.overrideWith((_) => SyncService())],
       child: MaterialApp.router(
           theme: MsTheme.evening(), routerConfig: router),
     ));

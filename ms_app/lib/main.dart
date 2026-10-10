@@ -10,9 +10,10 @@ import 'core/lock/fake_calculator.dart';
 import 'core/notify/notifications.dart';
 import 'core/providers.dart';
 import 'core/storage/app_paths.dart';
+import 'core/weather/weather.dart';
 import 'design_system/ms_format.dart';
 import 'design_system/ms_theme.dart';
-import 'features/home/home_screen.dart';
+import 'design_system/widgets/ms_monogram.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/onboarding/pin_pad.dart';
 
@@ -67,7 +68,13 @@ class _MsRootState extends ConsumerState<MsRoot> {
     appLock.loadPin();
     // Timers don't run while suspended: re-check sunrise/sunset on resume.
     _lifecycle = AppLifecycleListener(
-      onResume: () => ref.read(themeControllerProvider).refresh(),
+      onResume: () {
+        ref.read(themeControllerProvider).refresh();
+        if (ref.exists(weatherProvider)) ref.read(weatherProvider).refresh();
+      },
+      onHide: () {
+        if (ref.exists(weatherProvider)) ref.read(weatherProvider).pause();
+      },
     );
   }
 
@@ -140,7 +147,7 @@ class _UnlockGate extends ConsumerWidget {
               children: [
                 GestureDetector(
                   onTap: lock.onMonogramTap,
-                  child: const Monogram(size: 80),
+                  child: const MsMonogram(size: 80),
                 ),
                 const SizedBox(height: MsTokens.spaceMd),
                 const Text('МС', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w700)),

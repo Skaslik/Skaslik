@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import '../../core/family/family.dart';
 import '../../core/lock/app_lock.dart';
 import '../../design_system/ms_theme.dart';
-import '../home/home_screen.dart';
+import '../../design_system/widgets/ms_monogram.dart';
 import 'pin_pad.dart';
 
 /// Онбординг «МС»: Welcome → Create/Join → (S+seed) → PIN → готово.
@@ -144,7 +144,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const SizedBox(height: MsTokens.spaceXl),
-        const Monogram(size: 96),
+        const MsMonogram(size: 96),
         const SizedBox(height: MsTokens.spaceLg),
         Text('МС', style: MsTypography.display.copyWith(fontSize: 40)),
         const SizedBox(height: MsTokens.spaceSm),
@@ -342,7 +342,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Monogram(size: 56),
+        const MsMonogram(size: 56),
         const SizedBox(height: MsTokens.spaceLg),
         PinPad(
           length: 4,
