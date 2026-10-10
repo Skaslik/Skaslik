@@ -15,5 +15,6 @@ export 'src/domain/cards.dart';
 export 'src/domain/messages.dart';
 export 'src/domain/delight.dart';
 export 'src/domain/docs.dart';
+export 'src/domain/profile.dart';
 export 'src/integrations/yandex_disk.dart';
 export 'src/util/sun.dart';

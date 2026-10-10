@@ -18,6 +18,9 @@ class Capsule {
   final String? letter;
   final int? openedAt;
   final List<String> openedBy; // id устройств, подтвердивших открытие
+
+  /// Device that sealed it (additive; older capsules have none).
+  final String? from;
   const Capsule({
     required this.id,
     required this.title,
@@ -26,6 +29,7 @@ class Capsule {
     this.letter,
     this.openedAt,
     this.openedBy = const [],
+    this.from,
   });
 
   bool get sealed => openedAt == null;
@@ -43,6 +47,7 @@ class Capsule {
       letter: f['letter'],
       openedAt: int.tryParse(f['openedAt'] ?? ''),
       openedBy: f['openedBy']?.split(',').where((s) => s.isNotEmpty).toList() ?? const [],
+      from: f['from'],
     );
   }
 
@@ -53,6 +58,7 @@ class Capsule {
         if (letter != null) 'letter': letter!,
         if (openedAt != null) 'openedAt': '$openedAt',
         'openedBy': openedBy.join(','),
+        if (from != null) 'from': from!,
       };
 }
 
