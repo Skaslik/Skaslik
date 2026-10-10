@@ -129,7 +129,7 @@ class YandexDiskClient {
         Uri.parse('$_api/resources?path=${Uri.encodeComponent(path)}&mkdir=true'));
     req.headers.set('Authorization', 'OAuth $token');
     final res = await req.close();
-    await res.drain();
+    await res.drain<void>();
     final status = res.statusCode;
     // 201 — создан; 400 «уже существует» / 409 — каталог на месте.
     if (status == 201 || status == 400 || status == 409) return;

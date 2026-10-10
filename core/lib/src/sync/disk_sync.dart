@@ -18,7 +18,6 @@ library;
 import 'dart:typed_data';
 
 import '../crypto/primitives.dart';
-import '../crypto/pairing.dart';
 import '../integrations/yandex_disk.dart';
 import 'replica.dart';
 import 'sync_blob.dart';
