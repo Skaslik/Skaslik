@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ru">
+<head><link rel="stylesheet" href="../fonts.css"><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><script src="../bundle.js"></script>
+<meta charset="utf-8">
+<title>TabBar — preview</title>
+
+<style>
+  .pad { padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; max-width: 440px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+</style>
+</head>
+<body>
+<div class="pad" style="max-width:420px"><div id="t1"></div><div id="t2"></div></div>
+<script>
+  document.getElementById("t1").innerHTML = MS.tabBar("home", { us: true });
+  document.getElementById("t2").innerHTML = MS.tabBar("files");
+</script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ru">
+<head><link rel="stylesheet" href="../fonts.css"><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><script src="../bundle.js"></script>
+<meta charset="utf-8">
+<title>ScreenLoyaltyCard — preview</title>
+
+</head>
+<body>
+<div class="ms-stage">
+  <div class="ms-phone" id="p"></div>
+  <div class="ms-annot">
+    <h3>Карта на кассе</h3>
+    <ol>
+      <li><span><b>Всегда белый лист</b> (card-paper), даже ночью: сканер кассы не читает светлые штрихи на тёмном.</span></li>
+      <li><span><b>Яркость 100% и экран не гаснет</b>, пока карта открыта; после — возвращаем как было.</span></li>
+      <li><span><b>Открывается за один тап</b> с «Дома» или виджета, &lt; 500 мс (PLAN 5.6). Под рукой большие поля — кассир не промахнётся.</span></li>
+      <li><span><b>Кто добавил</b> — точка цвета автора. QR — второй кнопкой.</span></li>
+    </ol>
+    <div class="ask"><span class="ms-eyebrow">Согласовать</span>Прятать карты за биометрией (опция PLAN 5.9) или открывать сразу? Для кассы скорость важнее.</div>
+  </div>
+</div>
+<script>
+  var code = MS.ean13('460123456789', 120);
+  var d = code.digits;
+  var pretty = d[0] + ' ' + d.slice(1, 7) + ' ' + d.slice(7);
+  document.getElementById('p').innerHTML =
+    '<div class="ms-phone__body"><div class="ms-lc">' + MS.statusBar('21:14') +
+    '<div class="ms-lc__top"><a class="ms-link">Готово</a><span class="ms-lc__bright">ЯРКОСТЬ 100%</span></div>' +
+    '<h2>Пятёрочка</h2>' +
+    '<div class="ms-lc__by"><i class="ms-who ms-who--michael"></i>добавил Михаил · EAN-13</div>' +
+    code.svg +
+    '<div class="ms-lc__num">' + pretty + '</div>' +
+    '<div class="ms-lc__foot"><button class="ms-btn">' + MS.icon('qr_code_2', { size: 20 }) + 'Показать QR</button>' +
+    '<span class="ms-meta">экран не гаснет, пока карта открыта</span></div>' +
+    '</div></div>';
+</script>
+</body>
+</html>

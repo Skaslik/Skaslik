@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ru">
+<head><link rel="stylesheet" href="../fonts.css"><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><script src="../bundle.js"></script>
+<meta charset="utf-8">
+<title>Candle — preview</title>
+
+<style>
+  .wrap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 20px 24px; }
+  .st { display: flex; flex-direction: column; gap: 12px; }
+  .stage { height: 150px; border-radius: var(--radius-lg); background: var(--scene-wall); display: grid; place-items: center; overflow: hidden; }
+  .row { margin-top: 0 !important; }
+  .row .ms-meta { margin-top: 2px; }
+  .row--off { background: var(--surface); }
+  .row--pending .g { color: var(--warn); font-family: var(--font-mono); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="st">
+    <div class="ms-eyebrow">не горит</div>
+    <div class="stage" id="c1"></div>
+    <div class="ms-candle-row row row--off" id="r1"></div>
+  </div>
+  <div class="st">
+    <div class="ms-eyebrow">зажгли вы · доставляется</div>
+    <div class="stage" id="c2"></div>
+    <div class="ms-candle-row row row--pending" id="r2"></div>
+  </div>
+  <div class="st">
+    <div class="ms-eyebrow">горит у обоих</div>
+    <div class="stage" id="c3"></div>
+    <div class="ms-candle-row row" id="r3"></div>
+  </div>
+</div>
+<script>
+  document.getElementById('c1').innerHTML = MS.candleIcon('off', 64);
+  document.getElementById('c2').innerHTML = MS.candleIcon('pending', 64);
+  document.getElementById('c3').innerHTML = MS.candleIcon('lit', 64);
+  function row(ic, title, meta) { return MS.candleIcon(ic, 22) + '<div><b>' + title + '</b><div class="ms-meta">' + meta + '</div></div>'; }
+  document.getElementById('r1').innerHTML = row('off', 'Свеча не горит', 'нажмите на свечу в комнате');
+  document.getElementById('r2').innerHTML = row('lit', 'Горит у вас', '<span class="g">◐</span> у Софии загорится при связи');
+  document.getElementById('r3').innerHTML = row('lit', 'Горит · зажгла София', '21:14 · погаснет в полночь');
+</script>
+</body>
+</html>

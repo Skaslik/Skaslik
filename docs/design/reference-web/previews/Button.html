@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ru">
+<head><link rel="stylesheet" href="../fonts.css"><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><script src="../bundle.js"></script>
+<meta charset="utf-8">
+<title>Button — preview</title>
+
+<style>
+  .pad { padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; max-width: 440px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+</style>
+</head>
+<body>
+<div class="pad" style="max-width:none">
+  <div class="row"><button class="ms-btn ms-btn--primary">Добавить событие</button><button class="ms-btn ms-btn--secondary">Отмена</button><button class="ms-btn ms-btn--ghost">Подробнее</button><button class="ms-btn ms-btn--danger">Стереть всё</button></div>
+  <div class="row"><button class="ms-btn ms-btn--primary ms-btn--sm" id="b1"></button><button class="ms-btn ms-btn--secondary ms-btn--sm">Беру</button><button class="ms-btn ms-btn--primary" disabled>Сохранить</button></div>
+</div>
+<script>document.getElementById("b1").innerHTML = MS.icon("add", { size: 18 }) + "Файл";</script>
+</body>
+</html>

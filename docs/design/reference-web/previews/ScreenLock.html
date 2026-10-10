@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ru">
+<head><link rel="stylesheet" href="../fonts.css"><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><script src="../bundle.js"></script>
+<meta charset="utf-8">
+<title>ScreenLock — preview</title>
+
+<style>
+  .h { font-family: var(--font-serif); font-size: 24px; line-height: 30px; font-weight: 700; margin: 22px 0 0; text-align: center; }
+  .sub { text-align: center; margin-top: 4px; }
+  .bio { margin-top: 26px; }
+</style>
+</head>
+<body>
+<div class="ms-stage">
+  <div class="ms-phone" id="p"></div>
+  <div class="ms-annot">
+    <h3>Вход и фейк-режим</h3>
+    <ol>
+      <li><span><b>Монограмма — файл иконки</b>, не набор шрифтом. Тот же знак висит в рамке на стене комнаты.</span></li>
+      <li><span><b>Биометрия по умолчанию</b>, PIN — запасной путь (4 цифры, моно-клавиши 76 px).</span></li>
+      <li><span><b>Фейк-режим:</b> тройное нажатие на монограмму (в рамке на стене) → приложение притворяется калькулятором. Калькулятор — системного вида, без цветов, шрифтов и знака МС.</span></li>
+    </ol>
+    <div class="ask"><span class="ms-eyebrow">Согласовать</span>Триггер фейк-режима — рамка с монограммой в комнате (предлагаю) или отдельная иконка в шапке, как сейчас в коде?</div>
+  </div>
+</div>
+<script>
+  var LOGO = '../../assets/logo/ms-icon.png';
+  var keys = '';
+  ['1', '2', '3', '4', '5', '6', '7', '8', '9'].forEach(function (k) { keys += '<button class="ms-key">' + k + '</button>'; });
+  keys += '<button class="ms-key ms-key--ghost">' + MS.icon('fingerprint', { size: 32 }) + '</button><button class="ms-key">0</button><button class="ms-key ms-key--ghost">' + MS.icon('backspace', { size: 26 }) + '</button>';
+  document.getElementById('p').innerHTML =
+    MS.statusBar('21:14') +
+    '<div class="ms-phone__body"><div class="ms-lock">' +
+    '<span class="ms-lock__mark"><img src="' + LOGO + '" alt="МС — Михаил &amp; София"></span>' +
+    '<h1 class="h">С возвращением</h1><div class="ms-meta sub">приложите палец или введите PIN</div>' +
+    '<div class="ms-pin-dots"><i class="on"></i><i class="on"></i><i></i><i></i></div>' +
+    '<div class="ms-keys">' + keys + '</div>' +
+    '</div></div>';
+</script>
+</body>
+</html>

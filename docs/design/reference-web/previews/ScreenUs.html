@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ru">
+<head><link rel="stylesheet" href="../fonts.css"><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><script src="../bundle.js"></script>
+<meta charset="utf-8">
+<title>ScreenUs — preview</title>
+
+<style>
+  .letter { background: var(--sofia); color: var(--on-partner); border-radius: var(--radius-lg); padding: 14px 16px; display: flex; gap: 12px; align-items: center; margin-top: 10px; }
+  .letter b { display: block; font-size: 15px; line-height: 20px; }
+  .letter .ms-meta { color: var(--on-partner); }
+  .grp { background: var(--surface); border-radius: var(--radius-lg); overflow: hidden; }
+  .grp .it { display: flex; align-items: center; gap: 12px; padding: 12px 16px; min-height: 28px; }
+  .grp .it + .it { border-top: 1px solid var(--line); }
+  .grp .it .t { flex: 1; font-size: 15px; font-weight: 500; }
+  .grp .it .ms-ic { color: var(--ink-muted); }
+  .grp .it .v { font-family: var(--font-mono); font-size: 12px; color: var(--ink-muted); }
+  .new { min-width: 20px; height: 20px; padding: 0 6px; border-radius: var(--radius-pill); background: var(--flame); color: var(--on-flame); font: 600 11px/20px var(--font-mono); text-align: center; box-sizing: border-box; }
+</style>
+</head>
+<body>
+<div class="ms-stage">
+  <div class="ms-phone" id="p"></div>
+  <div class="ms-annot">
+    <h3>Мы</h3>
+    <ol>
+      <li><span><b>Числа пары</b> — моно, крупно: дней вместе и до годовщины (дата знакомства задаётся в онбординге).</span></li>
+      <li><span><b>Письмо-капсула</b> — карточка цвета автора: «Тебя ждёт письмо от Софии».</span></li>
+      <li><span><b>Записки</b> — общий канал «записка на холодильнике»: текст, голос, фото, сгорающие. Последняя висит на стене в комнате.</span></li>
+      <li><span><b>Синк и безопасность</b> — внизу, спокойным списком: Я.Диск, PIN/биометрия, фейк-режим, лист восстановления.</span></li>
+    </ol>
+    <div class="ask"><span class="ms-eyebrow">Согласовать</span>Дата начала отношений и имена в обращении: «Миша / Соня» или «Михаил / София»?</div>
+  </div>
+</div>
+<script>
+  function it(ic, t, v) { return '<div class="it">' + MS.icon(ic) + '<span class="t">' + t + '</span>' + (v || '') + MS.icon('chevron_right', { cls: 'ms-chev' }) + '</div>'; }
+  document.getElementById('p').innerHTML =
+    MS.statusBar('21:14') +
+    '<div class="ms-phone__body"><div class="ms-screen">' +
+    '<div class="ms-screen__top"><div><div class="ms-eyebrow">Михаил и София</div><h1 class="ms-screen__title">Мы</h1></div>' + MS.pair(30) + '</div>' +
+    '<div class="ms-stats"><div><div class="ms-big">1 461</div><div class="ms-meta">дней вместе</div></div>' +
+    '<div><div class="ms-big ms-big--flame">2</div><div class="ms-meta">дня до годовщины</div></div></div>' +
+    '<div class="letter">' + MS.icon('mail', { fill: true }) + '<div><b>Тебя ждёт письмо от Софии</b><div class="ms-meta">откроется 14 февраля · через 129 дней</div></div></div>' +
+    '<div class="ms-sec-h"><span class="ms-eyebrow">Близко</span></div>' +
+    '<div class="grp">' +
+    it('sticky_note_2', 'Записки', '<span class="new">2</span>') +
+    it('hourglass_top', 'Капсулы', '<span class="v">3</span>') +
+    it('favorite', 'Пульс дня', '<span class="v">обнимашки</span>') +
+    '</div>' +
+    '<div class="ms-sec-h"><span class="ms-eyebrow">Устройство и данные</span></div>' +
+    '<div class="grp">' +
+    it('cloud_sync', 'Синхронизация', '<span class="v">Я.Диск · ● ок</span>') +
+    it('lock', 'Безопасность', '<span class="v">PIN · отпечаток</span>') +
+    it('key', 'Лист восстановления') +
+    '</div>' +
+    '</div></div>' + MS.tabBar('us', { us: true });
+</script>
+</body>
+</html>

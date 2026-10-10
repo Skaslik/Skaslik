@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru">
+<head><link rel="stylesheet" href="../fonts.css"><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><script src="../bundle.js"></script>
+<meta charset="utf-8">
+<title>ScreenCalendar — preview</title>
+
+<style>
+  .head { display: flex; align-items: center; justify-content: space-between; }
+  .nav { display: flex; gap: 4px; align-items: center; }
+  .legend { display: flex; gap: 14px; margin: 10px 0 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .ms-seg { margin: 14px 0 12px; }
+  .d.sel b { box-shadow: inset 0 0 0 1.5px var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="ms-stage">
+  <div class="ms-phone" id="p"></div>
+  <div class="ms-annot">
+    <h3>Календарь</h3>
+    <ol>
+      <li><span><b>Цвет — это автор.</b> Точка и полоса события — цвет того, кто его создал. Общее (годовщина, поездка) — две половинки: синий и коралловый.</span></li>
+      <li><span><b>Сегодня — огонёк.</b> Заливка flame, как свеча на «Доме». Выбранный день — тонкое кольцо.</span></li>
+      <li><span><b>Многодневное — полоса</b> под числами (поездка в Казань 16–18).</span></li>
+      <li><span><b>Мета говорит, кто и когда:</b> «добавила София», «изменил Михаил 2 мин назад» — с родом глагола по человеку.</span></li>
+      <li><span><b>Месяц / Неделя / Список</b> — один экран, переключатель сверху (PLAN 5.3).</span></li>
+    </ol>
+    <div class="ask"><span class="ms-eyebrow">Согласовать</span>Общие события — две половинки цвета (как здесь) или градиент michael→sofia из текущего кода?</div>
+  </div>
+</div>
+<script>
+  var days = [
+    [28, 'out'], [29, 'out'], [30, 'out'], [1], [2], [3], [4],
+    [5], [6], [7], [8, 'today', ['sofia']], [9, '', ['michael']], [10, '', ['michael', 'sofia']], [11],
+    [12], [13], [14, '', ['michael']], [15], [16, 'span'], [17, 'span'], [18, 'span'],
+    [19], [20], [21, '', ['sofia']], [22], [23], [24, '', ['sofia']], [25],
+    [26], [27], [28], [29, '', ['michael']], [30], [31, '', ['michael', 'sofia']], [1, 'out']
+  ];
+  var g = '';
+  ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'].forEach(function (w) { g += '<div class="wd">' + w + '</div>'; });
+  days.forEach(function (d, i) {
+    var cls = 'd' + (d[1] === 'out' ? ' out' : '') + (d[1] === 'today' ? ' today' : '') + (d[0] === 10 && !d[1] ? ' sel' : '');
+    var dots = '';
+    if (d[2]) dots = '<span class="dots">' + d[2].map(function (w) { return '<i style="background:var(--' + w + ')"></i>'; }).join('') + '</span>';
+    g += '<div class="' + cls + '"><b>' + d[0] + '</b>' + dots + '</div>';
+    if (i === 20) g += '<div class="span" style="--from:5;--len:3;background:linear-gradient(90deg,var(--michael) 0 50%,var(--sofia) 50% 100%)"></div>';
+  });
+  function ev(day, dow, who, title, meta, ic) {
+    return '<div class="ms-rowcard"><div class="ms-date"><b>' + day + '</b><span>' + dow + '</span></div>' +
+      '<i class="ms-bar ms-bar--' + who + '"></i><div class="ms-rowcard__main"><div class="ms-rowcard__title">' + title + '</div>' +
+      '<div class="ms-meta">' + meta + '</div></div>' + (ic ? MS.icon(ic, { cls: 'ms-tagicon' }) : '') + '</div>';
+  }
+  document.getElementById('p').innerHTML =
+    MS.statusBar('21:14') +
+    '<div class="ms-phone__body"><div class="ms-screen">' +
+    '<div class="ms-eyebrow">четверг, 8 октября</div>' +
+    '<div class="head"><h1 class="ms-screen__title">Октябрь</h1><div class="nav">' +
+    '<button class="ms-iconbtn">' + MS.icon('chevron_left') + '</button><button class="ms-iconbtn">' + MS.icon('chevron_right') + '</button></div></div>' +
+    '<div class="ms-seg"><button class="is-on">Месяц</button><button>Неделя</button><button>Список</button></div>' +
+    '<div class="ms-cal">' + g + '</div>' +
+    '<div class="legend ms-meta"><span><i class="ms-who ms-who--michael"></i>Михаил</span><span><i class="ms-who ms-who--sofia"></i>София</span><span><i class="ms-who ms-who--both"></i>вместе</span></div>' +
+    '<div class="ms-sec-h" style="margin-top:18px"><span class="ms-eyebrow">Ближайшие</span><a class="ms-link">+ Добавить</a></div>' +
+    '<div class="ms-list">' +
+    ev('8', 'сегодня', 'sofia', 'Ужин у мамы Софии', '19:30 · добавила София', 'location_on') +
+    ev('9', 'пт', 'michael', 'Стоматолог', '10:00 · добавил Михаил', 'notifications') +
+    ev('10', 'сб', 'both', 'Годовщина — 4 года', 'весь день · каждый год', 'favorite') +
+    '</div></div></div>' + MS.tabBar('calendar', { us: true });
+</script>
+</body>
+</html>
