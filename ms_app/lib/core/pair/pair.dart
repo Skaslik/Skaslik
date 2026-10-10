@@ -27,6 +27,7 @@ class PairMember {
     required this.name,
     required this.addressName,
     required this.addressGenitive,
+    required this.nameGenitive,
     required this.feminine,
   });
 
@@ -40,6 +41,9 @@ class PairMember {
 
   /// «у Миши», «у Сони».
   final String addressGenitive;
+
+  /// «у Михаила», «у Софии».
+  final String nameGenitive;
   final bool feminine;
 
   /// Past-tense verb agreed with this member: «добавил» → «добавила».
@@ -54,6 +58,7 @@ const PairMember kMichael = PairMember(
     name: 'Михаил',
     addressName: 'Миша',
     addressGenitive: 'Миши',
+    nameGenitive: 'Михаила',
     feminine: false);
 
 const PairMember kSofia = PairMember(
@@ -61,6 +66,7 @@ const PairMember kSofia = PairMember(
     name: 'София',
     addressName: 'Соня',
     addressGenitive: 'Сони',
+    nameGenitive: 'Софии',
     feminine: true);
 
 @immutable

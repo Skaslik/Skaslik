@@ -38,7 +38,9 @@ GoRouter buildMsRouter({String initialLocation = '/home'}) => GoRouter(
             StatefulShellBranch(routes: [
               GoRoute(
                   path: MsTab.calendar.path,
-                  builder: (_, __) => const CalendarScreen()),
+                  builder: (_, state) => CalendarScreen(
+                      initialDay: CalendarScreen.parseDay(
+                          state.uri.queryParameters['day']))),
             ]),
             StatefulShellBranch(routes: [
               // Old documents registry until the Files screen (Phase 5).

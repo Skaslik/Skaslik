@@ -18,6 +18,8 @@ Future<T?> showMsSheet<T>(
   return showModalBottomSheet<T>(
     context: context,
     isScrollControlled: true,
+    // Over the whole screen, tab bar included, like the prototype.
+    useRootNavigator: true,
     useSafeArea: true,
     backgroundColor: ms.ground,
     barrierColor: ms.scrim,

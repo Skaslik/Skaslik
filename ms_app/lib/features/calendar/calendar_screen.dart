@@ -1,306 +1,173 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:ms_core/ms_core.dart' hide Clip;
 
-import '../../core/notify/notifications.dart';
+import '../../core/pair/pair.dart';
 import '../../core/providers.dart';
-import '../../core/sync/domain_store.dart';
+import '../../design_system/ms_format.dart';
 import '../../design_system/ms_theme.dart';
-import 'package:ms_core/ms_core.dart';
+import '../../design_system/widgets/widgets.dart';
+import '../home/home_texts.dart';
+import 'add_event_sheet.dart';
+import 'calendar_model.dart';
+import 'event_row.dart';
+import 'event_sheet.dart';
+import 'month_grid.dart';
 
-/// Календарь: список событий + добавление.
-///
-/// Local-first: событие пишется в CRDT-реплику [MsStore], персистится и
-/// отображается через доменную модель [CalEvent] (с учётом recurrence).
-class CalendarScreen extends ConsumerWidget {
-  const CalendarScreen({super.key});
+enum CalView { month, week, list }
+
+/// «Календарь»: month / week / list, the selected day's events and
+/// «+ Добавить» (components/ScreenCalendar.md).
+class CalendarScreen extends ConsumerStatefulWidget {
+  const CalendarScreen({super.key, this.initialDay, this.clock});
+
+  /// `/calendar?day=2026-10-08` — tapping an event on Home.
+  final DateTime? initialDay;
+  final DateTime Function()? clock;
+
+  /// Parses `yyyy-mm-dd`, or null.
+  static DateTime? parseDay(String? s) {
+    if (s == null) return null;
+    final d = DateTime.tryParse(s);
+    return d == null ? null : dayOf(d);
+  }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CalendarScreen> createState() => _CalendarScreenState();
+}
+
+class _CalendarScreenState extends ConsumerState<CalendarScreen> {
+  late DateTime _month;
+  late DateTime _selected;
+  CalView _view = CalView.month;
+
+  DateTime get _now => (widget.clock ?? DateTime.now)();
+
+  @override
+  void initState() {
+    super.initState();
+    _select(widget.initialDay ?? dayOf(_now));
+  }
+
+  @override
+  void didUpdateWidget(CalendarScreen old) {
+    super.didUpdateWidget(old);
+    final d = widget.initialDay;
+    if (d != null && d != old.initialDay) {
+      _select(d);
+      _view = CalView.month;
+    }
+  }
+
+  void _select(DateTime d) {
+    _selected = dayOf(d);
+    _month = DateTime(d.year, d.month);
+  }
+
+  void _shift(int dir) => setState(() {
+        if (_view == CalView.week) {
+          _select(_selected.add(Duration(days: 7 * dir)));
+        } else {
+          final m = DateTime(_month.year, _month.month + dir);
+          final today = dayOf(_now);
+          _month = m;
+          // Keep today selected in its month; otherwise the 1st.
+          _selected = today.year == m.year && today.month == m.month ? today : m;
+        }
+      });
+
+  @override
+  Widget build(BuildContext context) {
+    final ms = context.ms;
+    final pair = ref.watch(pairProvider);
     final store = ref.watch(calendarProvider);
-    final repo = CalendarRepo(store.replica);
-    final now = DateTime.now();
-    final weekStart = DateTime(now.year, now.month, now.day);
-    final weekEnd = weekStart.add(const Duration(days: 7));
-    final events = repo.range(weekStart, weekEnd);
+    final events = CalendarRepo(store.replica).all();
+    final now = _now;
+    final today = dayOf(now);
+    final model = MonthModel.build(_month, events, pair);
+    final rows = _view == CalView.list
+        ? upcomingList(events, now)
+        : (model.byDay[_selected] ?? const <(CalEvent, DateTime)>[]);
+    final title = _month.year == today.year
+        ? formatMonthTitle(_month)
+        : '${formatMonthTitle(_month)} ${_month.year}';
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Календарь')),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _addEvent(context, store),
-        icon: const Icon(Icons.add),
-        label: const Text('Событие'),
-      ),
-      body: events.isEmpty
-          ? const _Empty(icon: Icons.event, text: MsEmpty.calendar)
-          : ListView.builder(
-              padding: const EdgeInsets.all(MsTokens.spaceMd),
-              itemCount: events.length,
-              itemBuilder: (context, i) {
-                final (event, occ) = events[i];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: MsTokens.spaceSm),
-                  child: _EventCard(
-                    title: event.title,
-                    when: occ,
-                    note: event.note,
-                    recur: event.recurrence,
-                    onDelete: () {
-                      repo.remove(event.id);
-                      store.persist();
-                      MsNotifications.cancelEvent(event.id);
-                    },
-                  ),
-                );
-              },
-            ),
-    );
-  }
-
-  Future<void> _addEvent(BuildContext context, MsStore store) async {
-    final titleCtrl = TextEditingController();
-    final noteCtrl = TextEditingController();
-    await showDialog<void>(
-      context: context,
-      builder: (ctx) {
-        return _EventEditor(
-          titleCtrl: titleCtrl,
-          noteCtrl: noteCtrl,
-          onSave: (ev) {
-            final repo = CalendarRepo(store.replica);
-            repo.upsert(ev);
-            store.persist();
-            // Запланировать напоминания (best-effort, без блокировки UI).
-            MsNotifications.scheduleEvent(
-              id: ev.id,
-              title: ev.title,
-              start: ev.start,
-              offsetsMin: ev.reminders.offsetsMin,
-            );
-            Navigator.pop(ctx);
-          },
-        );
-      },
-    );
-  }
-}
-
-/// Редактор события: название, дата, время, recurrence, заметка.
-class _EventEditor extends StatefulWidget {
-  const _EventEditor({
-    required this.titleCtrl,
-    required this.noteCtrl,
-    required this.onSave,
-  });
-  final TextEditingController titleCtrl;
-  final TextEditingController noteCtrl;
-  final void Function(CalEvent ev) onSave;
-
-  @override
-  State<_EventEditor> createState() => _EventEditorState();
-}
-
-class _EventEditorState extends State<_EventEditor> {
-  late DateTime _start = DateTime.now().add(const Duration(hours: 1));
-  Recurrence _recur = Recurrence.none;
-
-  String _fmt(DateTime d) =>
-      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')} '
-      '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
-
-  Future<void> _pickDate() async {
-    final d = await showDatePicker(
-      context: context,
-      initialDate: _start,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
-    if (d != null) {
-      setState(() => _start = DateTime(d.year, d.month, d.day, _start.hour, _start.minute));
-    }
-  }
-
-  Future<void> _pickTime() async {
-    final t = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(_start),
-    );
-    if (t != null) {
-      setState(() => _start = _start.copyWith(hour: t.hour, minute: t.minute));
-    }
-  }
-
-  void _save() {
-    final t = widget.titleCtrl.text.trim();
-    if (t.isEmpty) return;
-    final note = widget.noteCtrl.text.trim();
-    final id = 'evt-${DateTime.now().millisecondsSinceEpoch}';
-    widget.onSave(CalEvent(
-      id: id,
-      title: t,
-      start: _start,
-      recurrence: _recur,
-      note: note.isEmpty ? null : note,
-    ));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Новое событие'),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: widget.titleCtrl,
-              autofocus: true,
-              decoration: const InputDecoration(hintText: 'Название'),
-            ),
-            const SizedBox(height: MsTokens.spaceMd),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _pickDate,
-                    icon: const Icon(Icons.calendar_today, size: 18),
-                    label: Text(_fmt(_start).split(' ').first),
-                  ),
+    return MsScreen(children: [
+      MsScreenHeader(
+        eyebrow: formatWeekdayDayMonth(now),
+        title: title,
+        actions: _view == CalView.list
+            ? const []
+            : [
+                MsIconButton(
+                  icon: Symbols.chevron_left_rounded,
+                  label: _view == CalView.week
+                      ? 'Предыдущая неделя'
+                      : 'Предыдущий месяц',
+                  onPressed: () => _shift(-1),
                 ),
-                const SizedBox(width: MsTokens.spaceSm),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _pickTime,
-                    icon: const Icon(Icons.access_time, size: 18),
-                    label: Text(_fmt(_start).split(' ').last),
-                  ),
+                MsIconButton(
+                  icon: Symbols.chevron_right_rounded,
+                  label: _view == CalView.week
+                      ? 'Следующая неделя'
+                      : 'Следующий месяц',
+                  onPressed: () => _shift(1),
                 ),
               ],
-            ),
-            const SizedBox(height: MsTokens.spaceMd),
-            SegmentedButton<Recurrence>(
-              segments: const [
-                ButtonSegment(value: Recurrence.none, label: Text('Разовое')),
-                ButtonSegment(value: Recurrence.daily, label: Text('День')),
-                ButtonSegment(value: Recurrence.weekly, label: Text('Нед')),
-                ButtonSegment(value: Recurrence.monthly, label: Text('Мес')),
-                ButtonSegment(value: Recurrence.yearly, label: Text('Год')),
-              ],
-              selected: {_recur},
-              onSelectionChanged: (s) => setState(() => _recur = s.first),
-            ),
-            const SizedBox(height: MsTokens.spaceMd),
-            TextField(
-              controller: widget.noteCtrl,
-              decoration: const InputDecoration(hintText: 'Заметка'),
-            ),
-          ],
-        ),
       ),
-      actions: [
-        TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена')),
-        FilledButton(
-          onPressed: _save,
-          child: const Text('Добавить'),
+      const SizedBox(height: MsSize.calSegTop),
+      MsSegmented<CalView>(
+        segments: const [
+          MsSegment(CalView.month, 'Месяц'),
+          MsSegment(CalView.week, 'Неделя'),
+          MsSegment(CalView.list, 'Список'),
+        ],
+        value: _view,
+        onChanged: (v) => setState(() => _view = v),
+      ),
+      const SizedBox(height: MsSize.calSegBottom),
+      if (_view != CalView.list) ...[
+        MonthGrid(
+          model: model,
+          selected: _selected,
+          today: today,
+          weekOnly: _view == CalView.week,
+          onSelect: (d) => setState(() => _selected = d),
         ),
+        const SizedBox(height: MsSize.calLegendTop),
+        CalendarLegend(michael: kMichael.name, sofia: kSofia.name),
       ],
-    );
-  }
-}
-
-class _Empty extends StatelessWidget {
-  const _Empty({required this.icon, required this.text});
-  final IconData icon;
-  final String text;
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 48, color: MsColors.accentSoft),
-          const SizedBox(height: MsTokens.spaceSm),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: MsTokens.spaceLg),
-            child: Text(text, textAlign: TextAlign.center, style: MsTypography.body),
+      MsSectionHeader(
+        _view == CalView.list ? 'Ближайшие' : dayHeading(_selected),
+        action: '+ Добавить',
+        onAction: () => showAddEventSheet(
+            context, _view == CalView.list ? today : _selected),
+        top: MsSize.calListTop,
+      ),
+      if (rows.isEmpty)
+        MsRowCard(children: [
+          Expanded(
+            child: Text(
+              _view == CalView.list
+                  ? 'Пока тишина. Добавь первое событие — и календарь оживёт.'
+                  : 'Свободный день — можно просто побыть вместе.',
+              style: MsText.bodySm.copyWith(color: ms.inkMuted),
+            ),
+          ),
+        ])
+      else
+        for (final (i, (e, occ)) in rows.indexed) ...[
+          if (i > 0) const SizedBox(height: MsSpace.space2),
+          EventRow(
+            day: '${occ.day}',
+            sub: dateSub(occ, now),
+            author: eventAuthor(e, pair),
+            title: e.title,
+            meta: eventMetaLine(e, occ, pair, now),
+            onTap: () => showEventSheet(context, e, occ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _EventCard extends StatelessWidget {
-  const _EventCard(
-      {required this.title,
-      required this.when,
-      this.note,
-      required this.recur,
-      required this.onDelete});
-  final String title;
-  final DateTime when;
-  final String? note;
-  final Recurrence recur;
-  final VoidCallback onDelete;
-
-  String _fmt(DateTime d) =>
-      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')} '
-      '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
-
-  String? _recurLabel() => switch (recur) {
-        Recurrence.daily => 'каждый день',
-        Recurrence.weekly => 'каждую неделю',
-        Recurrence.monthly => 'каждый месяц',
-        Recurrence.yearly => 'каждый год',
-        Recurrence.none => null,
-      };
-
-  @override
-  Widget build(BuildContext context) {
-    final label = _recurLabel();
-    return Card(
-      child: ListTile(
-        leading: Container(
-          width: 4,
-          height: 40,
-          decoration: BoxDecoration(
-            gradient: MsColors.sharedGradient,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        title: Text(title,
-            style: MsTypography.body.copyWith(fontWeight: FontWeight.w600)),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(_fmt(when), style: MsTypography.caption),
-            if (label != null) Text(label, style: MsTypography.caption),
-            if (note != null) Text(note!, style: MsTypography.caption),
-          ],
-        ),
-        trailing: IconButton(
-          icon: Icon(Icons.delete_outline, color: MsColors.muted),
-          onPressed: () => showDialog<void>(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Удалить событие?'),
-              content: Text(title),
-              actions: [
-                TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Отмена')),
-                FilledButton(
-                    onPressed: () {
-                      onDelete();
-                      Navigator.pop(context);
-                    },
-                    child: const Text('Удалить')),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+    ]);
   }
 }

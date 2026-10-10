@@ -94,6 +94,33 @@ abstract final class MsSize {
   static const double cardTileBars = 14;
   static const double piggyGap = 10;
 
+  // Calendar month grid — measured from screen-calendar_*.png
+  // (reference CSS is content-box: cell 40 + 6 padding, 2 px row gap).
+  static const double calWeekdayH = 22;
+  static const double calCellH = 46;
+  static const double calRowGap = 2;
+  static const double calDayD = 28;
+  static const double calDayTop = 1;
+  static const double calDayRing = 1.5;
+  static const double calDot = 5;
+  static const double calDotGap = 3;
+  static const double calDotBottom = 3;
+  static const double calSpanH = 4;
+  static const double calSpanBottom = 4;
+  static const double calSpanInset = 6;
+  static const double calLegendGap = 14;
+  static const double calLegendTop = 10;
+  static const double calSegTop = 14;
+  static const double calSegBottom = 12;
+  static const double calListTop = 18;
+
+  // Sheet forms: eyebrow label above a field (`.eyebrow` 16/6).
+  static const double formLabelTop = 16;
+  static const double formLabelGap = 6;
+  static const double fieldH = 44;
+  /// Inline time wheel in the add-event sheet.
+  static const double timePickerH = 150;
+
   // Toast.
   static const double toastPadV = 12;
   static const double toastAboveTabbar = 14;
@@ -161,6 +188,10 @@ abstract final class MsTextX {
   /// Sync status glyph ● ◐ ○ ✕: 12.
   static final TextStyle syncGlyph =
       MsText.meta.copyWith(fontSize: 12, height: 1);
+
+  /// Day number in the month grid: mono 14 w500.
+  static final TextStyle calDay =
+      MsText.meta.copyWith(fontSize: 14, height: 1, fontWeight: FontWeight.w500);
 
   /// Toast text: 14/19.
   static final TextStyle toast =

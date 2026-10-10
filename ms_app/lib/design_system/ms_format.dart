@@ -46,6 +46,9 @@ String formatDayMonth(DateTime d) => DateFormat('d MMMM', kMsLocale).format(d);
 String formatWeekdayDayMonth(DateTime d) =>
     DateFormat('EEEE, d MMMM', kMsLocale).format(d);
 
+/// «четверг».
+String formatWeekday(DateTime d) => DateFormat('EEEE', kMsLocale).format(d);
+
 /// «чт».
 String formatWeekdayShort(DateTime d) => DateFormat('EE', kMsLocale).format(d);
 
