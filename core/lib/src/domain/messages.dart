@@ -211,10 +211,84 @@ class Note {
       };
 }
 
+/// One line of a list (PLAN 2.5 Note.checklist): `{id, text, done, by}`.
+class ChecklistItem {
+  final String id;
+  final String text;
+  final bool done;
+
+  /// Device that last ticked or unticked it.
+  final String? by;
+
+  /// When it was added, ms (list order).
+  final int at;
+
+  const ChecklistItem({
+    required this.id,
+    required this.text,
+    this.done = false,
+    this.by,
+    required this.at,
+  });
+}
+
 class NotesRepo {
   final Replica replica;
   NotesRepo(this.replica);
   static const _p = 'note:';
+
+  // Checklist items live as fields `checklist:<itemId>:<key>` on the note,
+  // one LWW register each, so ticks from both phones merge per item.
+  static const _c = 'checklist:';
+
+  void addItem(String noteId, ChecklistItem item) {
+    final base = '$_c${item.id}:';
+    replica.set(_p + noteId, '${base}text', item.text);
+    replica.set(_p + noteId, '${base}done', item.done ? '1' : '0');
+    replica.set(_p + noteId, '${base}at', '${item.at}');
+    if (item.by != null) replica.set(_p + noteId, '${base}by', item.by!);
+  }
+
+  void setDone(String noteId, String itemId,
+      {required bool done, required String by, required int at}) {
+    final base = '$_c$itemId:';
+    replica.set(_p + noteId, '${base}done', done ? '1' : '0');
+    replica.set(_p + noteId, '${base}by', by);
+    replica.set(_p + noteId, '${base}doneAt', '$at');
+  }
+
+  /// Soft delete: a tombstone on the entity would remove the whole note.
+  void removeItem(String noteId, String itemId) =>
+      replica.set(_p + noteId, '$_c$itemId:del', '1');
+
+  /// Items in the order they were added; removed ones hidden.
+  List<ChecklistItem> items(String noteId) {
+    final f = replica.entity(_p + noteId);
+    if (f == null) return const [];
+    final ids = <String>{};
+    for (final k in f.keys) {
+      if (!k.startsWith(_c)) continue;
+      final rest = k.substring(_c.length);
+      final i = rest.lastIndexOf(':');
+      if (i > 0) ids.add(rest.substring(0, i));
+    }
+    final out = <ChecklistItem>[];
+    for (final id in ids) {
+      final base = '$_c$id:';
+      if (f['${base}del'] == '1') continue;
+      final text = f['${base}text'];
+      if (text == null) continue;
+      out.add(ChecklistItem(
+        id: id,
+        text: text,
+        done: f['${base}done'] == '1',
+        by: f['${base}by'],
+        at: int.tryParse(f['${base}at'] ?? '') ?? 0,
+      ));
+    }
+    out.sort((x, y) => x.at != y.at ? x.at.compareTo(y.at) : x.id.compareTo(y.id));
+    return out;
+  }
 
   void upsert(Note n) {
     for (final entry in n.toFields().entries) {
