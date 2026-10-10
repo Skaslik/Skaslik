@@ -12,6 +12,10 @@ import 'ms_tokens.dart';
 
 /// Fixed component dimensions (logical px).
 abstract final class MsSize {
+  /// Smallest touch area (IMPLEMENTATION.md Phase 8, Android guideline).
+  /// Smaller controls keep their look and get this area via MsTapTarget.
+  static const double tapMin = 48;
+
   // Author marks.
   static const double authorDot = 8;
   static const double authorDotBothW = 13;

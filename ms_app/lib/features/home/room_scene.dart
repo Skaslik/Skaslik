@@ -568,9 +568,12 @@ class _Hit extends StatelessWidget {
       child: Semantics(
         button: true,
         label: label,
+        onTap: onTap,
         onLongPress: lp,
         child: RawGestureDetector(
           behavior: HitTestBehavior.opaque,
+          // The actions live on the labelled node above.
+          excludeFromSemantics: true,
           gestures: {
             TapGestureRecognizer:
                 GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(

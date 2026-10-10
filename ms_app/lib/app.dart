@@ -25,9 +25,6 @@ class MsApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = ref.watch(themeControllerProvider);
     return MaterialApp.router(
-      // The old screens read legacy colours that don't listen to the theme;
-      // rebuild them on a theme flip. Remove with legacy_theme.dart (Phase 8).
-      key: ValueKey(theme.isDay),
       title: 'МС',
       debugShowCheckedModeBanner: false,
       theme: MsTheme.day(),

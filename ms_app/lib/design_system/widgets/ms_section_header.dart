@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../ms_sizes.dart';
 import '../ms_tokens.dart';
 import 'ms_eyebrow.dart';
+import 'ms_tap_target.dart';
 
 /// Text action in `link`: «Календарь ›», «Все ›», «+ Добавить».
 class MsLink extends StatelessWidget {
@@ -13,12 +14,15 @@ class MsLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: Text(label, style: MsTextX.link.copyWith(color: context.ms.link)),
+    return MsTapTarget(
+      child: Semantics(
+        button: true,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child:
+              Text(label, style: MsTextX.link.copyWith(color: context.ms.link)),
+        ),
       ),
     );
   }

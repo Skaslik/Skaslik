@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../ms_sizes.dart';
 import '../ms_tokens.dart';
+import 'ms_tap_target.dart';
 
 enum MsButtonVariant {
   /// `flame` / `onFlame` — one per screen.
@@ -68,48 +69,49 @@ class MsButton extends StatelessWidget {
     final OutlinedBorder shape = small || pill
         ? StadiumBorder(side: side)
         : RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(MsRadius.radiusMd),
-            side: side);
+            borderRadius: BorderRadius.circular(MsRadius.radiusMd), side: side);
     final enabled = onPressed != null;
     final i = icon;
 
-    return Semantics(
-      button: true,
-      enabled: enabled,
-      child: Opacity(
-        opacity: enabled ? 1 : MsAlpha.disabled,
-        child: Material(
-          color: bg,
-          shape: shape,
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: onPressed,
-            child: SizedBox(
-              height: small ? MsSize.buttonSmH : MsSize.buttonH,
-              width: expand ? double.infinity : null,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal:
-                        small ? MsSize.buttonSmPadH : MsSize.buttonPadH),
-                child: Row(
-                  mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  spacing: MsSize.buttonGap,
-                  children: [
-                    if (i != null)
-                      Icon(i,
-                          size: small ? MsSize.iconSm : MsSize.buttonIcon,
-                          color: fg),
-                    Flexible(
-                      child: Text(
-                        label,
-                        style: (small ? MsTextX.buttonSm : MsTextX.button)
-                            .copyWith(color: fg),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+    return MsTapTarget(
+      child: Semantics(
+        button: true,
+        enabled: enabled,
+        child: Opacity(
+          opacity: enabled ? 1 : MsAlpha.disabled,
+          child: Material(
+            color: bg,
+            shape: shape,
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: onPressed,
+              child: SizedBox(
+                height: small ? MsSize.buttonSmH : MsSize.buttonH,
+                width: expand ? double.infinity : null,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal:
+                          small ? MsSize.buttonSmPadH : MsSize.buttonPadH),
+                  child: Row(
+                    mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    spacing: MsSize.buttonGap,
+                    children: [
+                      if (i != null)
+                        Icon(i,
+                            size: small ? MsSize.iconSm : MsSize.buttonIcon,
+                            color: fg),
+                      Flexible(
+                        child: Text(
+                          label,
+                          style: (small ? MsTextX.buttonSm : MsTextX.button)
+                              .copyWith(color: fg),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

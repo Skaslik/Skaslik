@@ -22,4 +22,5 @@ export 'ms_segmented.dart';
 export 'ms_sheet.dart';
 export 'ms_sync_status.dart';
 export 'ms_tab_bar.dart';
+export 'ms_tap_target.dart';
 export 'ms_toast.dart';

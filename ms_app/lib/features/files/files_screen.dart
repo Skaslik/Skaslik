@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:ms_core/ms_core.dart' hide Clip;
 
@@ -11,6 +10,7 @@ import '../../core/sync/yandex_auth.dart';
 import '../../design_system/ms_format.dart';
 import '../../design_system/ms_theme.dart';
 import '../../design_system/widgets/widgets.dart';
+import '../home/sync_sheet.dart';
 import 'file_row.dart';
 import 'file_sheets.dart';
 
@@ -220,7 +220,7 @@ class _StorageLine extends ConsumerWidget {
         if (sync.connected && last != null)
           MsMeta('синк ${ago(last, DateTime.now())}')
         else if (!sync.connected)
-          MsLink('Подключить', onTap: () => context.go('/us/settings')),
+          MsLink('Подключить', onTap: () => showSyncSheet(context)),
       ],
     );
   }

@@ -88,7 +88,6 @@ class _MsRootState extends ConsumerState<MsRoot> {
     final lock = ref.watch(appLockProvider);
     final fam = ref.watch(familyProvider);
     final theme = ref.watch(themeControllerProvider);
-    LegacyPalette.current = theme.palette;
 
     // Fake mode: калькулятор — реальных данных нет. A neutral system look:
     // no МС theme, fonts or mark (components/ScreenLock.md).

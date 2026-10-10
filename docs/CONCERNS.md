@@ -78,3 +78,14 @@ Running list of things that need your eye. Newest at the bottom; each entry says
 ### 17. The «думаю о тебе» history list is gone (Phase 7)
 - **What:** the old «Пульс» screen listed every «думаю о тебе». Now the pulse sheet shows the partner's latest one, and each one also appears in «Записки» as a bubble when sent from there. Nothing is deleted from the data.
 - **Suggest:** say if you want the full list back as a section of the pulse sheet.
+
+### 18. Larger touch areas without moving pixels (Phase 8)
+- **What:** segments (32 px), small pills (36 px) and text links (18 px) were below 48 dp. A new wrapper, `MsTapTarget`, extends their touch and accessibility area to 48 dp around the centre, while the layout stays exactly as in the screenshots.
+- **Trade-off:** where two controls sit closer than 48 dp, the margins overlap and the later one wins. No such pair exists on the current screens.
+- **Check on the phone:** the «+ 1 000 ₽» pill and the «Месяц / Неделя / Список» switch should be easy to hit.
+
+### 19. QA items that need a real phone (Phase 8)
+- **QA-3, force-kill during sync:** not checkable here. The sync code wasn't touched in the redesign, and each domain still saves to its own file after every change. Check: start «Синхронизировать сейчас», kill the app from recents, reopen, sync again.
+- **QA-5, offline reminder:** not checkable here. Event reminders still go through the same local scheduler as before. Check: flight mode, an event 2 minutes ahead with «за 1 мин», wait.
+- **QA-12, fake mode:** covered by tests as far as possible. The calculator is its own tiny app with no МС colours, fonts or text, and it never builds the real screens. Not covered: the Android recents thumbnail may still show the last real screen, because the app doesn't set FLAG_SECURE. Suggest adding it if that matters.
+- **Cold start under 1.5 s:** not measurable without a device. Nothing new waits on the network at start-up: the weather loads from its cache and refreshes in the background, and the room is local SVGs.

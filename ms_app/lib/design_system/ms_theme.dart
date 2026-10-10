@@ -12,7 +12,6 @@ import 'package:flutter/services.dart';
 import 'ms_sizes.dart';
 import 'ms_tokens.dart';
 
-export 'legacy_theme.dart';
 export 'ms_sizes.dart';
 export 'ms_tokens.dart';
 
