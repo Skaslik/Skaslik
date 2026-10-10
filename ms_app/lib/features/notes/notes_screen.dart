@@ -43,7 +43,7 @@ class NotesScreen extends ConsumerWidget {
                           n.pinned ? Icons.push_pin : Icons.push_pin_outlined,
                           color: n.pinned
                               ? MsColors.accent
-                              : Colors.black38),
+                              : MsColors.muted),
                       title: Text(n.title,
                           style:
                               MsTypography.body.copyWith(fontWeight: FontWeight.w600)),
@@ -55,8 +55,8 @@ class NotesScreen extends ConsumerWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                              icon: const Icon(Icons.push_pin_outlined,
-                                  color: Colors.black38),
+                              icon: Icon(Icons.push_pin_outlined,
+                                  color: MsColors.muted),
                               onPressed: () {
                                 repo.upsert(Note(
                                     id: n.id,
@@ -67,8 +67,8 @@ class NotesScreen extends ConsumerWidget {
                                 store.persist();
                               }),
                           IconButton(
-                              icon: const Icon(Icons.delete_outline,
-                                  color: Colors.black38),
+                              icon: Icon(Icons.delete_outline,
+                                  color: MsColors.muted),
                               onPressed: () {
                                 repo.remove(n.id);
                                 store.persist();

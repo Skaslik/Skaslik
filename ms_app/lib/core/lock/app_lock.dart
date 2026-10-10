@@ -75,7 +75,7 @@ class AppLock extends ChangeNotifier {
     if (pin.length < 4 || pin.length > 6) {
       throw ArgumentError('PIN: 4–6 цифр');
     }
-    final salt = _pinSalt;
+    const salt = _pinSalt;
     final hash = await argon2id32(pin, salt);
     await SecureVault.write(_pinHash, bytesToHex(hash));
     _pinSet = true;
@@ -86,7 +86,7 @@ class AppLock extends ChangeNotifier {
   Future<bool> verifyPin(String pin) async {
     final h = await SecureVault.read(_pinHash);
     if (h == null || h.isEmpty) return false;
-    final salt = _pinSalt;
+    const salt = _pinSalt;
     final expect = hexToBytes(h);
     final actual = await argon2id32(pin, salt);
     if (!_timingSafe(expect, actual)) return false;

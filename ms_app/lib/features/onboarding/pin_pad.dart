@@ -62,7 +62,7 @@ class _PinPadState extends State<PinPad> {
                 label,
                 style: MsTypography.title.copyWith(
                   fontSize: 22,
-                  color: primary ? Colors.white : MsColors.ink,
+                  color: primary ? MsColors.onAccent : MsColors.ink,
                 ),
               ),
             ),

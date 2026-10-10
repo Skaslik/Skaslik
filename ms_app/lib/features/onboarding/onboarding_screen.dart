@@ -26,18 +26,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final _nameCtrl = TextEditingController();
   final _sCtrl = TextEditingController();
   final _peerPubCtrl = TextEditingController();
-  Color _color = PartnerColors.michael;
+  Color _color = MsPalette.day.michael;
   String _firstPin = '';
   String? _error;
   String? _ownPub; // b64 собственного pub для передачи создателю (join)
 
-  static const _palette = [
-    PartnerColors.michael,
-    PartnerColors.sofia,
-    Color(0xFF4A7C59),
-    Color(0xFF6C4B72),
-    Color(0xFF3E6B5C),
-    Color(0xFF8A5A44),
+  // Stored as hex in Family (legacy). Fixed «День» values, so the saved
+  // colour doesn't depend on the theme at onboarding time.
+  static final _palette = [
+    MsPalette.day.michael,
+    MsPalette.day.sofia,
+    const Color(0xFF4A7C59),
+    const Color(0xFF6C4B72),
+    const Color(0xFF3E6B5C),
+    const Color(0xFF8A5A44),
   ];
 
   Future<void> _createFamily() async {
@@ -146,7 +148,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         const SizedBox(height: MsTokens.spaceLg),
         Text('МС', style: MsTypography.display.copyWith(fontSize: 40)),
         const SizedBox(height: MsTokens.spaceSm),
-        Text('Семья Афанасьевых', style: MsTypography.bodySm),
+        const Text('Семья Афанасьевых', style: MsTypography.bodySm),
         const SizedBox(height: MsTokens.spaceXl),
         FilledButton(
           onPressed: () => setState(() {
@@ -172,7 +174,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return Column(
       children: [
         const SizedBox(height: MsTokens.spaceMd),
-        Text('Как вас зовут?', style: MsTypography.title),
+        const Text('Как вас зовут?', style: MsTypography.title),
         const SizedBox(height: MsTokens.spaceMd),
         TextField(
           controller: _nameCtrl,
@@ -180,7 +182,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           decoration: const InputDecoration(hintText: 'Имя'),
         ),
         const SizedBox(height: MsTokens.spaceLg),
-        Text('Ваш цвет', style: MsTypography.bodySm),
+        const Text('Ваш цвет', style: MsTypography.bodySm),
         const SizedBox(height: MsTokens.spaceSm),
         Wrap(
           spacing: MsTokens.spaceSm,
@@ -206,7 +208,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         ),
         if (_join) ...[
           const SizedBox(height: MsTokens.spaceLg),
-          Text('Секрет семьи S (4 слова, от создателя)',
+          const Text('Секрет семьи S (4 слова, от создателя)',
               style: MsTypography.bodySm),
           const SizedBox(height: MsTokens.spaceSm),
           TextField(
@@ -215,7 +217,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 const InputDecoration(hintText: 'дом дождь книга окно'),
           ),
           const SizedBox(height: MsTokens.spaceMd),
-          Text('Публичный ключ создателя (b64)', style: MsTypography.bodySm),
+          const Text('Публичный ключ создателя (b64)', style: MsTypography.bodySm),
           const SizedBox(height: MsTokens.spaceSm),
           TextField(
             controller: _peerPubCtrl,
@@ -250,10 +252,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         const SizedBox(height: MsTokens.spaceMd),
         Icon(Icons.lock_outline, size: 40, color: MsColors.accent),
         const SizedBox(height: MsTokens.spaceMd),
-        Text('Семья создана. Сохраните лист восстановления.',
+        const Text('Семья создана. Сохраните лист восстановления.',
             style: MsTypography.title, textAlign: TextAlign.center),
         const SizedBox(height: MsTokens.spaceSm),
-        Text('Это единственный способ восстановить доступ. Скопируйте оба секрета на бумагу и храните дома.',
+        const Text('Это единственный способ восстановить доступ. Скопируйте оба секрета на бумагу и храните дома.',
             style: MsTypography.bodySm, textAlign: TextAlign.center),
         const SizedBox(height: MsTokens.spaceMd),
         Container(
@@ -300,10 +302,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         const SizedBox(height: MsTokens.spaceMd),
         Icon(Icons.check_circle, size: 40, color: MsColors.accent),
         const SizedBox(height: MsTokens.spaceMd),
-        Text('Вы присоединились к семье.',
+        const Text('Вы присоединились к семье.',
             style: MsTypography.title, textAlign: TextAlign.center),
         const SizedBox(height: MsTokens.spaceSm),
-        Text('Передать этот ключ создателю (он завершит пару), затем настройте PIN.',
+        const Text('Передать этот ключ создателю (он завершит пару), затем настройте PIN.',
             style: MsTypography.bodySm, textAlign: TextAlign.center),
         const SizedBox(height: MsTokens.spaceMd),
         Container(

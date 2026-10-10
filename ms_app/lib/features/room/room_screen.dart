@@ -205,7 +205,7 @@ class _CapsuleCard extends StatelessWidget {
         (c.sealDate - DateTime.now().millisecondsSinceEpoch) ~/ 86400000;
     return Card(
       child: ListTile(
-        leading: const Icon(Icons.hourglass_bottom, color: MsColors.accent),
+        leading: Icon(Icons.hourglass_bottom, color: MsColors.accent),
         title: Text(c.title,
             style: MsTypography.body.copyWith(fontWeight: FontWeight.w600)),
         subtitle: Text(

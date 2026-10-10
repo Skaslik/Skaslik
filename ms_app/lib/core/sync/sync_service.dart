@@ -14,7 +14,6 @@ import 'package:flutter/foundation.dart';
 import 'package:ms_core/ms_core.dart';
 
 import '../family/family.dart';
-import '../security/secure_vault.dart';
 import 'domain_store.dart';
 import 'yandex_auth.dart';
 

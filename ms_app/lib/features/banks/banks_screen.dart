@@ -176,7 +176,7 @@ class _BankCard extends StatelessWidget {
                 Expanded(child: Text(name, style: MsTypography.title)),
                 TextButton(onPressed: onAdd, child: const Text('Взнос')),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.black38),
+                  icon: Icon(Icons.delete_outline, color: MsColors.muted),
                   onPressed: onDelete,
                 ),
             ]),
@@ -187,7 +187,7 @@ class _BankCard extends StatelessWidget {
                 value: progress,
                 minHeight: 10,
                 backgroundColor: MsColors.accentSoft,
-                valueColor: const AlwaysStoppedAnimation(MsColors.accent),
+                valueColor: AlwaysStoppedAnimation(MsColors.accent),
               ),
             ),
             const SizedBox(height: MsTokens.spaceXs),

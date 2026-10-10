@@ -280,7 +280,7 @@ class _EventCard extends StatelessWidget {
           ],
         ),
         trailing: IconButton(
-          icon: const Icon(Icons.delete_outline, color: Colors.black38),
+          icon: Icon(Icons.delete_outline, color: MsColors.muted),
           onPressed: () => showDialog<void>(
             context: context,
             builder: (context) => AlertDialog(

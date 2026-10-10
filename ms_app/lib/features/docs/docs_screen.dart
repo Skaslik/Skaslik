@@ -41,7 +41,7 @@ class DocsScreen extends ConsumerWidget {
                   padding: const EdgeInsets.only(bottom: MsTokens.spaceSm),
                   child: Card(
                     child: ListTile(
-                      leading: const Icon(Icons.insert_drive_file,
+                      leading: Icon(Icons.insert_drive_file,
                           color: MsColors.accent),
                       title: Text(f['name'] ?? id,
                           style:
@@ -51,7 +51,7 @@ class DocsScreen extends ConsumerWidget {
                           : null,
                       trailing: IconButton(
                           icon:
-                              const Icon(Icons.delete_outline, color: Colors.black38),
+                              Icon(Icons.delete_outline, color: MsColors.muted),
                           onPressed: () => store.remove(id)),
                     ),
                   ),

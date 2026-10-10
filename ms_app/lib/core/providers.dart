@@ -6,6 +6,7 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide Family;
 
+import '../design_system/theme_controller.dart';
 import 'family/family.dart';
 import 'sync/domain_store.dart';
 import 'sync/sync_service.dart';
@@ -36,6 +37,11 @@ final familyProvider = ChangeNotifierProvider<Family>((ref) {
 });
 final ritualProvider = storeProvider(MsDomain.ritual);
 final capsuleProvider = storeProvider(MsDomain.capsule);
+
+/// Theme mode «Авто / Вечер / День» (decision #2). Read synchronously from
+/// a small prefs file, so the first frame already has the right theme.
+final themeControllerProvider = ChangeNotifierProvider<ThemeController>(
+    (ref) => ThemeController(prefs: FileThemePrefs()));
 
 /// Провайдер L3-синхронизации (инициализируется на старте приложения).
 final syncServiceProvider = ChangeNotifierProvider<SyncService>((ref) {

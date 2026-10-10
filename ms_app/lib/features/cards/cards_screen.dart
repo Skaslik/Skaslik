@@ -218,7 +218,7 @@ class _CardTile extends StatelessWidget {
       child: ListTile(
         leading: Icon(
           favorite ? Icons.star : Icons.star_border,
-          color: favorite ? MsColors.accent : Colors.black38,
+          color: favorite ? MsColors.accent : MsColors.muted,
         ),
         title: Text(merchant,
             style: MsTypography.body.copyWith(fontWeight: FontWeight.w600)),
@@ -227,10 +227,10 @@ class _CardTile extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-                icon: const Icon(Icons.star_outline, color: Colors.black38),
+                icon: Icon(Icons.star_outline, color: MsColors.muted),
                 onPressed: onToggle),
             IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.black38),
+                icon: Icon(Icons.delete_outline, color: MsColors.muted),
                 onPressed: onDelete),
           ],
         ),

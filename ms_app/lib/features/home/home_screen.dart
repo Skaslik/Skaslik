@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide Family;
 import 'package:go_router/go_router.dart';
-import '../../core/family/family.dart';
 import '../../core/providers.dart';
 import '../../core/sync/domain_store.dart';
 import '../../core/sync/sync_service.dart';
@@ -66,7 +65,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final calStore = ref.watch(calendarProvider);
     final banksStore = ref.watch(banksProvider);
-    final fam = ref.watch<Family>(familyProvider);
+
     final sync = ref.watch(syncServiceProvider);
     final calRepo = CalendarRepo(calStore.replica);
     final banksRepo = BanksRepo(banksStore.replica);
@@ -147,7 +146,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.savings,
+                          Icon(Icons.savings,
                               color: MsColors.accent),
                           const SizedBox(width: MsTokens.spaceSm),
                           Expanded(
@@ -166,7 +165,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           minHeight: 8,
                           backgroundColor: MsColors.accentSoft,
                           valueColor:
-                              const AlwaysStoppedAnimation(MsColors.accent),
+                              AlwaysStoppedAnimation(MsColors.accent),
                         ),
                       ),
                       const SizedBox(height: MsTokens.spaceXs),
@@ -214,7 +213,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         SyncState.syncing => MsColors.warn,
         SyncState.error => MsColors.danger,
         SyncState.synced => MsColors.success,
-        _ => Colors.grey,
+        _ => MsColors.muted,
       };
 }
 
@@ -249,7 +248,7 @@ class _SectionTitle extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: MsTokens.spaceSm, top: MsTokens.spaceSm),
       child: Text(text, style: MsTypography.bodySm.copyWith(
-        color: Colors.black45,
+        color: MsColors.muted,
         fontWeight: FontWeight.w600,
       )),
     );
@@ -340,7 +339,7 @@ class _NavRow extends StatelessWidget {
       child: ListTile(
         leading: Icon(icon, color: MsColors.accent),
         title: Text(label, style: MsTypography.body),
-        trailing: const Icon(Icons.chevron_right, color: Colors.black38),
+        trailing: Icon(Icons.chevron_right, color: MsColors.muted),
         onTap: () => context.go(route),
       ),
     );

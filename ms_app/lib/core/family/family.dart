@@ -129,7 +129,7 @@ class Family extends ChangeNotifier {
     // Сохранить всё в secure storage.
     await SecureVault.write(_kName, name);
     await SecureVault.write(
-        _kColor, color.value.toRadixString(16).replaceFirst('0x', ''));
+        _kColor, color.toARGB32().toRadixString(16).replaceFirst('0x', ''));
     await SecureVault.write(_kS, s);
     await SecureVault.write(_kSeed, seed.join(' '));
     final exp = exportPairing(pairing);
@@ -161,11 +161,11 @@ class Family extends ChangeNotifier {
   }) async {
     final sPhrase = sWords.join(' ').trim();
     if (sPhrase.isEmpty) {
-      throw FormatException('join: S пуст');
+      throw const FormatException('join: S пуст');
     }
     final peerPub = base64Decode(peerPubB64.trim());
     if (peerPub.length != 32) {
-      throw FormatException('join: публичный ключ партнёра не 32 байта');
+      throw const FormatException('join: публичный ключ партнёра не 32 байта');
     }
 
     final pairing = await createDevicePairing();
@@ -174,7 +174,7 @@ class Family extends ChangeNotifier {
     final exp = exportPairing(pairing);
     await SecureVault.write(_kName, name);
     await SecureVault.write(
-        _kColor, color.value.toRadixString(16).replaceFirst('0x', ''));
+        _kColor, color.toARGB32().toRadixString(16).replaceFirst('0x', ''));
     await SecureVault.write(_kS, sPhrase);
     // Seed у присоединившегося нет (он не восстанавливает pairing) — пусто.
     await SecureVault.write(_kPairing, '${exp.secretB64}|${exp.pubB64}');
@@ -202,7 +202,7 @@ class Family extends ChangeNotifier {
     }
     final peerPub = base64Decode(peerPubB64.trim());
     if (peerPub.length != 32) {
-      throw FormatException('pair: публичный ключ не 32 байта');
+      throw const FormatException('pair: публичный ключ не 32 байта');
     }
     final result = await pairFromPeerBytes(_pairing!, peerPub, sPhrase);
     await SecureVault.write(_kPeerPub, peerPubB64.trim());
@@ -222,10 +222,6 @@ class Family extends ChangeNotifier {
         'b64(S): ${base64Encode(b64)}';
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 /// Глобальный семейный контроллер (singleton).
