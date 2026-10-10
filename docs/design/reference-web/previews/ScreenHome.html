@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ru">
+<head><link rel="stylesheet" href="../fonts.css"><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><script src="../bundle.js"></script>
+<meta charset="utf-8">
+<title>ScreenHome — preview</title>
+
+<style>
+  body { background: var(--surface); }
+  .theme { background: transparent; color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="ms-stage">
+  <div class="theme" data-theme="evening"><div class="ms-phone" id="a"></div></div>
+  <div class="theme" data-theme="day"><div class="ms-phone" id="b"></div></div>
+</div>
+<script>
+  var LOGO = '../../assets/logo/ms-icon.png';
+  function ev(day, dow, who, title, meta) {
+    return '<div class="ms-rowcard"><div class="ms-date"><b>' + day + '</b><span>' + dow + '</span></div>' +
+      '<i class="ms-bar ms-bar--' + who + '"></i><div class="ms-rowcard__main"><div class="ms-rowcard__title">' + title + '</div>' +
+      '<div class="ms-meta">' + meta + '</div></div>' + MS.icon('chevron_right', { cls: 'ms-chev' }) + '</div>';
+  }
+  function lcard(name) { return '<div class="ms-lcard"><b>' + name + '</b><div class="bars"></div></div>'; }
+  function home(o) {
+    return '' +
+      '<div class="ms-phone__body"><div class="ms-home">' +
+      '<div class="ms-home__room">' + MS.roomSVG({ weather: o.weather, candle: 'lit', logo: LOGO, note: o.note }) + '</div>' +
+      '<div style="position:relative;z-index:3">' + MS.statusBar(o.time) + '</div>' +
+      '<div class="ms-sheet"><div class="ms-sheet__grab"></div>' +
+      '<div class="ms-greet-row"><h1 class="ms-greet">' + o.greet + '</h1><span class="ms-sync ms-sync--ok"><span class="g">●</span>синхр.</span></div>' +
+      '<div class="ms-candle-row">' + MS.candleIcon('lit', 22) + '<div><b>' + o.candle + '</b><div class="ms-meta">' + o.candleMeta + '</div></div></div>' +
+      '<div class="ms-sec-h" style="margin-top:20px"><span class="ms-eyebrow">' + o.today + '</span><a class="ms-link">Календарь ›</a></div>' +
+      '<div class="ms-list">' + o.events + '</div>' +
+      '<div class="ms-sec-h"><span class="ms-eyebrow">Карты под рукой</span><a class="ms-link">Все ›</a></div>' +
+      '<div class="ms-hscroll">' + lcard('Пятёрочка') + lcard('Магнит') + lcard('Аптека.ру') + '</div>' +
+      '</div></div></div>' + MS.tabBar('home', { us: true });
+  }
+  document.getElementById('a').innerHTML = home({
+    time: '21:14',
+    weather: { kind: 'rain', time: 'night', temp: '+7°', label: 'мелкий дождь', place: 'Москва' },
+    note: { text: 'Купи хлеб', by: 'sofia', sign: 'С.' },
+    greet: 'Добрый вечер, Миша',
+    candle: 'Свеча горит · зажгла София',
+    candleMeta: '21:14 · погаснет в полночь',
+    today: 'Сегодня · четверг, 8 октября',
+    events: ev('8', 'сегодня', 'sofia', 'Ужин у мамы Софии', '19:30 · добавила София') +
+            ev('10', 'сб', 'both', 'Годовщина — 4 года', 'весь день · напомнить за день')
+  });
+  document.getElementById('b').innerHTML = home({
+    time: '14:02',
+    weather: { kind: 'cloudy', time: 'day', temp: '+9°', label: 'облачно', place: 'Москва' },
+    note: { text: 'Люблю тебя', by: 'michael', sign: 'М.' },
+    greet: 'Добрый день, Соня',
+    candle: 'Свеча горит · зажёг Михаил',
+    candleMeta: '13:40 · погаснет в полночь',
+    today: 'Сегодня · четверг, 8 октября',
+    events: ev('8', 'сегодня', 'sofia', 'Ужин у мамы Софии', '19:30 · добавила ты') +
+            ev('9', 'пт', 'michael', 'Стоматолог', '10:00 · добавил Михаил')
+  });
+</script>
+</body>
+</html>

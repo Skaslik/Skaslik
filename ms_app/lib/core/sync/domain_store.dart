@@ -11,7 +11,7 @@ import 'package:flutter/foundation.dart';
 import 'package:ms_core/ms_core.dart';
 import '../storage/local_file.dart';
 /// Домены данных.
-enum MsDomain { calendar, banks, cards, docs, messages, notes, clips, pulse, ritual, capsule }
+enum MsDomain { calendar, banks, cards, docs, messages, notes, clips, pulse, ritual, capsule, profile }
 class MsStore extends ChangeNotifier {
   final MsDomain domain;
   final String deviceId;

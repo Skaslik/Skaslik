@@ -13,6 +13,10 @@ import 'package:ms_core/ms_core.dart';
 
 import '../security/secure_vault.dart';
 
+/// Decision #12 default: three taps on the framed monogram in the room
+/// within this window switch to fake mode.
+const Duration kFakeModeTapWindow = Duration(milliseconds: 800);
+
 class AppLock extends ChangeNotifier {
   final LocalAuthentication _auth;
   final FakeMode _fake;
@@ -75,7 +79,7 @@ class AppLock extends ChangeNotifier {
     if (pin.length < 4 || pin.length > 6) {
       throw ArgumentError('PIN: 4–6 цифр');
     }
-    final salt = _pinSalt;
+    const salt = _pinSalt;
     final hash = await argon2id32(pin, salt);
     await SecureVault.write(_pinHash, bytesToHex(hash));
     _pinSet = true;
@@ -86,7 +90,7 @@ class AppLock extends ChangeNotifier {
   Future<bool> verifyPin(String pin) async {
     final h = await SecureVault.read(_pinHash);
     if (h == null || h.isEmpty) return false;
-    final salt = _pinSalt;
+    const salt = _pinSalt;
     final expect = hexToBytes(h);
     final actual = await argon2id32(pin, salt);
     if (!_timingSafe(expect, actual)) return false;
@@ -118,7 +122,7 @@ class AppLock extends ChangeNotifier {
   /// Тройное нажатие на монограмму → fake mode.
   void onMonogramTap() {
     final now = DateTime.now();
-    if (now.difference(_lastTap) > const Duration(seconds: 1)) {
+    if (now.difference(_lastTap) > kFakeModeTapWindow) {
       _monogramTaps = 0;
     }
     _monogramTaps += 1;
@@ -126,6 +130,8 @@ class AppLock extends ChangeNotifier {
     if (_monogramTaps >= 3) {
       _monogramTaps = 0;
       _inFake = true;
+      // Leaving the calculator must need the real PIN: lock as well.
+      _unlocked = false;
       notifyListeners();
     }
   }
@@ -134,6 +140,15 @@ class AppLock extends ChangeNotifier {
   void exitFake() {
     _inFake = false;
     notifyListeners();
+  }
+
+  /// The calculator's way out: the real PIN, then «=». On success the app
+  /// opens unlocked; otherwise nothing happens (it stays a calculator).
+  Future<bool> exitFakeWithPin(String pin) async {
+    if (!_pinSet) return false;
+    final ok = await verifyPin(pin);
+    if (ok) exitFake();
+    return ok;
   }
 
   bool tryFakePassword(String entered) => _fake.tryUnlock(entered);

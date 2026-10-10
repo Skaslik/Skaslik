@@ -1,112 +1,140 @@
 /// Фейковый калькулятор — декой для fake mode.
 ///
-/// Настоящий работающий калькулятор: если кто-то увидит телефон, тройное
-/// нажатие на монограмму показывает «только калькулятор» — никаких данных семьи.
+/// A real, working calculator that looks like a neutral system one: no МС
+/// colours, fonts or mark (components/ScreenLock.md), and no real data.
+/// The only way back: type the real PIN, then «=».
+///
+/// The colours here are deliberately literal system greys — the МС tokens
+/// must not appear on this screen.
 library;
 
 import 'package:flutter/material.dart';
 
+import 'app_lock.dart';
+
 class FakeCalculator extends StatefulWidget {
-  const FakeCalculator({super.key});
+  const FakeCalculator({super.key, this.lock});
+
+  /// Null in previews and tests that only check the arithmetic.
+  final AppLock? lock;
 
   @override
   State<FakeCalculator> createState() => _FakeCalculatorState();
 }
 
 class _FakeCalculatorState extends State<FakeCalculator> {
+  static const _bg = Color(0xFF1C1C1E);
+  static const _digitKey = Color(0xFF3A3A3C);
+  static const _opKey = Color(0xFF5B6573);
+  static const _fnKey = Color(0xFFA5A5A5);
+  static const _white = Color(0xFFFFFFFF);
+
   String _display = '0';
   double? _acc;
   String _op = '';
   bool _fresh = true;
 
-  void _clear() {
-    setState(() {
-      _display = '0';
-      _acc = null;
-      _op = '';
-      _fresh = true;
-    });
+  double get _value => double.tryParse(_display.replaceAll(',', '.')) ?? 0;
+
+  String _fmt(double v) {
+    if (v.isNaN || v.isInfinite) return 'Ошибка';
+    final r = (v * 1e8).round() / 1e8;
+    final s = r == r.roundToDouble() ? r.toInt().toString() : r.toString();
+    return s.replaceAll('.', ',');
   }
 
-  void _inputDigit(String d) {
-    setState(() {
-      if (_fresh) {
-        _display = d;
-        _fresh = false;
-      } else {
-        _display = _display == '0' ? d : _display + d;
-      }
-    });
-  }
-
-  void _dot() {
-    setState(() {
-      if (_fresh) {
-        _display = '0.';
-        _fresh = false;
-      } else if (!_display.contains('.')) {
-        _display += '.';
-      }
-    });
-  }
-
-  void _equals() {
-    final b = double.tryParse(_display) ?? 0;
-    final a = _acc;
-    if (_op.isEmpty || a == null) return;
-    final r = switch (_op) {
-      '+' => a + b,
-      '−' => a - b,
-      '×' => a * b,
-      '÷' => b == 0 ? double.nan : a / b,
-      _ => b,
-    };
-    setState(() {
-      _display = r == r ? _trim(r) : 'Ошибка';
-      _acc = null;
-      _op = '';
-      _fresh = true;
-    });
-  }
-
-  void _setOp(String o) {
-    final cur = double.tryParse(_display) ?? 0;
-    final a = _acc;
-    final base = (a != null && _op.isNotEmpty) ? _apply(a, cur) : cur;
-    setState(() {
-      _acc = base;
-      _op = o;
-      _fresh = true;
-    });
-  }
-
-  double _apply(double a, double b) => switch (_op) {
-        '+' => a + b,
-        '−' => a - b,
-        '×' => a * b,
-        '÷' => b == 0 ? double.nan : a / b,
+  double _apply(double? a, double b, String op) => switch (op) {
+        '+' => (a ?? 0) + b,
+        '−' => (a ?? 0) - b,
+        '×' => (a ?? 0) * b,
+        '÷' => b == 0 ? double.nan : (a ?? 0) / b,
         _ => b,
       };
 
-  String _trim(double r) {
-    if (r == r.roundToDouble()) return r.toInt().toString();
-    return r.toString();
+  Future<void> _press(String k) async {
+    if (RegExp(r'^\d$').hasMatch(k)) {
+      setState(() {
+        final cur = (_fresh || _display == '0') ? k : _display + k;
+        _display = cur.length > 11 ? cur.substring(0, 11) : cur;
+        _fresh = false;
+      });
+      return;
+    }
+    switch (k) {
+      case ',':
+        if (!_display.contains(',')) {
+          setState(() {
+            _display = '${_fresh ? '0' : _display},';
+            _fresh = false;
+          });
+        }
+      case 'AC':
+        setState(() {
+          _display = '0';
+          _acc = null;
+          _op = '';
+          _fresh = true;
+        });
+      case '±':
+        setState(() => _display = _fmt(-_value));
+      case '%':
+        setState(() => _display = _fmt(_value / 100));
+      case '=':
+        // The way out: a bare 4–6 digit number that is the real PIN.
+        final lock = widget.lock;
+        if (lock != null &&
+            _op.isEmpty &&
+            RegExp(r'^\d{4,6}$').hasMatch(_display)) {
+          final pin = _display;
+          if (await lock.exitFakeWithPin(pin)) return;
+        }
+        if (!mounted) return;
+        setState(() {
+          _display = _fmt(_apply(_acc, _value, _op));
+          _acc = null;
+          _op = '';
+          _fresh = true;
+        });
+      default: // + − × ÷
+        setState(() {
+          _acc = _acc == null
+              ? _value
+              : (_fresh ? _acc : _apply(_acc, _value, _op));
+          _op = k;
+          _fresh = true;
+          _display = _fmt(_acc!);
+        });
+    }
   }
 
-  Widget _key(String label, Color bg, VoidCallback onTap) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(6),
-        child: Material(
-          color: bg,
-          borderRadius: BorderRadius.circular(16),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(16),
-            onTap: onTap,
+  static const _keys = [
+    ['AC', 'fn'], ['±', 'fn'], ['%', 'fn'], ['÷', 'op'],
+    ['7', ''], ['8', ''], ['9', ''], ['×', 'op'],
+    ['4', ''], ['5', ''], ['6', ''], ['−', 'op'],
+    ['1', ''], ['2', ''], ['3', ''], ['+', 'op'],
+    ['0', 'wide'], [',', ''], ['=', 'op'],
+  ];
+
+  Widget _key(String label, String kind) {
+    final bg = switch (kind) {
+      'fn' => _fnKey,
+      'op' => _opKey,
+      _ => _digitKey,
+    };
+    final fg = kind == 'fn' ? _bg : _white;
+    return Padding(
+      padding: const EdgeInsets.all(6),
+      child: Material(
+        color: bg,
+        shape: const StadiumBorder(),
+        child: InkWell(
+          customBorder: const StadiumBorder(),
+          onTap: () => _press(label),
+          child: SizedBox(
+            height: 76,
             child: Center(
               child: Text(label,
-                  style: const TextStyle(
-                      fontSize: 26, fontWeight: FontWeight.w600)),
+                  style: TextStyle(fontSize: 28, color: fg, height: 1)),
             ),
           ),
         ),
@@ -116,76 +144,42 @@ class _FakeCalculatorState extends State<FakeCalculator> {
 
   @override
   Widget build(BuildContext context) {
-    const numBg = Color(0xFFEFE9E1);
-    const opBg = Color(0xFFC4622D);
-    const dark = Color(0xFF1A1614);
+    final rows = <List<List<String>>>[];
+    for (var i = 0; i < 16; i += 4) {
+      rows.add(_keys.sublist(i, i + 4));
+    }
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF6F0),
+      backgroundColor: _bg,
       body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-                child: Text(
-                  _display,
-                  style: const TextStyle(
-                      fontSize: 52,
-                      fontWeight: FontWeight.w300,
-                      color: dark,
-                      height: 1),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 22),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Semantics(
+                liveRegion: true,
+                child: Container(
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+                  child: Text(
+                    _display,
+                    maxLines: 1,
+                    style: const TextStyle(
+                        fontSize: 64, fontWeight: FontWeight.w300, color: _white),
+                  ),
                 ),
               ),
-            ),
-            const Spacer(),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                children: [
-                  Row(children: [
-                    _key('C', numBg, _clear),
-                    _key('±', numBg, () => setState(() =>
-                        _display =
-                            _display.startsWith('-')
-                                ? _display.substring(1)
-                                : '-$_display')),
-                    _key('%', numBg, () {}),
-                    _key('÷', opBg, () => _setOp('÷')),
-                  ]),
-                  Row(children: [
-                    _key('7', numBg, () => _inputDigit('7')),
-                    _key('8', numBg, () => _inputDigit('8')),
-                    _key('9', numBg, () => _inputDigit('9')),
-                    _key('×', opBg, () => _setOp('×')),
-                  ]),
-                  Row(children: [
-                    _key('4', numBg, () => _inputDigit('4')),
-                    _key('5', numBg, () => _inputDigit('5')),
-                    _key('6', numBg, () => _inputDigit('6')),
-                    _key('−', opBg, () => _setOp('−')),
-                  ]),
-                  Row(children: [
-                    _key('1', numBg, () => _inputDigit('1')),
-                    _key('2', numBg, () => _inputDigit('2')),
-                    _key('3', numBg, () => _inputDigit('3')),
-                    _key('+', opBg, () => _setOp('+')),
-                  ]),
-                  Row(children: [
-                    Expanded(
-                      flex: 2,
-                      child: _key('0', numBg, () => _inputDigit('0')),
-                    ),
-                    _key('.', numBg, _dot),
-                    _key('=', opBg, _equals),
-                  ]),
-                ],
-              ),
-            ),
-          ],
+              for (final r in rows)
+                Row(children: [
+                  for (final k in r) Expanded(child: _key(k[0], k[1])),
+                ]),
+              Row(children: [
+                Expanded(flex: 2, child: _key('0', 'wide')),
+                Expanded(child: _key(',', '')),
+                Expanded(child: _key('=', 'op')),
+              ]),
+            ],
+          ),
         ),
       ),
     );

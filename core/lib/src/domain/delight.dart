@@ -18,6 +18,9 @@ class Capsule {
   final String? letter;
   final int? openedAt;
   final List<String> openedBy; // id устройств, подтвердивших открытие
+
+  /// Device that sealed it (additive; older capsules have none).
+  final String? from;
   const Capsule({
     required this.id,
     required this.title,
@@ -26,6 +29,7 @@ class Capsule {
     this.letter,
     this.openedAt,
     this.openedBy = const [],
+    this.from,
   });
 
   bool get sealed => openedAt == null;
@@ -43,6 +47,7 @@ class Capsule {
       letter: f['letter'],
       openedAt: int.tryParse(f['openedAt'] ?? ''),
       openedBy: f['openedBy']?.split(',').where((s) => s.isNotEmpty).toList() ?? const [],
+      from: f['from'],
     );
   }
 
@@ -53,6 +58,7 @@ class Capsule {
         if (letter != null) 'letter': letter!,
         if (openedAt != null) 'openedAt': '$openedAt',
         'openedBy': openedBy.join(','),
+        if (from != null) 'from': from!,
       };
 }
 
@@ -322,5 +328,128 @@ class PlacesRepo {
       }
     }
     return best;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Общая свеча: зажёг один — горит у обоих (комната на «Доме»)
+// ---------------------------------------------------------------------------
+
+/// Derived candle state, from this device's point of view.
+enum CandleState {
+  /// Not lit, put out, or past local midnight since it was lit.
+  off,
+
+  /// Lit by me; the partner's device hasn't seen it yet.
+  pending,
+
+  /// Lit by the partner.
+  partner,
+
+  /// Lit by me and seen by the partner.
+  both,
+}
+
+/// What the candle row and the scene show.
+class CandleInfo {
+  final CandleState state;
+  final String? litBy;
+  final int? litAt; // ms
+  final String? outBy;
+  final int? outAt; // ms
+
+  /// When the partner's device saw my light (`both` only).
+  final int? seenAt;
+
+  const CandleInfo({
+    required this.state,
+    this.litBy,
+    this.litAt,
+    this.outBy,
+    this.outAt,
+    this.seenAt,
+  });
+
+  bool get lit => state != CandleState.off;
+}
+
+/// The shared candle on the `ritual` replica: one entity `candle:shared`
+/// with LWW fields `litBy`, `litAt`, `outBy`, `outAt` and `seen:<deviceId>`.
+/// Additive: older app versions ignore the entity (I8).
+class CandleRepo {
+  final Replica replica;
+  CandleRepo(this.replica);
+
+  static const String entityId = 'candle:shared';
+
+  Map<String, String> get _f => replica.entity(entityId) ?? const {};
+
+  /// Light it from [deviceId] at [atMs].
+  void light(String deviceId, int atMs) {
+    replica.set(entityId, 'litBy', deviceId);
+    replica.set(entityId, 'litAt', '$atMs');
+  }
+
+  /// Put it out (long press) from [deviceId] at [atMs].
+  void putOut(String deviceId, int atMs) {
+    replica.set(entityId, 'outBy', deviceId);
+    replica.set(entityId, 'outAt', '$atMs');
+  }
+
+  /// Record that the partner's light reached [deviceId]. No-op for my own
+  /// light, when not lit, or when this light was already seen. Returns
+  /// whether anything was written.
+  bool markSeen(String deviceId, int atMs) {
+    final f = _f;
+    final litAt = int.tryParse(f['litAt'] ?? '');
+    if (litAt == null || f['litBy'] == deviceId) return false;
+    final outAt = int.tryParse(f['outAt'] ?? '');
+    if (outAt != null && outAt >= litAt) return false;
+    final seen = int.tryParse(f['seen:$deviceId'] ?? '');
+    if (seen != null && seen >= litAt) return false;
+    replica.set(entityId, 'seen:$deviceId', '$atMs');
+    return true;
+  }
+
+  /// State for this device [me] at [now] (local time decides midnight).
+  /// [partner] is the partner's device id when known; otherwise any other
+  /// device's `seen:` counts.
+  CandleInfo state({required String me, String? partner, required DateTime now}) {
+    final f = _f;
+    final litBy = f['litBy'];
+    final litAt = int.tryParse(f['litAt'] ?? '');
+    final outBy = f['outBy'];
+    final outAt = int.tryParse(f['outAt'] ?? '');
+    CandleInfo off() => CandleInfo(
+        state: CandleState.off,
+        litBy: litBy,
+        litAt: litAt,
+        outBy: outBy,
+        outAt: outAt);
+    if (litAt == null || litBy == null) return off();
+    if (outAt != null && outAt >= litAt) return off();
+    final lit = DateTime.fromMillisecondsSinceEpoch(litAt);
+    final midnight = DateTime(lit.year, lit.month, lit.day + 1);
+    if (!now.isBefore(midnight)) return off();
+    if (litBy != me) {
+      return CandleInfo(
+          state: CandleState.partner, litBy: litBy, litAt: litAt);
+    }
+    int? seenAt;
+    for (final e in f.entries) {
+      if (!e.key.startsWith('seen:')) continue;
+      final who = e.key.substring(5);
+      if (who == me || (partner != null && who != partner)) continue;
+      final t = int.tryParse(e.value);
+      if (t != null && t >= litAt && (seenAt == null || t < seenAt)) {
+        seenAt = t;
+      }
+    }
+    return CandleInfo(
+      state: seenAt == null ? CandleState.pending : CandleState.both,
+      litBy: litBy,
+      litAt: litAt,
+      seenAt: seenAt,
+    );
   }
 }

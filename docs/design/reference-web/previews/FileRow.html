@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ru">
+<head><link rel="stylesheet" href="../fonts.css"><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><script src="../bundle.js"></script>
+<meta charset="utf-8">
+<title>FileRow — preview</title>
+
+<style>
+  .pad { padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; max-width: 440px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+</style>
+</head>
+<body>
+<div class="pad"><div class="ms-list" id="l"></div></div>
+<script>
+  function file(kind, name, meta, who, badge) {
+    return "<div class=\"ms-rowcard\"><div class=\"ms-thumb\">" + MS.icon(kind === "PDF" ? "description" : "image") + "<small>" + kind + "</small></div><div class=\"ms-rowcard__main\"><div class=\"ms-rowcard__title\">" + name + "</div><div class=\"ms-meta\" style=\"flex-wrap:wrap;row-gap:4px\"><i class=\"ms-who ms-who--" + who + "\"></i>" + meta + (badge || "") + "</div></div>" + MS.icon("more_vert", { cls: "ms-chev" }) + "</div>";
+  }
+  document.getElementById("l").innerHTML =
+    file("PDF", "Договор аренды 2026.pdf", "1,4 МБ · Дом · вчера", "michael") +
+    file("PDF", "Полис ОСАГО.pdf", "0,6 МБ · Авто", "michael", "<span class=\"ms-badge ms-badge--warn\">истекает через 54 дня</span>") +
+    "<div class=\"ms-rowcard\"><div class=\"ms-thumb ms-thumb--lock\">" + MS.icon("lock") + "</div><div class=\"ms-rowcard__main\"><div class=\"ms-rowcard__title\">Личный сейф</div><div class=\"ms-meta\">только для вас · свой пароль</div></div>" + MS.icon("chevron_right", { cls: "ms-chev" }) + "</div>";
+</script>
+</body>
+</html>

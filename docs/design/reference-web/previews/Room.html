@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ru">
+<head><link rel="stylesheet" href="../fonts.css"><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><script src="../bundle.js"></script>
+<meta charset="utf-8">
+<title>Room — preview</title>
+
+<style>
+  .wrap { display: flex; gap: 28px; padding: 20px 24px; align-items: flex-start; }
+  .main { width: 390px; height: 440px; border-radius: var(--radius-lg); overflow: hidden; flex: none; position: relative; }
+  .side { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; flex: 1; min-width: 0; }
+  .mini { border-radius: var(--radius-md); overflow: hidden; aspect-ratio: 210 / 250; background: var(--surface); }
+  .cap { margin-top: 6px; }
+  .legend { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 10px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .legend div { display: flex; gap: 10px; align-items: baseline; font-size: 13px; line-height: 18px; color: var(--ink-muted); }
+  .legend b { color: var(--ink); font-weight: 600; min-width: 84px; }
+  .tip { position: absolute; left: 12px; bottom: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div>
+    <div class="main" id="main"></div>
+    <div class="ms-meta cap" id="state">Нажмите на свечу — она загорится и у Софии.</div>
+  </div>
+  <div class="side">
+    <div><div class="mini" id="w1"></div><div class="ms-eyebrow cap">ночь, ясно</div></div>
+    <div><div class="mini" id="w2"></div><div class="ms-eyebrow cap">день, облачно</div></div>
+    <div><div class="mini" id="w3"></div><div class="ms-eyebrow cap">ночь, снег</div></div>
+    <div><div class="mini" id="w4"></div><div class="ms-eyebrow cap">день, солнце</div></div>
+    <div class="legend">
+      <div><b>Окно</b>реальная погода и время суток там, где вы; тап — прогноз на день</div>
+      <div><b>Свеча</b>общая: зажгли здесь — горит у обоих; гаснет сама в полночь</div>
+      <div><b>Басенджи</b>живёт: дышит, поводит ухом; тап — поднимает голову</div>
+      <div><b>Записка</b>последняя записка партнёра; булавка его цвета</div>
+    </div>
+  </div>
+</div>
+<script>
+  var LOGO = '../../assets/logo/ms-icon.png';
+  var lit = true;
+  function isDay() { return document.documentElement.getAttribute('data-theme') === 'day'; }
+  function drawMain() {
+    var w = isDay()
+      ? { kind: 'rain', time: 'day', temp: '+9°', label: 'мелкий дождь', place: 'Москва' }
+      : { kind: 'rain', time: 'night', temp: '+7°', label: 'мелкий дождь', place: 'Москва' };
+    document.getElementById('main').innerHTML = MS.roomSVG({
+      weather: w, candle: lit ? 'lit' : 'off', logo: LOGO,
+      note: { text: 'Купи хлеб', by: 'sofia', sign: 'С.' }
+    });
+    document.getElementById('state').textContent = lit
+      ? 'Свеча горит · зажгла София в ' + (isDay() ? '14:02' : '21:14')
+      : 'Свеча погасла. Нажмите — загорится и у Софии.';
+    var c = document.querySelector('#main [data-candle]');
+    c.addEventListener('click', function () { lit = !lit; drawMain(); });
+  }
+  drawMain();
+  new MutationObserver(drawMain).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  function mini(id, w) {
+    document.getElementById(id).innerHTML = MS.roomSVG({ weather: w, candle: 'off', logo: LOGO, note: null, vignette: false })
+      .replace('viewBox="0 0 390 440"', 'viewBox="20 40 210 250"');
+  }
+  mini('w1', { kind: 'clear', time: 'night', temp: '+3°', label: 'ясно', place: 'Москва' });
+  mini('w2', { kind: 'cloudy', time: 'day', temp: '+9°', label: 'облачно', place: 'Москва' });
+  mini('w3', { kind: 'snow', time: 'night', temp: '−4°', label: 'снег', place: 'Москва' });
+  mini('w4', { kind: 'clear', time: 'day', temp: '+18°', label: 'солнечно', place: 'Москва' });
+</script>
+</body>
+</html>

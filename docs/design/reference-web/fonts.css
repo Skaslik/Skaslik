@@ -1,0 +1,12 @@
+/* Local fonts so the reference previews render offline. Same files the app bundles. */
+@font-face { font-family: Onest; font-weight: 400; src: url(../assets/fonts/Onest-Regular.ttf); }
+@font-face { font-family: Onest; font-weight: 500; src: url(../assets/fonts/Onest-Medium.ttf); }
+@font-face { font-family: Onest; font-weight: 600; src: url(../assets/fonts/Onest-SemiBold.ttf); }
+@font-face { font-family: Onest; font-weight: 700; src: url(../assets/fonts/Onest-Bold.ttf); }
+@font-face { font-family: "IBM Plex Mono"; font-weight: 400; src: url(../assets/fonts/IBMPlexMono-Regular.ttf); }
+@font-face { font-family: "IBM Plex Mono"; font-weight: 500; src: url(../assets/fonts/IBMPlexMono-Medium.ttf); }
+@font-face { font-family: "IBM Plex Mono"; font-weight: 600; src: url(../assets/fonts/IBMPlexMono-SemiBold.ttf); }
+@font-face { font-family: "PT Serif"; font-weight: 400; src: url(../assets/fonts/PTSerif-Regular.ttf); }
+@font-face { font-family: "PT Serif"; font-weight: 700; src: url(../assets/fonts/PTSerif-Bold.ttf); }
+@font-face { font-family: "PT Serif"; font-weight: 400; font-style: italic; src: url(../assets/fonts/PTSerif-Italic.ttf); }
+@font-face { font-family: "Material Symbols Rounded"; font-weight: 100 700; src: url(fonts/material-symbols-rounded.woff2) format("woff2"); }

@@ -8,8 +8,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class SecureVault {
   SecureVault._();
 
-  static final FlutterSecureStorage _native = FlutterSecureStorage(
-    aOptions: const AndroidOptions(encryptedSharedPreferences: true),
+  static const FlutterSecureStorage _native = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
   static final Map<String, String> _mem = {};
   static bool? _nativeOk;

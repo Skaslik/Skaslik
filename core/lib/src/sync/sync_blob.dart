@@ -13,7 +13,6 @@ library;
 import 'dart:typed_data';
 
 import '../crypto/primitives.dart';
-import '../crypto/pairing.dart';
 import 'replica.dart';
 
 /// AAD для sync-конверта (domain-separation).

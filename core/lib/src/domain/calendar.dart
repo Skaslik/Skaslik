@@ -149,6 +149,19 @@ class CalEvent {
   final String? ownerColor;
   final String? note;
 
+  /// Device that created the event (additive; older events have none).
+  final String? ownerId;
+
+  /// When it was created, ms.
+  final int? createdAt;
+
+  /// Device that changed it last, and when (ms). Unset until first edit.
+  final String? editedBy;
+  final int? editedAt;
+
+  /// «Вместе»: belongs to both, drawn as two halves.
+  final bool shared;
+
   CalEvent({
     required this.id,
     required this.title,
@@ -164,7 +177,46 @@ class CalEvent {
     this.inviteStatus,
     this.ownerColor,
     this.note,
+    this.ownerId,
+    this.createdAt,
+    this.editedBy,
+    this.editedAt,
+    this.shared = false,
   });
+
+  CalEvent copyWith({
+    String? title,
+    DateTime? start,
+    DateTime? end,
+    bool? allDay,
+    Recurrence? recurrence,
+    ReminderRules? reminders,
+    String? note,
+    String? editedBy,
+    int? editedAt,
+    bool? shared,
+  }) =>
+      CalEvent(
+        id: id,
+        title: title ?? this.title,
+        start: start ?? this.start,
+        end: end ?? this.end,
+        allDay: allDay ?? this.allDay,
+        locationName: locationName,
+        lat: lat,
+        lng: lng,
+        timezone: timezone,
+        recurrence: recurrence ?? this.recurrence,
+        reminders: reminders ?? this.reminders,
+        inviteStatus: inviteStatus,
+        ownerColor: ownerColor,
+        note: note ?? this.note,
+        ownerId: ownerId,
+        createdAt: createdAt,
+        editedBy: editedBy ?? this.editedBy,
+        editedAt: editedAt ?? this.editedAt,
+        shared: shared ?? this.shared,
+      );
 
   /// Разобрать из полей CRDT-реплики. `null`, если обязательных полей нет.
   static CalEvent? fromFields(String id, Map<String, String> f) {
@@ -186,6 +238,11 @@ class CalEvent {
       inviteStatus: f['invite'],
       ownerColor: f['color'],
       note: f['note'],
+      ownerId: f['owner'],
+      createdAt: int.tryParse(f['createdAt'] ?? ''),
+      editedBy: f['editedBy'],
+      editedAt: int.tryParse(f['editedAt'] ?? ''),
+      shared: f['shared'] == '1',
     );
   }
 
@@ -204,6 +261,11 @@ class CalEvent {
         if (inviteStatus != null) 'invite': inviteStatus!,
         if (ownerColor != null) 'color': ownerColor!,
         if (note != null) 'note': note!,
+        if (ownerId != null) 'owner': ownerId!,
+        if (createdAt != null) 'createdAt': '$createdAt',
+        if (editedBy != null) 'editedBy': editedBy!,
+        if (editedAt != null) 'editedAt': '$editedAt',
+        'shared': shared ? '1' : '0',
       };
 }
 

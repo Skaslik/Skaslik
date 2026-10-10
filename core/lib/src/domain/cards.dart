@@ -44,6 +44,9 @@ class LoyaltyCard {
   final bool favorite;
   final int? lastUsed; // ms
 
+  /// Device that added the card (additive; older cards have none).
+  final String? addedBy;
+
   LoyaltyCard({
     required this.id,
     required this.merchantName,
@@ -54,6 +57,7 @@ class LoyaltyCard {
     this.note,
     this.favorite = false,
     this.lastUsed,
+    this.addedBy,
   });
 
   static LoyaltyCard? fromFields(String id, Map<String, String> f) {
@@ -69,6 +73,7 @@ class LoyaltyCard {
       note: f['note'],
       favorite: f['favorite'] == '1',
       lastUsed: int.tryParse(f['lastUsed'] ?? ''),
+      addedBy: f['addedBy'],
     );
   }
 
@@ -81,6 +86,7 @@ class LoyaltyCard {
         if (note != null) 'note': note!,
         'favorite': favorite ? '1' : '0',
         if (lastUsed != null) 'lastUsed': '$lastUsed',
+        if (addedBy != null) 'addedBy': addedBy!,
       };
 }
 

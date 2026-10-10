@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ru">
+<head><link rel="stylesheet" href="../fonts.css"><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><script src="../bundle.js"></script>
+<meta charset="utf-8">
+<title>ScreenFiles — preview</title>
+
+<style>
+  .disk { display: flex; align-items: center; gap: 8px; margin: 12px 0 14px; }
+  .disk .ms-prog { flex: 1; height: 4px; }
+  .ms-chips { flex-wrap: nowrap; overflow: hidden; margin-bottom: 14px; }
+  .ms-rowcard { min-height: 72px; padding: 10px 14px 10px 10px; }
+  .ms-rowcard .ms-meta { flex-wrap: wrap; row-gap: 4px; }
+  .box { margin-top: 8px; }
+  .up { box-shadow: 0 6px 18px rgba(0, 0, 0, .25); }
+</style>
+</head>
+<body>
+<div class="ms-stage">
+  <div class="ms-phone" id="p"></div>
+  <div class="ms-annot">
+    <h3>Файлы</h3>
+    <ol>
+      <li><span><b>Это живая папка пары</b> на Яндекс.Диске (общий аккаунт, решение PLAN 5.4). Строка под заголовком честно говорит, где файлы и когда был синк.</span></li>
+      <li><span><b>Теги — чипы</b>, без вложенных папок по умолчанию: Паспорта, Дом, Налоги, Поездки.</span></li>
+      <li><span><b>Кто загрузил</b> — точка цвета автора в мете. Партнёр получает уведомление «Михаил загрузил: Договор.pdf».</span></li>
+      <li><span><b>Сроки документов</b> — жёлтый бейдж за 60 дней до конца (паспорт, ОСАГО, права).</span></li>
+      <li><span><b>Личный сейф</b> — отдельный пароль, без превью, второй не видит даже названий.</span></li>
+      <li><span><b>Добавить</b> — две двери: «Скан» (камера → PDF) и «Файл» (системный выбор).</span></li>
+    </ol>
+    <div class="ask"><span class="ms-eyebrow">Согласовать</span>Нужны ли пользовательские папки, или теги + поиск закрывают всё? В You&Me — просто список.</div>
+  </div>
+</div>
+<script>
+  function file(kind, name, meta, who, badge) {
+    return '<div class="ms-rowcard"><div class="ms-thumb">' + MS.icon(kind === 'PDF' ? 'description' : 'image') + '<small>' + kind + '</small></div>' +
+      '<div class="ms-rowcard__main"><div class="ms-rowcard__title">' + name + '</div>' +
+      '<div class="ms-meta"><i class="ms-who ms-who--' + who + '"></i>' + meta + (badge || '') + '</div></div>' +
+      MS.icon('more_vert', { cls: 'ms-chev' }) + '</div>';
+  }
+  document.getElementById('p').innerHTML =
+    MS.statusBar('21:14') +
+    '<div class="ms-phone__body"><div class="ms-screen">' +
+    '<div class="ms-screen__top" style="margin-bottom:0"><div><div class="ms-eyebrow">общая папка</div><h1 class="ms-screen__title">Файлы</h1></div>' +
+    '<button class="ms-iconbtn">' + MS.icon('search') + '</button></div>' +
+    '<div class="disk ms-meta">' + MS.icon('cloud_done', { size: 16 }) + '<span>Яндекс.Диск · 2,3 из 10 ГБ</span><div class="ms-prog"><i class="m" style="width:23%;background:var(--ink-muted)"></i></div><span>2 мин</span></div>' +
+    '<div class="ms-chips"><button class="ms-chip is-on">Все <span class="n">24</span></button><button class="ms-chip">Паспорта <span class="n">4</span></button><button class="ms-chip">Дом <span class="n">9</span></button><button class="ms-chip">Налоги <span class="n">6</span></button><button class="ms-chip">Поездки</button></div>' +
+    '<div class="ms-list">' +
+    file('PDF', 'Договор аренды 2026.pdf', '1,4 МБ · Дом · вчера', 'michael') +
+    file('PDF', 'Паспорт Софии — скан.pdf', '3,1 МБ · Паспорта · 2 окт', 'sofia') +
+    file('PDF', 'Полис ОСАГО.pdf', '0,6 МБ · Авто', 'michael', '<span class="ms-badge ms-badge--warn">истекает через 54 дня</span>') +
+    file('JPG', 'Чек — холодильник.jpg', '0,9 МБ · Дом · гарантия 3 года', 'sofia') +
+    '</div>' +
+    '<div class="ms-rowcard box"><div class="ms-thumb ms-thumb--lock">' + MS.icon('lock') + '</div>' +
+    '<div class="ms-rowcard__main"><div class="ms-rowcard__title">Личный сейф</div><div class="ms-meta">только для вас · свой пароль</div></div>' + MS.icon('chevron_right', { cls: 'ms-chev' }) + '</div>' +
+    '</div>' +
+    '<div class="ms-fab"><button class="ms-btn ms-btn--secondary ms-btn--pill up">' + MS.icon('document_scanner', { size: 20 }) + 'Скан</button>' +
+    '<button class="ms-btn ms-btn--primary ms-btn--pill up">' + MS.icon('add', { size: 20 }) + 'Файл</button></div>' +
+    '</div>' + MS.tabBar('files', { us: true });
+</script>
+</body>
+</html>

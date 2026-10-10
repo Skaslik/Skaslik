@@ -1,0 +1,1076 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>МС — прототип приложения</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Onest:wght@400;500;600;700&amp;family=PT+Serif:ital,wght@0,400;0,700;1,400&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#f2b65e}a:hover{color:#ffd08a}
+.ms{--ground:#14110e;--surface:#1d1915;--surface-raised:#28231e;--line:#3a332c;--ink:#f4ede4;--ink-muted:#aea498;--ink-faint:#7d746a;--michael:#80a8eb;--michael-soft:#223047;--sofia:#ef8c79;--sofia-soft:#45271f;--on-partner:#14110e;--flame:#f2b65e;--candle-flame:#f6b552;--on-flame:#1e150b;--flame-soft:#3a2b17;--flame-glow:rgba(242,182,94,0.32);--link:#f2b65e;--success:#88c39b;--warn:#e8c26a;--on-warn:#1e150b;--danger:#f07b70;--focus-ring:#f2b65e;--scrim:rgba(8,6,4,0.62);--card-paper:#ffffff;--card-ink:#000000;--card-ink-muted:#4a4a4a;--card-chip:#efefef;--scene-wall:#2b231d;--scene-wall-low:#231c17;--scene-floor:#1a1410;--scene-rug:#3b2b22;--scene-wood:#5c4231;--scene-wood-dark:#3d2c20;--scene-curtain:#5b3b2f;--scene-curtain-shade:#472e25;--scene-fabric:#34504b;--scene-fabric-shade:#283e3a;--scene-fabric-light:#41635d;--scene-plant:#4e6b45;--scene-pot:#8a4f33;--scene-note:#e9dcc4;--scene-note-ink:#2a221b;--scene-shadow:rgba(0,0,0,0.35);--candle-wax:#efe2cb;--flame-core:#fff3d6;--dog-coat:#16120f;--dog-coat-shade:#2c241e;--dog-white:#f2ebe1;--dog-ear:#6a4a43;--dog-eye:#6b4f3a;--weather-mark:#e6eef6;--sky-top:#18213b;--sky-low:#33405f;--sky-ink:#f4ede4;--shadow-sheet:0 -10px 28px rgba(0,0,0,0.45)}
+.ms[data-theme="day"]{--ground:#faf6f0;--surface:#f3ebdf;--surface-raised:#fffdf9;--line:#e2d5c3;--ink:#1a1614;--ink-muted:#695e54;--ink-faint:#a3988c;--michael:#3d5a6c;--michael-soft:#dbe4ea;--sofia:#b0563b;--sofia-soft:#f1ddd3;--on-partner:#ffffff;--flame:#bb761f;--candle-flame:#f2a93b;--on-flame:#1e150b;--flame-soft:#f6e2c2;--flame-glow:rgba(233,164,69,0.26);--link:#8b4c10;--success:#4a7c59;--warn:#c99a2e;--on-warn:#1a1614;--danger:#a94442;--focus-ring:#8b4c10;--scrim:rgba(26,22,20,0.40);--scene-wall:#eadcc8;--scene-wall-low:#ddcbb2;--scene-floor:#b98d66;--scene-rug:#d9b597;--scene-wood:#a8774e;--scene-wood-dark:#86593a;--scene-curtain:#cf9a78;--scene-curtain-shade:#b98463;--scene-fabric:#6f978e;--scene-fabric-shade:#5a8077;--scene-fabric-light:#88aea5;--scene-plant:#5f8a52;--scene-pot:#b8673f;--scene-note:#fffaf0;--scene-shadow:rgba(70,45,20,0.16);--candle-wax:#f6ecda;--flame-core:#fff6e0;--dog-coat:#1b1612;--dog-coat-shade:#3a312a;--dog-white:#fbf7f1;--dog-ear:#8a6159;--dog-eye:#5c4230;--sky-top:#9aa3ad;--sky-low:#d8e8f3;--sky-ink:#1a2633;--shadow-sheet:0 -6px 22px rgba(70,45,20,0.12)}
+.ms{font-family:Onest,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+:where(.ms) :where(button){font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent}
+:where(.ms) :where(input){font:inherit;color:inherit}
+.ms :focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.ic{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none;display:block}
+.ic-sm{width:18px;height:18px}
+.ic-dots{stroke-width:3}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;line-height:14px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted)}
+.meta{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;line-height:16px;color:var(--ink-muted)}
+.lnk{color:var(--link);font-weight:600;font-size:13px}
+.title{font-size:28px;line-height:32px;font-weight:700;letter-spacing:-.01em;margin:4px 0 0}
+.sech{display:flex;align-items:baseline;justify-content:space-between;margin:22px 0 8px}
+.scr{position:absolute;inset:0;overflow-y:auto;padding:20px 16px 24px;box-sizing:border-box}
+.top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:16px}
+.rbtn{width:40px;height:40px;border-radius:999px;background:var(--surface);display:grid;place-items:center;flex:none}
+.row{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:14px;padding:12px 14px;min-height:56px;width:100%;box-sizing:border-box}
+.list{display:flex;flex-direction:column;gap:8px}
+.rmain{flex:1;min-width:0}
+.rtitle{font-size:15px;line-height:20px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rmeta{margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;row-gap:4px}
+.chev{color:var(--ink-faint)}
+.dateb{width:48px;flex:none;text-align:center}
+.dateb b{display:block;font-family:"IBM Plex Mono",monospace;font-size:18px;line-height:20px;font-weight:600}
+.dateb span{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;line-height:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-muted);margin-top:2px}
+.bar{width:3px;align-self:stretch;border-radius:2px;flex:none}
+.who{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px}
+.chip{height:32px;padding:0 14px;border-radius:999px;border:1px solid var(--line);font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;flex:none}
+.chip .n{font-family:"IBM Plex Mono",monospace;font-size:11px;opacity:.75}
+.seg{display:flex;padding:3px;gap:3px;border-radius:999px;background:var(--surface)}
+.seg button{flex:1;height:32px;border-radius:999px;font-size:13px;font-weight:500;text-align:center}
+.btn{height:48px;padding:0 20px;border-radius:14px;font-size:15px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;text-align:center}
+.btn-p{background:var(--flame);color:var(--on-flame)}
+.btn-s{background:var(--surface-raised);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.btn-sm{height:36px;padding:0 14px;font-size:13px;border-radius:999px}
+.sync{height:28px;padding:0 10px 0 8px;border-radius:999px;background:var(--surface);display:inline-flex;align-items:center;gap:6px;font-family:"IBM Plex Mono",monospace;font-size:11px;white-space:nowrap}
+.card{background:var(--surface);border-radius:20px;padding:16px 20px}
+.prog{height:8px;border-radius:999px;background:var(--surface-raised);display:flex;overflow:hidden;gap:2px}
+.prog i{display:block;height:100%;transition:width .35s ease}
+.amt{font-family:"IBM Plex Mono",monospace;font-size:17px;line-height:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.big{font-family:"IBM Plex Mono",monospace;font-size:32px;line-height:36px;font-weight:500;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.badge{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:8px;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.04em;font-weight:500;white-space:nowrap}
+.thumb{width:44px;height:52px;border-radius:8px;background:var(--surface-raised);border:1px solid var(--line);display:grid;place-items:center;flex:none;position:relative;color:var(--ink-muted);box-sizing:border-box}
+.thumb small{position:absolute;bottom:4px;font-family:"IBM Plex Mono",monospace;font-size:8px;letter-spacing:.06em;font-weight:600}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:82px;box-sizing:border-box;display:flex;justify-content:space-around;align-items:flex-start;padding:8px 6px 18px;background:var(--surface);border-top:1px solid var(--line);z-index:5}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:48px;text-align:center}
+.tab .pill{position:relative;width:56px;height:30px;border-radius:999px;display:grid;place-items:center}
+.tab .lbl{font-size:11px;line-height:14px}
+.tab .dot{position:absolute;top:3px;right:12px;width:8px;height:8px;border-radius:50%;background:var(--sofia);box-shadow:0 0 0 2px var(--surface)}
+.room{position:absolute;left:0;top:0;width:390px;height:430px;overflow:hidden}
+.room svg.scene{display:block;width:390px;height:430px}
+.hit{position:absolute;border-radius:12px}
+.s-wall{fill:var(--scene-wall)}.s-wall-low{fill:var(--scene-wall-low)}.s-floor{fill:var(--scene-floor)}.s-rug{fill:var(--scene-rug)}.s-wood{fill:var(--scene-wood)}.s-wood-dark{fill:var(--scene-wood-dark)}.s-curtain{fill:var(--scene-curtain)}
+.s-curtain-shade{fill:none;stroke:var(--scene-curtain-shade);stroke-width:2.5;stroke-linecap:round}
+.s-fabric{fill:var(--scene-fabric)}.s-fabric-shade{fill:var(--scene-fabric-shade)}.s-fabric-light{fill:var(--scene-fabric-light)}
+.s-fabric-line{fill:none;stroke:var(--scene-fabric-shade);stroke-width:3;stroke-linecap:round}
+.s-plant{fill:var(--scene-plant)}.s-pot{fill:var(--scene-pot)}.s-shadow{fill:var(--scene-shadow)}
+.w-mark{fill:var(--weather-mark)}
+.w-cloud{fill:var(--weather-mark);opacity:.55}
+.w-rain{stroke:var(--weather-mark);stroke-width:1.2;stroke-linecap:round;opacity:.7}
+.ms[data-theme="day"] .rain{display:none}
+.cloud-day{display:none}
+.ms[data-theme="day"] .cloud-day{display:inline}
+.d-coat{fill:var(--dog-coat)}.d-shade{fill:var(--dog-coat-shade)}.d-white{fill:var(--dog-white)}.d-ear{fill:var(--dog-ear)}.d-eye{fill:var(--dog-eye)}
+.d-coat-stroke{fill:none;stroke:var(--dog-coat);stroke-width:7;stroke-linecap:round}
+.d-nose{fill:var(--dog-coat);stroke:var(--dog-coat-shade);stroke-width:.6}
+.d-line{fill:none;stroke:var(--dog-coat-shade);stroke-width:1.1;stroke-linecap:round}
+.dog{transform-box:fill-box;transform-origin:85% 95%}
+.poke .dog{animation:perk 1.1s ease-in-out}
+@keyframes perk{0%,100%{transform:none}35%{transform:rotate(-5deg) translateY(-4px)}65%{transform:rotate(-2deg) translateY(-2px)}}
+.c-wax{fill:var(--candle-wax)}.c-flame{fill:var(--candle-flame)}.c-core{fill:var(--flame-core)}
+.c-wick{stroke:var(--dog-coat);stroke-width:1.4;stroke-linecap:round}
+.c-smoke{fill:none;stroke:var(--ink-faint);stroke-width:1.2;stroke-linecap:round;opacity:.6}
+.flame-g{transform-box:fill-box;transform-origin:50% 100%;animation:flick 2.4s ease-in-out infinite}
+@keyframes flick{0%,100%{transform:scale(1,1) rotate(0)}30%{transform:scale(.94,1.06) rotate(-2deg)}55%{transform:scale(1.04,.96) rotate(1.5deg)}80%{transform:scale(.97,1.03) rotate(-1deg)}}
+@media (prefers-reduced-motion: reduce){.flame-g,.poke .dog{animation:none}}
+.wtxt{position:absolute;left:58px;top:88px;color:var(--sky-ink);pointer-events:none}
+.wtxt .t{font-family:"PT Serif",Georgia,serif;font-size:34px;line-height:36px}
+.wtxt .l{font-size:12px;line-height:16px;font-weight:500;margin-top:2px}
+.wtxt .p{font-family:"IBM Plex Mono",monospace;font-size:8.5px;letter-spacing:.08em;opacity:.85;margin-top:1px}
+.note{position:absolute;left:218px;top:135px;width:64px;height:48px;background:var(--scene-note);border-radius:2px;transform:rotate(-5deg);box-shadow:1.5px 2px 0 var(--scene-shadow);text-align:center;color:var(--scene-note-ink);font-family:"PT Serif",Georgia,serif;font-style:italic}
+.note .pin{position:absolute;left:29px;top:2px;width:6px;height:6px;border-radius:50%}
+.note .nt{display:block;font-size:10px;line-height:12px;margin-top:16px}
+.note .ns{display:block;font-size:9px;line-height:10px;text-align:right;padding-right:6px;margin-top:4px}
+.sheet{position:absolute;left:0;right:0;top:392px;bottom:0;background:var(--ground);border-radius:20px 20px 0 0;box-shadow:var(--shadow-sheet);padding:10px 16px 20px;box-sizing:border-box;overflow-y:auto;z-index:2}
+.grab{width:36px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 12px}
+.greet{font-family:"PT Serif",Georgia,serif;font-size:26px;line-height:30px;font-weight:700;margin:0}
+.crow{display:flex;align-items:center;gap:12px;border-radius:14px;padding:8px 16px 8px 10px;margin-top:12px;width:100%;box-sizing:border-box}
+.crow b{display:block;font-size:14px;line-height:18px}
+.lcard{flex:none;width:112px;height:64px;border-radius:14px;background:var(--surface);padding:10px 12px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between}
+.lcard b{font-size:13px;font-weight:600}
+.lcard i{display:block;height:14px;border-radius:2px;opacity:.55;background:repeating-linear-gradient(90deg,var(--ink) 0 1px,transparent 1px 3px,var(--ink) 3px 5px,transparent 5px 6px)}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));row-gap:2px}
+.wd{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-muted);text-align:center;height:22px}
+.cd{position:relative;height:42px;display:flex;flex-direction:column;align-items:center;padding-top:2px;text-align:center}
+.cd .num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-family:"IBM Plex Mono",monospace;font-size:14px;font-weight:500}
+.cd .dots{position:absolute;bottom:3px;left:0;right:0;display:flex;gap:3px;justify-content:center}
+.cd .dots i{width:5px;height:5px;border-radius:50%}
+.cd .trip{position:absolute;bottom:4px;height:4px}
+.overlay{position:absolute;inset:0;z-index:20}
+.scrim{position:absolute;inset:0;background:var(--scrim);width:100%}
+.panel{position:absolute;left:0;right:0;bottom:0;background:var(--ground);border-radius:20px 20px 0 0;padding:10px 20px 28px;box-shadow:var(--shadow-sheet);max-height:640px;overflow-y:auto;box-sizing:border-box}
+.panel h2{font-size:20px;line-height:26px;font-weight:600;margin:4px 0 4px}
+.field{height:44px;border-radius:14px;background:var(--surface);display:flex;align-items:center;padding:0 14px;box-sizing:border-box;width:100%;border:1px solid var(--line);outline:none}
+.toast{position:absolute;left:16px;right:16px;bottom:96px;z-index:30;background:var(--ink);color:var(--ground);border-radius:14px;padding:12px 16px;font-size:14px;line-height:19px;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.key{width:76px;height:76px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font-family:"IBM Plex Mono",monospace;font-size:30px;text-align:center}
+.pair{position:relative;width:48px;height:30px;flex:none}
+.pair i{position:absolute;top:0;width:30px;height:30px;border-radius:50%}
+.grp{background:var(--surface);border-radius:20px;overflow:hidden}
+.grp .it{display:flex;align-items:center;gap:12px;padding:12px 16px;min-height:28px;width:100%;box-sizing:border-box}
+.grp .it + .it{border-top:1px solid var(--line)}
+.grp .t{flex:1;font-size:15px;font-weight:500}
+.grp .v{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-muted)}
+.chk{width:22px;height:22px;border-radius:7px;flex:none;display:grid;place-items:center;box-sizing:border-box}
+.calc{position:absolute;inset:0;background:#1c1c1e;color:#ffffff;font-family:system-ui,-apple-system,Roboto,sans-serif;display:flex;flex-direction:column;justify-content:flex-end;padding:0 18px 34px;box-sizing:border-box}
+.calc .disp{font-size:64px;line-height:76px;font-weight:300;text-align:right;padding:0 8px 16px;white-space:nowrap;overflow:hidden}
+.calc .keys{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.calc .k{height:76px;border-radius:38px;background:#3a3a3c;color:#ffffff;font-size:28px;text-align:center}
+.calc .k.op{background:#5b6573}
+.calc .k.fn{background:#a5a5a5;color:#1c1c1e}
+.calc .k.wide{grid-column:span 2}
+</style>
+</helmet>
+<div class="ms" data-theme="{{theme}}" style="position: relative; width: 390px; height: 844px; overflow: hidden; background: var(--ground); color: var(--ink);">
+
+<sc-if value="{{isApp}}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; left: 0; right: 0; top: 0; bottom: 82px; overflow: hidden;">
+
+<!-- ДОМ -->
+<sc-if value="{{tabHome}}" hint-placeholder-val="{{ true }}">
+<div class="room {{dogClass}}">
+<svg class="scene" viewBox="0 0 390 440" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Комната: окно с погодой, свеча на подоконнике, басенджи на кресле">
+<defs>
+<linearGradient id="msSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color: var(--sky-top)"/><stop offset="1" style="stop-color: var(--sky-low)"/></linearGradient>
+<radialGradient id="msVig" cx="0.42" cy="0.55" r="0.75"><stop offset="0.55" style="stop-color: var(--scene-shadow); stop-opacity: 0"/><stop offset="1" style="stop-color: var(--scene-shadow)"/></radialGradient>
+</defs>
+<rect class="s-wall" x="0" y="0" width="390" height="440"/>
+<rect class="s-wall-low" x="0" y="300" width="390" height="62"/>
+<rect class="s-wood-dark" x="0" y="298" width="390" height="3"/>
+<rect class="s-floor" x="0" y="362" width="390" height="78"/>
+<rect class="s-wood-dark" x="0" y="360" width="390" height="4"/>
+<ellipse class="s-rug" cx="292" cy="404" rx="118" ry="22"/>
+<rect class="s-wood" x="282" y="70" width="70" height="70" rx="3"/>
+<image href="/_blob/3367a2ab423d17b19632b30f20491ab1" x="288" y="76" width="58" height="58" preserveAspectRatio="xMidYMid slice"/>
+<rect class="s-wood-dark" x="14" y="52" width="206" height="4" rx="2"/>
+<circle class="s-wood" cx="14" cy="54" r="5"/>
+<circle class="s-wood" cx="220" cy="54" r="5"/>
+<rect class="s-wood" x="38" y="68" width="156" height="192" rx="5"/>
+<rect x="48" y="78" width="136" height="172" rx="3" style="fill: url(#msSky)"/>
+<ellipse class="w-cloud" cx="150" cy="98" rx="26" ry="9"/>
+<ellipse class="w-cloud" cx="138" cy="92" rx="14" ry="9"/>
+<ellipse class="w-cloud" cx="84" cy="236" rx="28" ry="8"/>
+<g class="cloud-day"><ellipse class="w-cloud" cx="112" cy="128" rx="30" ry="9"/><ellipse class="w-cloud" cx="124" cy="121" rx="15" ry="9"/><ellipse class="w-cloud" cx="150" cy="214" rx="26" ry="8"/></g>
+<g class="rain">
+<line class="w-rain" x1="62" y1="168" x2="58" y2="179"/><line class="w-rain" x1="85" y1="161" x2="81" y2="172"/><line class="w-rain" x1="122" y1="214" x2="118" y2="225"/><line class="w-rain" x1="159" y1="125" x2="155" y2="136"/><line class="w-rain" x1="70" y1="198" x2="66" y2="209"/><line class="w-rain" x1="97" y1="231" x2="93" y2="242"/><line class="w-rain" x1="134" y1="142" x2="130" y2="153"/><line class="w-rain" x1="171" y1="195" x2="167" y2="206"/><line class="w-rain" x1="109" y1="159" x2="105" y2="170"/><line class="w-rain" x1="146" y1="212" x2="142" y2="223"/><line class="w-rain" x1="178" y1="123" x2="174" y2="134"/><line class="w-rain" x1="84" y1="196" x2="80" y2="207"/><line class="w-rain" x1="121" y1="229" x2="117" y2="240"/><line class="w-rain" x1="158" y1="160" x2="154" y2="171"/><line class="w-rain" x1="59" y1="223" x2="55" y2="234"/><line class="w-rain" x1="133" y1="177" x2="129" y2="188"/><line class="w-rain" x1="170" y1="230" x2="166" y2="241"/><line class="w-rain" x1="145" y1="98" x2="141" y2="109"/>
+</g>
+<rect class="s-wood" x="48" y="180" width="136" height="6"/>
+<rect class="s-wood" x="113" y="180" width="6" height="70"/>
+<path class="s-curtain" d="M18 56 L50 56 C46 120 52 200 44 268 C38 300 30 300 22 304 C26 240 16 140 18 56 Z"/>
+<path class="s-curtain-shade" d="M28 60 C27 130 30 220 27 300 M38 60 C38 140 42 220 37 296"/>
+<path class="s-curtain" d="M184 56 L216 56 C218 140 208 240 212 304 C204 300 196 300 190 268 C182 200 188 120 184 56 Z"/>
+<path class="s-curtain-shade" d="M206 60 C207 130 204 220 207 300 M196 60 C196 140 192 220 197 296"/>
+<rect class="s-wood-dark" x="30" y="268" width="174" height="7" rx="2"/>
+<rect class="s-wood" x="26" y="260" width="182" height="9" rx="2"/>
+<path class="s-plant" d="M70 236 C60 226 56 214 60 204 C66 212 70 222 72 234 Z M74 234 C74 220 80 208 90 202 C90 214 84 226 76 236 Z M72 236 C66 228 54 226 46 230 C54 236 64 238 72 238 Z"/>
+<path class="s-pot" d="M60 238 L84 238 L81 260 L63 260 Z"/>
+<rect class="s-pot" x="58" y="235" width="28" height="5" rx="1.5"/>
+<g transform="translate(206 212)">
+<ellipse class="s-shadow" cx="89" cy="168" rx="96" ry="9"/>
+<rect class="s-wood" x="16" y="150" width="9" height="18" rx="3"/>
+<rect class="s-wood" x="153" y="150" width="9" height="18" rx="3"/>
+<rect class="s-fabric" x="16" y="0" width="146" height="110" rx="34"/>
+<path class="s-fabric-line" d="M30 18 C40 10 60 8 89 8 C118 8 138 10 148 18"/>
+<rect class="s-fabric-shade" x="0" y="64" width="36" height="92" rx="17"/>
+<rect class="s-fabric-shade" x="142" y="64" width="36" height="92" rx="17"/>
+<rect class="s-fabric-light" x="26" y="92" width="126" height="40" rx="14"/>
+<rect class="s-fabric-shade" x="10" y="126" width="158" height="28" rx="10"/>
+<g transform="translate(24 9) scale(0.86)">
+<g class="dog">
+<path class="d-coat-stroke" d="M146 50 C136 40 140 26 152 26 C164 26 168 40 158 46 C152 50 146 46 148 40"/>
+<circle class="d-white" cx="148.5" cy="40" r="3.6"/>
+<path class="d-coat" d="M52 58 C50 46 52 36 58 30 C66 24 75 24 79 28 C86 35 96 38 110 38 C130 38 152 46 157 68 C160 86 150 104 124 104 L66 104 C50 104 42 94 42 80 C42 70 46 63 52 58 Z"/>
+<path class="d-shade" d="M112 66 C130 60 150 68 152 84 C154 98 140 104 124 104 L104 104 C100 92 100 74 112 66 Z"/>
+<path class="d-white" d="M92 98 C100 95 114 95 120 98 C124 100 124 105 119 106 L94 106 C89 106 88 100 92 98 Z"/>
+<path class="d-shade" d="M50 88 L20 89 C13 89 12 96 18 97 L52 97 Z"/>
+<path class="d-white" d="M49 42 C45 52 45 66 47 78 C49 90 55 99 65 102 C62 90 62 72 66 58 C61 54 57 49 56 42 Z"/>
+<path class="d-white" d="M64 94 L22 95 C12 95 10 105 19 106 L66 106 C72 106 72 95 64 94 Z"/>
+<path class="d-shade" d="M52 8 L56 -14 L64 6 Z"/>
+<path class="d-coat" d="M78 24 C78 12 68 4 56 4 C46 4 38 9 33 15 C30 19 26 22 20 25 C14 28 9 31 9 35 C9 39 14 41 22 41 L40 42 C54 43 68 40 75 34 C78 31 79 28 78 24 Z"/>
+<path class="d-coat" d="M60 10 L67 -17 C68 -20 71 -20 72 -17 L80 17 Z"/>
+<path class="d-ear" d="M64.5 7 L68.5 -11 L75 13 Z"/>
+<path class="d-white" d="M12.5 36.5 C13 40 18 41.6 26 42 C32 42.3 37 42 40 41 C36 39 30 37.6 24 36.2 C19 35.2 15 35 12.5 36.5 Z"/>
+<path class="d-white" d="M15.5 30.2 C21 27.6 27 23.8 33 18.8 C34.2 17.8 35.6 18.6 34.8 19.8 C29.4 25.2 23 29.6 17.2 32.2 Z"/>
+<ellipse class="d-nose" cx="10.5" cy="34" rx="3.4" ry="2.8"/>
+<path class="d-eye" d="M39 23 C42 19.5 48 19 51 21.5 C48 24.6 42 25.2 39 23 Z"/>
+<circle class="d-white" cx="47.4" cy="21.2" r="1"/>
+<path class="d-line" d="M52 11 C55 9.4 58 9.6 60.5 11 M51 14.6 C54 13 57 13.2 59.6 14.4"/>
+</g>
+</g>
+</g>
+<rect x="0" y="0" width="390" height="440" style="fill: url(#msVig); pointer-events: none"/>
+</svg>
+
+<div class="wtxt"><div class="t">{{w.temp}}</div><div class="l">{{w.label}}</div><div class="p">МОСКВА</div></div>
+
+<sc-if value="{{candleOn}}" hint-placeholder-val="{{ true }}">
+<svg viewBox="-90 -130 180 150" style="position: absolute; left: 62px; top: 125px; width: 180px; height: 150px; pointer-events: none;" aria-hidden="true">
+<defs><radialGradient id="msGlow"><stop offset="0" style="stop-color: var(--flame-glow)"/><stop offset="1" style="stop-color: var(--flame-glow); stop-opacity: 0"/></radialGradient></defs>
+<circle cx="0" cy="-44" r="78" style="fill: url(#msGlow)"/>
+<ellipse class="s-shadow" cx="0" cy="0" rx="14" ry="2.5"/>
+<rect class="c-wax" x="-8" y="-32" width="16" height="32" rx="3"/>
+<ellipse class="c-wax" cx="0" cy="-32" rx="8" ry="2" style="filter: brightness(0.92)"/>
+<line class="c-wick" x1="0" y1="-33" x2="0" y2="-38"/>
+<g class="flame-g"><path class="c-flame" d="M0 -58 C5 -50 7 -44 5 -40 C3.5 -37 -3.5 -37 -5 -40 C-7 -44 -5 -50 0 -58 Z"/><path class="c-core" d="M0 -48 C2 -45 2.6 -42 1.6 -40.4 C1 -39.6 -1 -39.6 -1.6 -40.4 C-2.6 -42 -2 -45 0 -48 Z"/></g>
+</svg>
+</sc-if>
+<sc-if value="{{candleOff}}" hint-placeholder-val="{{ false }}">
+<svg viewBox="-90 -130 180 150" style="position: absolute; left: 62px; top: 125px; width: 180px; height: 150px; pointer-events: none;" aria-hidden="true">
+<ellipse class="s-shadow" cx="0" cy="0" rx="14" ry="2.5"/>
+<rect class="c-wax" x="-8" y="-32" width="16" height="32" rx="3"/>
+<ellipse class="c-wax" cx="0" cy="-32" rx="8" ry="2" style="filter: brightness(0.92)"/>
+<line class="c-wick" x1="0" y1="-33" x2="0" y2="-38"/>
+<path class="c-smoke" d="M0 -40 C3 -45 -3 -49 0 -54 C3 -58 -1 -62 1 -66"/>
+</svg>
+</sc-if>
+
+<button class="note" onClick="{{openNotes}}" aria-label="Записка на стене: {{note.text}}, от {{note.from}}"><i class="pin" style="background: {{note.pin}};"></i><span class="nt">{{note.text}}</span><span class="ns">— {{note.sign}}</span></button>
+<button class="hit" style="left: 48px; top: 73px; width: 136px; height: 172px;" onClick="{{openWeather}}" aria-label="Окно: {{w.temp}}, {{w.label}}. Прогноз"></button>
+<button class="hit" style="left: 124px; top: 178px; width: 56px; height: 84px;" onPointerDown="{{candleDown}}" onPointerUp="{{candleUp}}" onPointerLeave="{{candleCancel}}" onClick="{{candleKey}}" aria-label="Свеча: {{candle.title}}"></button>
+<button class="hit" style="left: 236px; top: 196px; width: 142px; height: 112px;" onClick="{{pokeDog}}" aria-label="Басенджи на кресле"></button>
+<button class="hit" style="left: 280px; top: 63px; width: 74px; height: 74px;" onClick="{{tapFrame}}" aria-label="Рамка с монограммой"></button>
+</div>
+
+<div class="sheet">
+<div class="grab"></div>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+<h1 class="greet">{{greet}}</h1>
+<button class="sync" onClick="{{openSync}}"><span style="color: var(--success); font-size: 12px;">●</span>синхр.</button>
+</div>
+<div class="crow" style="background: {{candle.bg}};">
+<sc-if value="{{candleOn}}" hint-placeholder-val="{{ true }}"><svg viewBox="-30 -78 60 96" style="width: 22px; height: 35px; flex: none;" aria-hidden="true"><rect class="c-wax" x="-8" y="-32" width="16" height="32" rx="3"/><line class="c-wick" x1="0" y1="-33" x2="0" y2="-38"/><path class="c-flame" d="M0 -64 C7 -54 9 -46 6.5 -41 C4.5 -37 -4.5 -37 -6.5 -41 C-9 -46 -7 -54 0 -64 Z"/></svg></sc-if>
+<sc-if value="{{candleOff}}" hint-placeholder-val="{{ false }}"><svg viewBox="-30 -78 60 96" style="width: 22px; height: 35px; flex: none;" aria-hidden="true"><rect class="c-wax" x="-8" y="-32" width="16" height="32" rx="3"/><line class="c-wick" x1="0" y1="-33" x2="0" y2="-38"/></svg></sc-if>
+<div><b>{{candle.title}}</b><div class="meta">{{candle.meta}}</div></div>
+</div>
+<div class="sech" style="margin-top: 20px;"><span class="eyebrow">Сегодня · {{todayLabel}}</span><button class="lnk" onClick="{{goCal}}">Календарь ›</button></div>
+<div class="list">
+<sc-for list="{{upcoming}}" as="ev" hint-placeholder-count="3">
+<button class="row" onClick="{{ev.open}}">
+<div class="dateb"><b>{{ev.d}}</b><span>{{ev.sub}}</span></div>
+<i class="bar" style="background: {{ev.bar}};"></i>
+<div class="rmain"><div class="rtitle">{{ev.t}}</div><div class="meta rmeta">{{ev.m}}</div></div>
+<svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+</button>
+</sc-for>
+</div>
+<div class="sech"><span class="eyebrow">Карты под рукой</span><button class="lnk" onClick="{{goCards}}">Все ›</button></div>
+<div style="display: flex; gap: 8px;">
+<sc-for list="{{cards}}" as="c" hint-placeholder-count="3">
+<button class="lcard" onClick="{{c.open}}" aria-label="Открыть карту {{c.name}}"><b>{{c.name}}</b><i></i></button>
+</sc-for>
+</div>
+<div class="sech"><span class="eyebrow">Копилка</span><button class="lnk" onClick="{{goTogether}}">Все ›</button></div>
+<button class="card" style="width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px;" onClick="{{goTogether}}">
+<div style="display: flex; justify-content: space-between; width: 100%;"><span style="font-size: 15px; font-weight: 600;">{{trip.name}}</span><span class="meta">{{trip.pct}}</span></div>
+<div class="prog" style="width: 100%;"><i style="width: {{trip.mw}}; background: var(--michael);"></i><i style="width: {{trip.sw}}; background: var(--sofia);"></i></div>
+<div style="display: flex; justify-content: space-between; width: 100%;"><span class="amt">{{trip.total}}</span><span class="meta">из {{trip.target}}</span></div>
+</button>
+</div>
+</sc-if>
+
+<!-- КАЛЕНДАРЬ -->
+<sc-if value="{{tabCal}}" hint-placeholder-val="{{ false }}">
+<div class="scr">
+<div class="eyebrow">четверг, 8 октября</div>
+<div style="display: flex; align-items: center; justify-content: space-between;">
+<h1 class="title">Октябрь</h1>
+<div style="display: flex; gap: 6px;">
+<button class="rbtn" onClick="{{onlyOctober}}" aria-label="Предыдущий месяц"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
+<button class="rbtn" onClick="{{onlyOctober}}" aria-label="Следующий месяц"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+</div>
+</div>
+<div class="seg" style="margin: 14px 0 12px;">
+<sc-for list="{{calViews}}" as="v" hint-placeholder-count="3"><button style="background: {{v.bg}}; color: {{v.color}}; box-shadow: {{v.ring}}; font-weight: {{v.weight}};" onClick="{{v.pick}}">{{v.label}}</button></sc-for>
+</div>
+<sc-if value="{{showGrid}}" hint-placeholder-val="{{ true }}">
+<div class="cal">
+<span class="wd">пн</span><span class="wd">вт</span><span class="wd">ср</span><span class="wd">чт</span><span class="wd">пт</span><span class="wd">сб</span><span class="wd">вс</span>
+<sc-for list="{{gridDays}}" as="d" hint-placeholder-count="35">
+<button class="cd" onClick="{{d.pick}}" aria-label="{{d.aria}}">
+<span class="num" style="background: {{d.bg}}; color: {{d.color}}; box-shadow: {{d.ring}};">{{d.n}}</span>
+<span class="dots"><sc-for list="{{d.dots}}" as="dot" hint-placeholder-count="1"><i style="background: {{dot.c}};"></i></sc-for></span>
+<sc-if value="{{d.trip}}" hint-placeholder-val="{{ false }}"><i class="trip" style="left: {{d.tl}}; right: {{d.tr}}; background: {{d.tbg}}; border-radius: {{d.trad}};"></i></sc-if>
+</button>
+</sc-for>
+</div>
+<div class="meta" style="display: flex; gap: 14px; margin-top: 10px;">
+<span style="display: inline-flex; align-items: center; gap: 6px;"><i class="who" style="background: var(--michael);"></i>Михаил</span>
+<span style="display: inline-flex; align-items: center; gap: 6px;"><i class="who" style="background: var(--sofia);"></i>София</span>
+<span style="display: inline-flex; align-items: center; gap: 6px;"><i class="who" style="width: 13px; border-radius: 999px; background: linear-gradient(90deg, var(--michael) 0 50%, var(--sofia) 50% 100%);"></i>вместе</span>
+</div>
+</sc-if>
+<div class="sech"><span class="eyebrow">{{listHead}}</span><button class="lnk" onClick="{{openAddEvent}}">+ Добавить</button></div>
+<div class="list">
+<sc-for list="{{calList}}" as="ev" hint-placeholder-count="2">
+<div class="row">
+<div class="dateb"><b>{{ev.d}}</b><span>{{ev.sub}}</span></div>
+<i class="bar" style="background: {{ev.bar}};"></i>
+<div class="rmain"><div class="rtitle">{{ev.t}}</div><div class="meta rmeta">{{ev.m}}</div></div>
+</div>
+</sc-for>
+<sc-if value="{{calEmpty}}" hint-placeholder-val="{{ false }}"><div class="row" style="color: var(--ink-muted); font-size: 14px;">Свободный день — можно просто побыть вместе.</div></sc-if>
+</div>
+</div>
+</sc-if>
+
+<!-- ФАЙЛЫ -->
+<sc-if value="{{tabFiles}}" hint-placeholder-val="{{ false }}">
+<div class="scr" style="padding-bottom: 96px;">
+<div class="top" style="margin-bottom: 0;">
+<div><div class="eyebrow">общая папка</div><h1 class="title">Файлы</h1></div>
+<button class="rbtn" onClick="{{searchTip}}" aria-label="Поиск"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg></button>
+</div>
+<div class="meta" style="display: flex; align-items: center; gap: 8px; margin: 12px 0 14px;">
+<svg class="ic ic-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 18.5a4 4 0 0 1-.8-7.9A5.5 5.5 0 0 1 17.4 9a4.5 4.5 0 0 1-.4 9.5z"/><path d="m9.5 13.5 2 2 3.5-3.5"/></svg>
+<span>Яндекс.Диск · 2,3 из 10 ГБ</span>
+<span style="flex: 1; height: 4px; border-radius: 999px; background: var(--surface-raised); overflow: hidden;"><i style="display: block; width: 23%; height: 100%; background: var(--ink-muted);"></i></span>
+<span>2 мин</span>
+</div>
+<div class="chips" style="margin-bottom: 14px;">
+<sc-for list="{{tags}}" as="tg" hint-placeholder-count="5"><button class="chip" style="background: {{tg.bg}}; color: {{tg.color}}; border-color: {{tg.border}};" onClick="{{tg.pick}}">{{tg.label}} <span class="n">{{tg.n}}</span></button></sc-for>
+</div>
+<div class="list">
+<sc-for list="{{files}}" as="f" hint-placeholder-count="4">
+<button class="row" style="min-height: 72px; padding: 10px 14px 10px 10px;" onClick="{{f.open}}">
+<span class="thumb">
+<sc-if value="{{f.isImg}}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5"/><circle cx="9" cy="9" r="1.6"/><path d="m20 15-4.5-4.5L6 20"/></svg></sc-if>
+<sc-if value="{{f.isDoc}}" hint-placeholder-val="{{ true }}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h6.5l4.5 4.5v11a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 5.5 19V5A1.5 1.5 0 0 1 7 3.5z"/><path d="M13.5 3.5V8H18M9 13h6M9 16.5h4"/></svg></sc-if>
+<small>{{f.k}}</small>
+</span>
+<span class="rmain"><span class="rtitle" style="display: block;">{{f.n}}</span><span class="meta rmeta"><i class="who" style="background: {{f.dot}};"></i>{{f.m}}<sc-if value="{{f.warn}}" hint-placeholder-val="{{ false }}"><span class="badge" style="background: var(--warn); color: var(--on-warn);">{{f.warn}}</span></sc-if></span></span>
+<svg class="ic ic-dots chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6h.01M12 12h.01M12 18h.01"/></svg>
+</button>
+</sc-for>
+<button class="row" style="margin-top: 4px;" onClick="{{openSafe}}">
+<span class="thumb" style="background: var(--flame-soft); border-color: transparent; color: var(--ink);"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg></span>
+<span class="rmain"><span class="rtitle" style="display: block;">Личный сейф</span><span class="meta">только для тебя · свой пароль</span></span>
+<svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+</button>
+</div>
+</div>
+<div style="position: absolute; right: 16px; bottom: 16px; display: flex; gap: 8px; z-index: 3;">
+<button class="btn btn-s" style="border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line), 0 6px 18px rgba(0,0,0,.25);" onClick="{{openAddFile}}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px;"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M8 10h8M8 14h5"/></svg>Скан</button>
+<button class="btn btn-p" style="border-radius: 999px; box-shadow: 0 6px 18px rgba(0,0,0,.25);" onClick="{{openAddFile}}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px;"><path d="M12 5v14M5 12h14"/></svg>Файл</button>
+</div>
+</sc-if>
+
+<!-- ВМЕСТЕ -->
+<sc-if value="{{tabTogether}}" hint-placeholder-val="{{ false }}">
+<div class="scr">
+<div class="top"><div><div class="eyebrow">наше общее</div><h1 class="title">Вместе</h1></div>
+<button class="rbtn" onClick="{{addTip}}" aria-label="Добавить"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
+<div class="seg" style="margin-bottom: 16px;">
+<sc-for list="{{segs}}" as="v" hint-placeholder-count="3"><button style="background: {{v.bg}}; color: {{v.color}}; box-shadow: {{v.ring}}; font-weight: {{v.weight}};" onClick="{{v.pick}}">{{v.label}}</button></sc-for>
+</div>
+
+<sc-if value="{{segBanks}}" hint-placeholder-val="{{ true }}">
+<div class="list" style="gap: 10px;">
+<sc-for list="{{piggies}}" as="p" hint-placeholder-count="3">
+<div class="card" style="display: flex; flex-direction: column; gap: 10px;">
+<div style="display: flex; justify-content: space-between; align-items: flex-start;">
+<div><div class="eyebrow">{{p.cat}}</div><div style="font-size: 17px; line-height: 22px; font-weight: 600; margin-top: 4px;">{{p.name}}</div></div>
+<button class="btn btn-p btn-sm" onClick="{{p.add}}">+ 1 000 ₽</button>
+</div>
+<div class="prog"><i style="width: {{p.mw}}; background: var(--michael);"></i><i style="width: {{p.sw}}; background: var(--sofia);"></i><i style="width: {{p.fw}}; background: var(--warn);"></i></div>
+<div style="display: flex; justify-content: space-between; align-items: baseline;"><span class="amt">{{p.total}}</span><span class="meta">из {{p.target}}</span></div>
+<div class="meta" style="display: flex; gap: 14px; flex-wrap: wrap;">
+<span style="display: inline-flex; align-items: center; gap: 6px;"><i class="who" style="background: var(--michael);"></i>{{p.mAmt}}</span>
+<span style="display: inline-flex; align-items: center; gap: 6px;"><i class="who" style="background: var(--sofia);"></i>{{p.sAmt}}</span>
+<span>{{p.forecast}}</span>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{segLists}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="padding: 16px;">
+<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;"><span style="font-size: 17px; font-weight: 600;">На выходные</span><span class="meta">{{listDone}}</span></div>
+<div style="display: flex; flex-direction: column;">
+<sc-for list="{{checks}}" as="it" hint-placeholder-count="5">
+<button style="display: flex; align-items: center; gap: 12px; min-height: 44px; width: 100%;" onClick="{{it.toggle}}" aria-pressed="{{it.done}}">
+<span class="chk" style="background: {{it.boxBg}}; border: 1.5px solid {{it.boxBorder}}; color: var(--on-flame);"><sc-if value="{{it.done}}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke-width: 2.6;" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></sc-if></span>
+<span style="flex: 1; font-size: 15px; text-decoration: {{it.deco}}; color: {{it.color}};">{{it.text}}</span>
+<sc-if value="{{it.done}}" hint-placeholder-val="{{ false }}"><i class="who" style="background: {{it.dot}};"></i></sc-if>
+</button>
+</sc-for>
+</div>
+<button class="lnk" style="margin-top: 8px;" onClick="{{addTip}}">+ Добавить пункт</button>
+</div>
+<div class="list" style="margin-top: 10px;">
+<button class="row" onClick="{{addTip}}"><span class="rmain"><span class="rtitle" style="display: block;">На дачу</span><span class="meta">12 пунктов · 4 отмечено</span></span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+<button class="row" onClick="{{addTip}}"><span class="rmain"><span class="rtitle" style="display: block;">Идеи подарков</span><span class="meta">7 идей · к годовщине</span></span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+</div>
+</sc-if>
+
+<sc-if value="{{segCards}}" hint-placeholder-val="{{ false }}">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+<sc-for list="{{cards}}" as="c" hint-placeholder-count="4">
+<button class="card" style="height: 112px; padding: 14px 16px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;" onClick="{{c.open}}">
+<span class="eyebrow">{{c.cat}}</span>
+<span style="font-size: 17px; font-weight: 600;">{{c.name}}</span>
+<span class="meta" style="display: inline-flex; align-items: center; gap: 6px;"><i class="who" style="background: {{c.dot}};"></i>{{c.by}}</span>
+</button>
+</sc-for>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<!-- МЫ -->
+<sc-if value="{{tabUs}}" hint-placeholder-val="{{ false }}">
+<div class="scr">
+<div class="top"><div><div class="eyebrow">Михаил и София</div><h1 class="title">Мы</h1></div>
+<span class="pair" aria-hidden="true"><i style="left: 0; background: var(--michael);"></i><i style="right: 0; background: var(--sofia); box-shadow: -2px 0 0 0 var(--ground);"></i></span></div>
+<div class="card" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));">
+<div><div class="big">1 461</div><div class="meta">дней вместе</div></div>
+<div style="border-left: 1px solid var(--line); padding-left: 20px;"><div class="big" style="color: var(--link);">2</div><div class="meta">дня до годовщины</div></div>
+</div>
+<button style="width: 100%; box-sizing: border-box; background: var(--sofia); color: var(--on-partner); border-radius: 20px; padding: 14px 16px; display: flex; gap: 12px; align-items: center; margin-top: 10px;" onClick="{{openCapsule}}">
+<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m4.5 7 7.5 6 7.5-6"/></svg>
+<span><b style="display: block; font-size: 15px; line-height: 20px;">Тебя ждёт письмо от Софии</b><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">откроется 14 февраля · через 129 дней</span></span>
+</button>
+<div class="sech"><span class="eyebrow">Тема</span></div>
+<div class="seg">
+<sc-for list="{{themes}}" as="v" hint-placeholder-count="2"><button style="background: {{v.bg}}; color: {{v.color}}; box-shadow: {{v.ring}}; font-weight: {{v.weight}};" onClick="{{v.pick}}">{{v.label}}</button></sc-for>
+</div>
+<div class="sech"><span class="eyebrow">Близко</span></div>
+<div class="grp">
+<button class="it" onClick="{{openNotes}}"><svg class="ic" viewBox="0 0 24 24" style="color: var(--ink-muted);" aria-hidden="true"><path d="M5.5 4h13A1.5 1.5 0 0 1 20 5.5V14l-6 6H5.5A1.5 1.5 0 0 1 4 18.5v-13A1.5 1.5 0 0 1 5.5 4z"/><path d="M14 20v-4.5A1.5 1.5 0 0 1 15.5 14H20M8 9h8M8 12h4.5"/></svg><span class="t">Записки</span><span style="min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--flame); color: var(--on-flame); font: 600 11px/20px 'IBM Plex Mono', monospace; text-align: center; box-sizing: border-box;">{{notesCount}}</span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+<button class="it" onClick="{{openCapsule}}"><svg class="ic" viewBox="0 0 24 24" style="color: var(--ink-muted);" aria-hidden="true"><path d="M7 3.5h10M7 20.5h10M8 3.5c0 5 8 5.5 8 8.5s-8 3.5-8 8.5M16 3.5c0 5-8 5.5-8 8.5s8 3.5 8 8.5"/></svg><span class="t">Капсулы</span><span class="v">3</span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+<button class="it" onClick="{{openPulse}}"><svg class="ic" viewBox="0 0 24 24" style="color: var(--ink-muted);" aria-hidden="true"><path d="M3.5 12h4l2-5 4 10 2-5h5"/></svg><span class="t">Пульс дня</span><span class="v">{{pulseLabel}}</span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+</div>
+<div class="sech"><span class="eyebrow">Устройство и данные</span></div>
+<div class="grp">
+<button class="it" onClick="{{openSync}}"><svg class="ic" viewBox="0 0 24 24" style="color: var(--ink-muted);" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 0 1-13 5.1M4.5 12a7.5 7.5 0 0 1 13-5.1M17.5 3.5v3.4h-3.4M6.5 20.5v-3.4h3.4"/></svg><span class="t">Синхронизация</span><span class="v">Я.Диск · ● ок</span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+<button class="it" onClick="{{lockNow}}"><svg class="ic" viewBox="0 0 24 24" style="color: var(--ink-muted);" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg><span class="t">Заблокировать сейчас</span><span class="v">PIN · отпечаток</span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+<button class="it" onClick="{{recoveryTip}}"><svg class="ic" viewBox="0 0 24 24" style="color: var(--ink-muted);" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="m11 12 8.5-8.5M16.5 6.5l2 2M14 9l2 2"/></svg><span class="t">Лист восстановления</span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+</div>
+</div>
+</sc-if>
+
+</div>
+
+<nav class="tabbar" aria-label="Разделы">
+<sc-for list="{{tabs}}" as="tb" hint-placeholder-count="5">
+<button class="tab" style="color: {{tb.color}};" onClick="{{tb.go}}" aria-current="{{tb.current}}">
+<span class="pill" style="background: {{tb.bg}}; color: {{tb.icColor}};">
+<sc-if value="{{tb.isHome}}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5"/><path d="M6 10v9.5h12V10"/><path d="M10 19.5v-5h4v5"/></svg></sc-if>
+<sc-if value="{{tb.isCal}}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></sc-if>
+<sc-if value="{{tb.isFiles}}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/></svg></sc-if>
+<sc-if value="{{tb.isTogether}}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9.5" cy="12" r="5.5"/><circle cx="14.5" cy="12" r="5.5"/></svg></sc-if>
+<sc-if value="{{tb.isUs}}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19.5s-7.5-4.6-7.5-10A4 4 0 0 1 12 7a4 4 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10z"/></svg></sc-if>
+<sc-if value="{{tb.badge}}" hint-placeholder-val="{{ false }}"><i class="dot"></i></sc-if>
+</span>
+<span class="lbl" style="font-weight: {{tb.weight}};">{{tb.label}}</span>
+</button>
+</sc-for>
+</nav>
+
+<!-- НИЖНИЕ ЛИСТЫ -->
+<sc-if value="{{sheetOpen}}" hint-placeholder-val="{{ false }}">
+<div class="overlay">
+<button class="scrim" onClick="{{closeSheet}}" aria-label="Закрыть"></button>
+<div class="panel" role="dialog" aria-label="{{sheetTitle}}">
+<div class="grab"></div>
+
+<sc-if value="{{shWeather}}" hint-placeholder-val="{{ false }}">
+<div class="eyebrow">Москва · сейчас</div>
+<div style="display: flex; align-items: baseline; gap: 12px; margin: 6px 0 4px;"><span style="font-family: 'PT Serif', Georgia, serif; font-size: 48px; line-height: 52px;">{{w.temp}}</span><span style="font-size: 17px; font-weight: 500;">{{w.label}}</span></div>
+<div class="meta" style="margin-bottom: 14px;">{{w.feels}}</div>
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px;">
+<sc-for list="{{w.hours}}" as="h" hint-placeholder-count="6"><div style="background: var(--surface); border-radius: 14px; padding: 10px 4px; text-align: center;"><div class="meta">{{h.t}}</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 600; margin: 6px 0 4px;">{{h.v}}</div><div class="meta" style="font-size: 10px;">{{h.d}}</div></div></sc-for>
+</div>
+<div class="meta" style="margin-top: 14px;">Open-Meteo · по городу, без геопозиции · обновлено {{w.updated}}</div>
+</sc-if>
+
+<sc-if value="{{shNotes}}" hint-placeholder-val="{{ false }}">
+<h2>Записки</h2>
+<div class="meta" style="margin-bottom: 12px;">последняя от Софии висит на стене в комнате</div>
+<div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
+<sc-for list="{{notes}}" as="n" hint-placeholder-count="3">
+<div style="align-self: {{n.align}}; max-width: 78%; background: {{n.bg}}; border-radius: 16px; padding: 10px 14px;"><div style="font-size: 15px; line-height: 20px;">{{n.text}}</div><div class="meta" style="margin-top: 4px; display: flex; align-items: center; gap: 6px;"><i class="who" style="background: {{n.dot}};"></i>{{n.meta}}</div></div>
+</sc-for>
+</div>
+<div style="display: flex; gap: 8px;">
+<input class="field" type="text" placeholder="Написать записку…" aria-label="Текст записки" value="{{draft}}" onChange="{{onDraft}}">
+<button class="btn btn-p" style="width: 48px; padding: 0; flex: none;" onClick="{{sendNote}}" aria-label="Отправить"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12 20 4l-4 16-4-7z"/><path d="m12 13 8-9"/></svg></button>
+</div>
+</sc-if>
+
+<sc-if value="{{shEvent}}" hint-placeholder-val="{{ false }}">
+<h2>Новое событие</h2>
+<div class="meta" style="margin-bottom: 14px;">{{selLong}}</div>
+<label class="eyebrow" for="ms-ev-title" style="display: block; margin-bottom: 6px;">Название</label>
+<input id="ms-ev-title" class="field" type="text" placeholder="Например: ужин в «Пушкине»" value="{{newTitle}}" onChange="{{onTitle}}">
+<div class="eyebrow" style="margin: 16px 0 6px;">Чьё</div>
+<div class="seg"><sc-for list="{{whoOpts}}" as="v" hint-placeholder-count="2"><button style="background: {{v.bg}}; color: {{v.color}}; box-shadow: {{v.ring}}; font-weight: {{v.weight}};" onClick="{{v.pick}}">{{v.label}}</button></sc-for></div>
+<div class="eyebrow" style="margin: 16px 0 6px;">Напомнить</div>
+<div class="chips"><span class="chip" style="background: var(--ink); color: var(--ground); border-color: var(--ink);">за день</span><span class="chip">за час</span><span class="chip">за 15 мин</span></div>
+<button class="btn btn-p" style="width: 100%; margin-top: 20px;" onClick="{{addEvent}}">Добавить событие</button>
+</sc-if>
+
+<sc-if value="{{shSafe}}" hint-placeholder-val="{{ false }}">
+<div style="width: 56px; height: 56px; border-radius: 16px; background: var(--flame-soft); display: grid; place-items: center; margin: 6px 0 10px;"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg></div>
+<h2>Личный сейф</h2>
+<div style="font-size: 14px; line-height: 20px; color: var(--ink-muted); margin-bottom: 14px;">Отдельный пароль. София не видит ни файлов, ни их названий, а без пароля их не открыть даже с этого телефона.</div>
+<label class="eyebrow" for="ms-safe" style="display: block; margin-bottom: 6px;">Пароль сейфа</label>
+<input id="ms-safe" class="field" type="password" placeholder="••••••••">
+<button class="btn btn-p" style="width: 100%; margin-top: 16px;" onClick="{{safeOpen}}">Открыть сейф</button>
+</sc-if>
+
+<sc-if value="{{shAdd}}" hint-placeholder-val="{{ false }}">
+<h2>Добавить в общую папку</h2>
+<div class="meta" style="margin-bottom: 14px;">файл зашифруется на телефоне и уйдёт на Яндекс.Диск</div>
+<div class="list">
+<button class="row" onClick="{{fakeUpload}}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M8 10h8M8 14h5"/></svg><span class="rmain"><span class="rtitle" style="display: block;">Скан документа</span><span class="meta">камера → выравнивание → PDF</span></span></button>
+<button class="row" onClick="{{fakeUpload}}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M5 15v3.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V15"/></svg><span class="rmain"><span class="rtitle" style="display: block;">Файл с телефона</span><span class="meta">PDF, фото, DOCX, XLSX</span></span></button>
+</div>
+</sc-if>
+
+<sc-if value="{{shCapsule}}" hint-placeholder-val="{{ false }}">
+<div style="width: 56px; height: 56px; border-radius: 16px; background: var(--sofia); color: var(--on-partner); display: grid; place-items: center; margin: 6px 0 10px;"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m4.5 7 7.5 6 7.5-6"/></svg></div>
+<h2>Письмо от Софии</h2>
+<div style="font-size: 14px; line-height: 20px; color: var(--ink-muted);">Запечатано 2 октября. Откроется 14 февраля — до срока его не прочитать, даже случайно.</div>
+<div class="big" style="margin: 16px 0 2px;">129</div><div class="meta">дней до открытия</div>
+<button class="btn btn-s" style="width: 100%; margin-top: 18px;" onClick="{{closeSheet}}">Подождать</button>
+</sc-if>
+
+<sc-if value="{{shPulse}}" hint-placeholder-val="{{ false }}">
+<h2>Пульс дня</h2>
+<div class="meta" style="margin-bottom: 14px;">одно касание — София увидит, как ты сегодня</div>
+<div class="list">
+<sc-for list="{{pulseOpts}}" as="o" hint-placeholder-count="3"><button class="row" style="box-shadow: {{o.ring}};" onClick="{{o.pick}}"><span class="rmain"><span class="rtitle" style="display: block;">{{o.label}}</span><span class="meta">{{o.hint}}</span></span></button></sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{shSync}}" hint-placeholder-val="{{ false }}">
+<h2>Синхронизация</h2>
+<div class="meta" style="margin-bottom: 14px;">почти мгновенно рядом, минутно на расстоянии</div>
+<div class="grp">
+<div class="it"><span style="color: var(--success);">●</span><span class="t">Яндекс.Диск</span><span class="v">1 мин назад</span></div>
+<div class="it"><span style="color: var(--ink-muted);">○</span><span class="t">Bluetooth рядом</span><span class="v">София не рядом</span></div>
+<div class="it"><span style="color: var(--success);">●</span><span class="t">Очередь</span><span class="v">пусто</span></div>
+</div>
+<button class="btn btn-p" style="width: 100%; margin-top: 16px;" onClick="{{syncNow}}">Синхронизировать сейчас</button>
+</sc-if>
+
+</div>
+</div>
+</sc-if>
+</sc-if>
+
+<!-- ВХОД -->
+<sc-if value="{{isLock}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding: 72px 24px 0; box-sizing: border-box; background: var(--ground);">
+<img src="/_blob/3367a2ab423d17b19632b30f20491ab1" alt="МС — Михаил и София" style="width: 96px; height: 96px; border-radius: 20px; box-shadow: 0 0 0 1px var(--line); display: block;">
+<h1 style="font-family: 'PT Serif', Georgia, serif; font-size: 24px; line-height: 30px; font-weight: 700; margin: 22px 0 0;">С возвращением</h1>
+<div class="meta" style="margin-top: 4px;">приложи палец или введи PIN</div>
+<div style="display: flex; gap: 18px; margin: 28px 0 8px;">
+<sc-for list="{{pinDots}}" as="pd" hint-placeholder-count="4"><i style="display: block; width: 14px; height: 14px; border-radius: 50%; background: {{pd.bg}}; box-shadow: {{pd.ring}};"></i></sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, 76px); gap: 16px 28px; margin-top: 26px;">
+<sc-for list="{{pinKeys}}" as="k" hint-placeholder-count="9"><button class="key" onClick="{{k.press}}">{{k.k}}</button></sc-for>
+<button class="key" style="background: transparent;" onClick="{{unlock}}" aria-label="Войти по отпечатку"><svg class="ic" viewBox="0 0 24 24" style="width: 32px; height: 32px;" aria-hidden="true"><path d="M7.5 19.5c-1-2-1.5-4.2-1.5-6.5a6 6 0 0 1 12 0M12 12.5c0 3 .7 5.6 2 7.8M9.2 13c0 2.6.5 4.8 1.6 6.8M15 14.5c0 1.8.3 3.4.9 4.8M5 8.5a8 8 0 0 1 14 0"/></svg></button>
+<button class="key" onClick="{{press0}}">0</button>
+<button class="key" style="background: transparent;" onClick="{{pinBack}}" aria-label="Стереть"><svg class="ic" viewBox="0 0 24 24" style="width: 26px; height: 26px;" aria-hidden="true"><path d="M9 5.5h10A1.5 1.5 0 0 1 20.5 7v10a1.5 1.5 0 0 1-1.5 1.5H9L3.5 12z"/><path d="m12 9.5 5 5M17 9.5l-5 5"/></svg></button>
+</div>
+</div>
+</sc-if>
+
+<!-- ФЕЙК-КАЛЬКУЛЯТОР -->
+<sc-if value="{{isCalc}}" hint-placeholder-val="{{ false }}">
+<div class="calc">
+<div class="disp" aria-live="polite">{{calc}}</div>
+<div class="keys">
+<sc-for list="{{calcKeys}}" as="k" hint-placeholder-count="19"><button class="k {{k.cls}}" onClick="{{k.press}}">{{k.k}}</button></sc-for>
+</div>
+</div>
+</sc-if>
+
+<!-- КАРТА НА КАССЕ -->
+<sc-if value="{{isCard}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: var(--card-paper); color: var(--card-ink); display: flex; flex-direction: column;">
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 16px 6px;">
+<button style="font-size: 15px; font-weight: 500; color: var(--card-ink); min-height: 44px;" onClick="{{closeCard}}">Готово</button>
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .06em; padding: 6px 10px; border-radius: 999px; background: var(--card-chip);">ЯРКОСТЬ 100%</span>
+</div>
+<h2 style="text-align: center; font-size: 28px; line-height: 32px; margin: 36px 0 4px; font-weight: 700;">{{card.name}}</h2>
+<div style="text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--card-ink-muted); display: flex; gap: 6px; justify-content: center; align-items: center;"><i class="who" style="background: {{card.dot}};"></i>{{card.byLine}} · EAN-13</div>
+<div style="display: flex; justify-content: center; align-items: flex-start; margin: 40px auto 10px; height: 172px;" role="img" aria-label="Штрихкод {{card.digits}}">
+<sc-for list="{{card.bars}}" as="b" hint-placeholder-count="60"><i style="display: block; width: {{b.w}}; height: {{b.h}}; background: {{b.bg}};"></i></sc-for>
+</div>
+<div style="text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 22px; letter-spacing: .12em; font-weight: 600;">{{card.pretty}}</div>
+<div style="margin-top: auto; padding: 16px 16px 34px; text-align: center;">
+<button style="width: 100%; height: 48px; border-radius: 14px; background: var(--card-chip); color: var(--card-ink); font-size: 15px; font-weight: 600; text-align: center;" onClick="{{qrTip}}">Показать QR</button>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--card-ink-muted); margin-top: 10px;">экран не гаснет, пока карта открыта</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{toastOn}}" hint-placeholder-val="{{ false }}">
+<div class="toast" role="status">{{toast}}</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["evening","day"],"default":"evening","section":"Прототип"},"start":{"editor":"enum","options":["home","lock"],"default":"home","section":"Прототип"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor() {
+    super(...arguments);
+    var p = this.props || {};
+    this.state = {
+      screen: p.start === 'lock' ? 'lock' : 'app',
+      tab: 'home', theme: '', pin: '', savedPin: '',
+      candle: 'partner', sheet: '', toast: '', dog: false,
+      calSel: 8, calView: 'month', fileTag: 'all', seg: 'banks',
+      extra: {}, newTitle: '', newWho: 'me', draft: '',
+      myNotes: [], adds: { trip: 0, kitchen: 0, fines: 0 },
+      checks: { milk: true, bread: false, eggs: false, coffee: true, bulb: false },
+      checkBy: { milk: 'sofia', coffee: 'michael' },
+      card: 0, calc: '0', calcAcc: null, calcOp: '', calcFresh: true, pulse: ''
+    };
+    this._timers = [];
+    this._taps = [];
+  }
+
+  componentWillUnmount() {
+    this._timers.forEach(function (t) { clearTimeout(t); });
+    clearTimeout(this._lp);
+    clearTimeout(this._toastT);
+  }
+
+  later(fn, ms) { this._timers.push(setTimeout(fn, ms)); }
+
+  flash(msg) {
+    var self = this;
+    this.setState({ toast: msg });
+    clearTimeout(this._toastT);
+    this._toastT = setTimeout(function () { self.setState({ toast: '' }); }, 2600);
+  }
+
+  money(n) { return Math.round(n).toLocaleString('ru-RU') + ' ₽'; }
+
+  baseEvents() {
+    return {
+      8: [{ t: 'Ужин у мамы Софии', m: '19:30 · добавила София', who: 'sofia' }],
+      9: [{ t: 'Стоматолог', m: '10:00 · ты добавил', who: 'michael' }],
+      10: [{ t: 'Годовщина — 4 года', m: 'весь день · каждый год', who: 'both' }],
+      14: [{ t: 'Отчёт по налогам', m: 'до 18:00 · ты добавил', who: 'michael' }],
+      16: [{ t: 'Казань', m: '16–18 октября · поездка', who: 'both' }],
+      21: [{ t: 'Йога', m: '19:00 · добавила София', who: 'sofia' }],
+      24: [{ t: 'День рождения Кати', m: 'весь день · добавила София', who: 'sofia' }],
+      29: [{ t: 'ТО машины', m: '11:00 · ты добавил', who: 'michael' }],
+      31: [{ t: 'Хэллоуин у Лёши', m: '20:00 · вместе', who: 'both' }]
+    };
+  }
+
+  events() {
+    var base = this.baseEvents(), extra = this.state.extra, out = {}, k;
+    for (k in base) out[k] = base[k].slice();
+    for (k in extra) out[k] = (out[k] || []).concat(extra[k]);
+    return out;
+  }
+
+  bar(who) {
+    if (who === 'michael') return 'var(--michael)';
+    if (who === 'sofia') return 'var(--sofia)';
+    return 'linear-gradient(180deg, var(--michael) 0 50%, var(--sofia) 50% 100%)';
+  }
+
+  dowShort(d) { return ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'][(d + 2) % 7]; }
+  dowLong(d) { return ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье'][(d + 2) % 7]; }
+  sub(d) { return d === 8 ? 'сегодня' : d === 9 ? 'завтра' : this.dowShort(d); }
+
+  segItems(items, current, set) {
+    return items.map(function (it) {
+      var on = it.id === current;
+      return {
+        label: it.label,
+        bg: on ? 'var(--surface-raised)' : 'transparent',
+        color: on ? 'var(--ink)' : 'var(--ink-muted)',
+        ring: on ? '0 0 0 1px var(--line)' : 'none',
+        weight: on ? '600' : '500',
+        pick: function () { set(it.id); }
+      };
+    });
+  }
+
+  ean(code12) {
+    var L = ['0001101', '0011001', '0010011', '0111101', '0100011', '0110001', '0101111', '0111011', '0110111', '0001011'];
+    var G = ['0100111', '0110011', '0011011', '0100001', '0011101', '0111001', '0000101', '0010001', '0001001', '0010111'];
+    var R = ['1110010', '1100110', '1101100', '1000010', '1011100', '1001110', '1010000', '1000100', '1001000', '1110100'];
+    var P = ['LLLLLL', 'LLGLGG', 'LLGGLG', 'LLGGGL', 'LGLLGG', 'LGGLLG', 'LGGGLL', 'LGLGLG', 'LGLGGL', 'LGGLGL'];
+    var s = 0, i;
+    for (i = 0; i < 12; i++) s += Number(code12[i]) * (i % 2 ? 3 : 1);
+    var d = code12 + ((10 - (s % 10)) % 10);
+    var bits = '101', p = P[Number(d[0])];
+    for (i = 1; i <= 6; i++) bits += (p[i - 1] === 'L' ? L : G)[Number(d[i])];
+    bits += '01010';
+    for (i = 7; i <= 12; i++) bits += R[Number(d[i])];
+    bits += '101';
+    var bars = [], x = 0;
+    while (x < bits.length) {
+      var c = bits[x], w = 0, start = x;
+      while (x < bits.length && bits[x] === c) { w++; x++; }
+      var guard = start < 3 || (start >= 45 && start < 50) || start >= 92;
+      bars.push({ w: (w * 3) + 'px', h: guard ? '172px' : '160px', bg: c === '1' ? 'var(--card-ink)' : 'transparent' });
+    }
+    return { digits: d, bars: bars, pretty: d[0] + ' ' + d.slice(1, 7) + ' ' + d.slice(7) };
+  }
+
+  calcApply(a, b, op) {
+    if (a === null || !op) return b;
+    if (op === '+') return a + b;
+    if (op === '−') return a - b;
+    if (op === '×') return a * b;
+    if (op === '÷') return b === 0 ? 0 : a / b;
+    return b;
+  }
+
+  calcFmt(n) { return String(Math.round(n * 1e8) / 1e8).replace('.', ','); }
+
+  calcPress(k) {
+    var s = this.state, num = Number(s.calc.replace(',', '.'));
+    if (/^[0-9]$/.test(k)) {
+      var cur = (s.calcFresh || s.calc === '0') ? k : s.calc + k;
+      this.setState({ calc: cur.slice(0, 11), calcFresh: false });
+      return;
+    }
+    if (k === ',') { if (s.calc.indexOf(',') < 0) this.setState({ calc: (s.calcFresh ? '0' : s.calc) + ',', calcFresh: false }); return; }
+    if (k === 'AC') { this.setState({ calc: '0', calcAcc: null, calcOp: '', calcFresh: true }); return; }
+    if (k === '±') { this.setState({ calc: this.calcFmt(-num) }); return; }
+    if (k === '%') { this.setState({ calc: this.calcFmt(num / 100) }); return; }
+    if (k === '=') {
+      if (!s.calcOp && s.calc.length === 4 && (!s.savedPin || s.calc === s.savedPin)) {
+        this.setState({ screen: 'lock', calc: '0', calcFresh: true, pin: '' });
+        return;
+      }
+      this.setState({ calc: this.calcFmt(this.calcApply(s.calcAcc, num, s.calcOp)), calcAcc: null, calcOp: '', calcFresh: true });
+      return;
+    }
+    var acc = s.calcAcc === null ? num : (s.calcFresh ? s.calcAcc : this.calcApply(s.calcAcc, num, s.calcOp));
+    this.setState({ calcAcc: acc, calcOp: k, calcFresh: true, calc: this.calcFmt(acc) });
+  }
+
+  renderVals() {
+    var self = this, s = this.state;
+    var theme = s.theme || this.props.theme || 'evening';
+    var day = theme === 'day';
+    var EV = this.events();
+    var setState = function (o) { self.setState(o); };
+    var go = function (tab) { return function () { self.setState({ tab: tab, sheet: '' }); }; };
+    var openSheet = function (name) { return function () { self.setState({ sheet: name }); }; };
+
+    // свеча
+    var C = {
+      partner: { title: 'Свеча горит · зажгла София', meta: (day ? '13:40' : '21:14') + ' · погаснет в полночь', bg: 'var(--flame-soft)' },
+      pending: { title: 'Горит у тебя', meta: '◐ у Сони загорится при связи', bg: 'var(--flame-soft)' },
+      both: { title: 'Горит у обоих', meta: 'Соня увидела · только что', bg: 'var(--flame-soft)' },
+      off: { title: 'Свеча не горит', meta: 'нажми на свечу — загорится и у Сони', bg: 'var(--surface)' }
+    };
+
+    // погода
+    var w = day
+      ? { temp: '+9°', label: 'облачно', feels: 'ощущается как +6° · ветер 4 м/с', updated: '13:30',
+          hours: [['15:00', '+10°', 'облачно'], ['18:00', '+8°', 'облачно'], ['21:00', '+7°', 'дождь'], ['00:00', '+5°', 'дождь'], ['03:00', '+4°', 'облачно'], ['06:00', '+4°', 'ясно']] }
+      : { temp: '+7°', label: 'мелкий дождь', feels: 'ощущается как +4° · ветер 5 м/с', updated: '21:00',
+          hours: [['22:00', '+6°', 'дождь'], ['00:00', '+5°', 'дождь'], ['03:00', '+4°', 'облачно'], ['06:00', '+4°', 'облачно'], ['09:00', '+6°', 'ясно'], ['12:00', '+9°', 'ясно']] };
+    w.hours = w.hours.map(function (h) { return { t: h[0], v: h[1], d: h[2] }; });
+
+    // записки
+    var notes = [
+      { text: 'Не забудь зонт, обещают дождь', meta: 'София · 8:12', who: 'sofia' },
+      { text: 'Взял. Вечером заеду за продуктами', meta: 'ты · 8:20', who: 'michael' },
+      { text: 'Купи хлеб', meta: 'София · 18:05', who: 'sofia' }
+    ].concat(s.myNotes).map(function (n) {
+      var mine = n.who === 'michael';
+      return { text: n.text, meta: n.meta, dot: mine ? 'var(--michael)' : 'var(--sofia)', align: mine ? 'flex-end' : 'flex-start', bg: mine ? 'var(--michael-soft)' : 'var(--surface)' };
+    });
+
+    // ближайшие (дом)
+    var upcoming = [], d;
+    for (d = 8; d <= 31 && upcoming.length < 3; d++) {
+      (EV[d] || []).forEach(function (e) {
+        if (upcoming.length < 3) upcoming.push({ d: String(d), sub: self.sub(d), t: e.t, m: e.m, bar: self.bar(e.who), open: (function (day) { return function () { self.setState({ tab: 'calendar', calSel: day, calView: 'month' }); }; })(d) });
+      });
+    }
+
+    // календарь
+    var cells = [[28, 1], [29, 1], [30, 1]];
+    for (d = 1; d <= 31; d++) cells.push([d, 0]);
+    cells.push([1, 1]);
+    var gridAll = cells.map(function (c) {
+      var n = c[0], out = c[1] === 1, evs = out ? [] : (EV[n] || []);
+      var today = !out && n === 8, sel = !out && n === s.calSel;
+      var trip = !out && n >= 16 && n <= 18;
+      var dots = trip ? [] : evs.slice(0, 1).map(function (e) {
+        return e.who === 'both' ? [{ c: 'var(--michael)' }, { c: 'var(--sofia)' }] : [{ c: e.who === 'michael' ? 'var(--michael)' : 'var(--sofia)' }];
+      });
+      return {
+        n: String(n),
+        aria: out ? 'другой месяц' : n + ' октября' + (evs.length ? ', событий: ' + evs.length : ''),
+        color: out ? 'var(--ink-faint)' : (today ? 'var(--on-flame)' : 'var(--ink)'),
+        bg: today ? 'var(--flame)' : 'transparent',
+        ring: (sel && !today) ? 'inset 0 0 0 1.5px var(--ink-muted)' : 'none',
+        dots: dots.length ? dots[0] : [],
+        trip: trip,
+        tl: n === 16 ? '50%' : '0',
+        tr: n === 18 ? '50%' : '0',
+        tbg: n === 16 ? 'var(--michael)' : n === 18 ? 'var(--sofia)' : 'linear-gradient(90deg, var(--michael) 0 50%, var(--sofia) 50% 100%)',
+        trad: n === 16 ? '2px 0 0 2px' : n === 18 ? '0 2px 2px 0' : '0',
+        pick: out ? function () {} : function () { self.setState({ calSel: n }); }
+      };
+    });
+    var selIdx = s.calSel + 2;
+    var weekStart = Math.floor(selIdx / 7) * 7;
+    var gridDays = s.calView === 'week' ? gridAll.slice(weekStart, weekStart + 7) : gridAll;
+    var calList;
+    if (s.calView === 'list') {
+      calList = [];
+      for (d = 8; d <= 31; d++) (EV[d] || []).forEach(function (e) { calList.push({ d: String(d), sub: self.sub(d), t: e.t, m: e.m, bar: self.bar(e.who) }); });
+    } else {
+      calList = (EV[s.calSel] || []).map(function (e) { return { d: String(s.calSel), sub: self.sub(s.calSel), t: e.t, m: e.m, bar: self.bar(e.who) }; });
+    }
+    var selLong = s.calSel + ' октября, ' + this.dowLong(s.calSel);
+
+    // файлы
+    var FILES = [
+      { n: 'Договор аренды 2026.pdf', k: 'PDF', m: '1,4 МБ · Дом · вчера', who: 'michael', tag: 'home' },
+      { n: 'Паспорт Софии — скан.pdf', k: 'PDF', m: '3,1 МБ · Паспорта · 2 окт', who: 'sofia', tag: 'pass' },
+      { n: 'Полис ОСАГО.pdf', k: 'PDF', m: '0,6 МБ · Дом', who: 'michael', tag: 'home', warn: 'истекает через 54 дня' },
+      { n: 'Чек — холодильник.jpg', k: 'JPG', m: '0,9 МБ · Дом · гарантия 3 года', who: 'sofia', tag: 'home' },
+      { n: 'Паспорт Михаила — скан.pdf', k: 'PDF', m: '2,8 МБ · Паспорта · 2 окт', who: 'michael', tag: 'pass' },
+      { n: 'Вычет НДФЛ 2025.pdf', k: 'PDF', m: '0,4 МБ · Налоги · март', who: 'michael', tag: 'tax' },
+      { n: 'Билеты Москва — Казань.pdf', k: 'PDF', m: '0,3 МБ · Поездки · 1 окт', who: 'sofia', tag: 'trip' }
+    ];
+    var TAGS = [['all', 'Все'], ['pass', 'Паспорта'], ['home', 'Дом'], ['tax', 'Налоги'], ['trip', 'Поездки']];
+    var tags = TAGS.map(function (t) {
+      var on = s.fileTag === t[0];
+      var count = t[0] === 'all' ? FILES.length : FILES.filter(function (f) { return f.tag === t[0]; }).length;
+      return { label: t[1], n: String(count), bg: on ? 'var(--ink)' : 'transparent', color: on ? 'var(--ground)' : 'var(--ink)', border: on ? 'var(--ink)' : 'var(--line)', pick: function () { self.setState({ fileTag: t[0] }); } };
+    });
+    var files = FILES.filter(function (f) { return s.fileTag === 'all' || f.tag === s.fileTag; }).map(function (f) {
+      return { n: f.n, k: f.k, m: f.m, warn: f.warn || '', isImg: f.k === 'JPG', isDoc: f.k !== 'JPG', dot: f.who === 'michael' ? 'var(--michael)' : 'var(--sofia)', open: function () { self.flash('«' + f.n + '» откроется в системном просмотрщике'); } };
+    });
+
+    // копилки
+    var PIG = [
+      { id: 'trip', cat: 'поездка', name: 'На отпуск', m: 46500, s: 38000, f: 0, target: 150000, months: 8 },
+      { id: 'kitchen', cat: 'дом', name: 'Ремонт кухни', m: 120000, s: 92000, f: 0, target: 400000, months: 0 },
+      { id: 'fines', cat: 'штрафы', name: 'На ресторан', m: 1800, s: 1200, f: 900, target: 10000, months: 0 }
+    ];
+    var piggies = PIG.map(function (p) {
+      var m = p.m + s.adds[p.id], total = m + p.s + p.f;
+      var pct = function (v) { return Math.min(100, v / p.target * 100).toFixed(1) + '%'; };
+      var forecast;
+      if (total >= p.target) forecast = 'цель собрана';
+      else if (p.id === 'trip') forecast = 'к 1 июня · нужно ' + self.money(Math.ceil((p.target - total) / p.months / 100) * 100) + '/мес';
+      else if (p.id === 'kitchen') forecast = 'темп 18 000 ₽/мес · к марту 2028';
+      else forecast = 'последний штраф: Миша, не вынес мусор';
+      return {
+        cat: p.cat, name: p.name, total: self.money(total), target: self.money(p.target),
+        mw: pct(m), sw: pct(p.s), fw: pct(p.f), mAmt: self.money(m), sAmt: self.money(p.s), forecast: forecast,
+        pctLabel: Math.round(total / p.target * 100) + '%',
+        add: function () {
+          var a = {}; for (var k in s.adds) a[k] = s.adds[k];
+          a[p.id] += 1000;
+          self.setState({ adds: a });
+          self.flash('София увидит: «Миша добавил 1 000 ₽ в „' + p.name + '“»');
+        }
+      };
+    });
+    var trip = piggies[0];
+
+    // списки
+    var ITEMS = [['milk', 'Молоко'], ['bread', 'Хлеб'], ['eggs', 'Яйца, десяток'], ['coffee', 'Кофе в зёрнах'], ['bulb', 'Лампочка E27 тёплая']];
+    var doneCount = 0;
+    var checks = ITEMS.map(function (it) {
+      var done = !!s.checks[it[0]];
+      if (done) doneCount++;
+      var by = s.checkBy[it[0]] || 'michael';
+      return {
+        text: it[1], done: done,
+        boxBg: done ? 'var(--flame)' : 'transparent', boxBorder: done ? 'var(--flame)' : 'var(--ink-muted)',
+        deco: done ? 'line-through' : 'none', color: done ? 'var(--ink-muted)' : 'var(--ink)',
+        dot: by === 'michael' ? 'var(--michael)' : 'var(--sofia)',
+        toggle: function () {
+          var c = {}, b = {}, k;
+          for (k in s.checks) c[k] = s.checks[k];
+          for (k in s.checkBy) b[k] = s.checkBy[k];
+          c[it[0]] = !done;
+          if (!done) b[it[0]] = 'michael';
+          self.setState({ checks: c, checkBy: b });
+        }
+      };
+    });
+
+    // карты лояльности
+    var CARDS = [
+      { name: 'Пятёрочка', cat: 'супермаркет', num: '460123456789', who: 'michael' },
+      { name: 'Магнит', cat: 'супермаркет', num: '463004155210', who: 'sofia' },
+      { name: 'Аптека.ру', cat: 'аптека', num: '460789012345', who: 'sofia' },
+      { name: 'Лукойл', cat: 'заправка', num: '462512340987', who: 'michael' }
+    ];
+    var cards = CARDS.map(function (c, i) {
+      return { name: c.name, cat: c.cat, dot: c.who === 'michael' ? 'var(--michael)' : 'var(--sofia)', by: c.who === 'michael' ? 'добавил ты' : 'добавила София', open: function () { self.setState({ screen: 'card', card: i }); } };
+    });
+    var cur = CARDS[s.card], code = this.ean(cur.num);
+    var card = { name: cur.name, dot: cur.who === 'michael' ? 'var(--michael)' : 'var(--sofia)', byLine: cur.who === 'michael' ? 'добавил Михаил' : 'добавила София', bars: code.bars, digits: code.digits, pretty: code.pretty };
+
+    // вкладки
+    var TABS = [['home', 'Дом'], ['calendar', 'Календарь'], ['files', 'Файлы'], ['together', 'Вместе'], ['us', 'Мы']];
+    var tabs = TABS.map(function (t) {
+      var on = s.tab === t[0];
+      return {
+        label: t[1], go: go(t[0]), current: on ? 'page' : 'false',
+        color: on ? 'var(--ink)' : 'var(--ink-muted)', bg: on ? 'var(--flame)' : 'transparent', icColor: on ? 'var(--on-flame)' : 'inherit',
+        weight: on ? '600' : '500', badge: t[0] === 'us' && s.tab !== 'us',
+        isHome: t[0] === 'home', isCal: t[0] === 'calendar', isFiles: t[0] === 'files', isTogether: t[0] === 'together', isUs: t[0] === 'us'
+      };
+    });
+
+    // PIN
+    var pinDots = [0, 1, 2, 3].map(function (i) {
+      var on = i < s.pin.length;
+      return { bg: on ? 'var(--ink)' : 'transparent', ring: on ? 'none' : 'inset 0 0 0 1.5px var(--ink-muted)' };
+    });
+    var pressDigit = function (k) {
+      var p = self.state.pin + k;
+      if (p.length > 4) return;
+      self.setState({ pin: p });
+      if (p.length === 4) self.later(function () { self.setState({ screen: 'app', pin: '', savedPin: p, tab: 'home' }); }, 260);
+    };
+    var pinKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(function (k) { return { k: k, press: function () { pressDigit(k); } }; });
+
+    // калькулятор
+    var CK = [['AC', 'fn'], ['±', 'fn'], ['%', 'fn'], ['÷', 'op'], ['7', ''], ['8', ''], ['9', ''], ['×', 'op'], ['4', ''], ['5', ''], ['6', ''], ['−', 'op'], ['1', ''], ['2', ''], ['3', ''], ['+', 'op'], ['0', 'wide'], [',', ''], ['=', 'op']];
+    var calcKeys = CK.map(function (c) { return { k: c[0], cls: c[1], press: function () { self.calcPress(c[0]); } }; });
+
+    var sh = s.sheet;
+    var titles = { weather: 'Погода', notes: 'Записки', event: 'Новое событие', safe: 'Личный сейф', add: 'Добавить файл', capsule: 'Капсула', pulse: 'Пульс дня', sync: 'Синхронизация' };
+    var PULSE = [['energy', 'Полон сил', 'покажем Софии искру'], ['tired', 'Устал', 'София поймёт без слов'], ['hug', 'Хочу обнимашек', 'самое важное за день']];
+    var pulseOpts = PULSE.map(function (o) {
+      return { label: o[1], hint: o[2], ring: s.pulse === o[0] ? 'inset 0 0 0 2px var(--flame)' : 'none', pick: function () { self.setState({ pulse: o[0], sheet: '' }); self.flash('София увидит: «' + o[1] + '»'); } };
+    });
+    var pulseLabel = s.pulse ? PULSE.filter(function (o) { return o[0] === s.pulse; })[0][1].toLowerCase() : 'не отмечен';
+
+    return {
+      theme: theme,
+      isApp: s.screen === 'app', isLock: s.screen === 'lock', isCalc: s.screen === 'calc', isCard: s.screen === 'card',
+      tabHome: s.tab === 'home', tabCal: s.tab === 'calendar', tabFiles: s.tab === 'files', tabTogether: s.tab === 'together', tabUs: s.tab === 'us',
+      tabs: tabs,
+      greet: day ? 'Добрый день, Миша' : 'Добрый вечер, Миша',
+      todayLabel: 'четверг, 8 октября',
+      w: w,
+      note: { text: 'Купи хлеб', from: 'Софии', sign: 'С.', pin: 'var(--sofia)' },
+      dogClass: s.dog ? 'poke' : '',
+      candle: C[s.candle], candleOn: s.candle !== 'off', candleOff: s.candle === 'off',
+      candleDown: function () {
+        self._long = false;
+        clearTimeout(self._lp);
+        self._lp = setTimeout(function () {
+          self._long = true;
+          if (self.state.candle !== 'off') { self.setState({ candle: 'off' }); self.flash('Свеча погасла у обоих'); }
+        }, 650);
+      },
+      candleUp: function () {
+        clearTimeout(self._lp);
+        if (self._long) return;
+        if (self.state.candle === 'off') {
+          self.setState({ candle: 'pending' });
+          self.later(function () { if (self.state.candle === 'pending') { self.setState({ candle: 'both' }); self.flash('Соня увидела свечу'); } }, 2600);
+        } else {
+          self.flash('Свеча горит у обоих. Погасить — долгое нажатие');
+        }
+      },
+      candleCancel: function () { clearTimeout(self._lp); },
+      candleKey: function (e) {
+        if (!e || e.detail !== 0) return;
+        if (self.state.candle === 'off') { self.setState({ candle: 'both' }); self.flash('Свеча горит у обоих'); }
+        else { self.setState({ candle: 'off' }); self.flash('Свеча погасла у обоих'); }
+      },
+      pokeDog: function () {
+        self.setState({ dog: true });
+        self.flash('Басенджи не лают — зато внимательно смотрят');
+        self.later(function () { self.setState({ dog: false }); }, 1200);
+      },
+      tapFrame: function () {
+        var now = Date.now();
+        self._taps = self._taps.filter(function (t) { return now - t < 800; }).concat([now]);
+        if (self._taps.length >= 3) { self._taps = []; self.setState({ screen: 'calc', sheet: '', calc: '0', calcAcc: null, calcOp: '', calcFresh: true }); }
+      },
+      openWeather: openSheet('weather'), openNotes: openSheet('notes'), openSafe: openSheet('safe'), openAddFile: openSheet('add'),
+      openCapsule: openSheet('capsule'), openPulse: openSheet('pulse'), openSync: openSheet('sync'),
+      openAddEvent: function () { self.setState({ sheet: 'event', newTitle: '', newWho: 'me' }); },
+      closeSheet: function () { self.setState({ sheet: '' }); },
+      goCal: go('calendar'), goTogether: function () { self.setState({ tab: 'together', seg: 'banks' }); }, goCards: function () { self.setState({ tab: 'together', seg: 'cards' }); },
+      upcoming: upcoming, cards: cards, trip: { name: trip.name, total: trip.total, target: trip.target, mw: trip.mw, sw: trip.sw, pct: trip.pctLabel },
+      calViews: this.segItems([{ id: 'month', label: 'Месяц' }, { id: 'week', label: 'Неделя' }, { id: 'list', label: 'Список' }], s.calView, function (v) { setState({ calView: v }); }),
+      showGrid: s.calView !== 'list', gridDays: gridDays, calList: calList, calEmpty: calList.length === 0,
+      listHead: s.calView === 'list' ? 'Ближайшие' : selLong, selLong: selLong,
+      onlyOctober: function () { self.flash('В прототипе — только октябрь'); },
+      newTitle: s.newTitle, onTitle: function (e) { self.setState({ newTitle: e.target.value }); },
+      whoOpts: this.segItems([{ id: 'me', label: 'Моё' }, { id: 'both', label: 'Вместе' }], s.newWho, function (v) { setState({ newWho: v }); }),
+      addEvent: function () {
+        var ex = {}, k;
+        for (k in s.extra) ex[k] = s.extra[k].slice();
+        ex[s.calSel] = (ex[s.calSel] || []).concat([{ t: s.newTitle.trim() || 'Новое событие', m: 'ты добавил · только что', who: s.newWho === 'both' ? 'both' : 'michael' }]);
+        self.setState({ extra: ex, sheet: '', newTitle: '' });
+        self.flash('Добавлено. У Софии появится после синка');
+      },
+      tags: tags, files: files,
+      searchTip: function () { self.flash('Поиск по названиям и тегам — содержимое не читается'); },
+      safeOpen: function () { self.setState({ sheet: '' }); self.flash('В прототипе сейф пуст'); },
+      fakeUpload: function () { self.setState({ sheet: '' }); self.flash('Шифруем и загружаем… София получит уведомление'); },
+      segs: this.segItems([{ id: 'banks', label: 'Копилки' }, { id: 'lists', label: 'Списки' }, { id: 'cards', label: 'Карты' }], s.seg, function (v) { setState({ seg: v }); }),
+      segBanks: s.seg === 'banks', segLists: s.seg === 'lists', segCards: s.seg === 'cards',
+      piggies: piggies, checks: checks, listDone: doneCount + ' из ' + ITEMS.length,
+      addTip: function () { self.flash('В прототипе добавление здесь не работает'); },
+      themes: this.segItems([{ id: 'evening', label: 'Вечер' }, { id: 'day', label: 'День' }], theme, function (v) { setState({ theme: v }); }),
+      notesCount: String(2 + s.myNotes.length),
+      pulseOpts: pulseOpts, pulseLabel: pulseLabel,
+      notes: notes, draft: s.draft,
+      onDraft: function (e) { self.setState({ draft: e.target.value }); },
+      sendNote: function () {
+        var t = s.draft.trim();
+        if (!t) return;
+        self.setState({ myNotes: s.myNotes.concat([{ text: t, meta: 'ты · только что', who: 'michael' }]), draft: '' });
+        self.flash('Записка ушла Софии — повиснет у неё на стене');
+      },
+      syncNow: function () { self.setState({ sheet: '' }); self.flash('Синхронизировано · применено изменений: 0'); },
+      lockNow: function () { self.setState({ screen: 'lock', pin: '' }); },
+      recoveryTip: function () { self.flash('12 слов + семейный секрет. Показываются после PIN'); },
+      sheetOpen: sh !== '', sheetTitle: titles[sh] || '',
+      shWeather: sh === 'weather', shNotes: sh === 'notes', shEvent: sh === 'event', shSafe: sh === 'safe', shAdd: sh === 'add', shCapsule: sh === 'capsule', shPulse: sh === 'pulse', shSync: sh === 'sync',
+      pinDots: pinDots, pinKeys: pinKeys,
+      press0: function () { pressDigit('0'); },
+      pinBack: function () { self.setState({ pin: self.state.pin.slice(0, -1) }); },
+      unlock: function () { self.setState({ screen: 'app', pin: '', tab: 'home' }); },
+      calc: s.calc, calcKeys: calcKeys,
+      card: card,
+      closeCard: function () { self.setState({ screen: 'app' }); },
+      qrTip: function () { self.flash('QR — для карт, где касса читает QR'); },
+      toastOn: s.toast !== '', toast: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>
