@@ -211,6 +211,13 @@ class Family extends ChangeNotifier {
     return result.master;
   }
 
+  /// The family lives for the whole process ([family] is a global). A
+  /// provider container that wraps it must not kill it for everyone else,
+  /// so disposing is a no-op.
+  @override
+  // ignore: must_call_super
+  void dispose() {}
+
   /// Человек-читаемый лист для печати (seed + S).
   String recoverySheet() {
     if (_seed == null) return '';

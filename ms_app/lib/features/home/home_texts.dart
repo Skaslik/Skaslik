@@ -77,17 +77,3 @@ String dateSub(DateTime day, DateTime now) {
   if (diff == 1) return 'завтра';
   return formatWeekdayShort(day);
 }
-
-/// Event meta on Home until Phase 4 adds the author: «19:30», «весь день»,
-/// plus the repeat rule.
-String eventMeta(CalEvent e, DateTime occ) {
-  final when = e.allDay ? 'весь день' : formatTime(occ);
-  final repeat = switch (e.recurrence) {
-    Recurrence.none => null,
-    Recurrence.daily => 'каждый день',
-    Recurrence.weekly => 'каждую неделю',
-    Recurrence.monthly => 'каждый месяц',
-    Recurrence.yearly => 'каждый год',
-  };
-  return repeat == null ? when : '$when · $repeat';
-}

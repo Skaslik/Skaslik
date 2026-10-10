@@ -63,18 +63,11 @@ void main() {
     expect(syncPill(SyncState.disconnected).kind, MsSyncKind.offline);
   });
 
-  test('date sub-label and event meta', () {
+  test('date sub-label', () {
     final now = DateTime(2026, 10, 8, 9);
     expect(dateSub(DateTime(2026, 10, 8, 19), now), 'сегодня');
     expect(dateSub(DateTime(2026, 10, 9), now), 'завтра');
     expect(dateSub(DateTime(2026, 10, 10), now), 'сб');
-    final e = CalEvent(
-        id: 'e',
-        title: 'Годовщина',
-        start: DateTime(2026, 10, 10),
-        allDay: true,
-        recurrence: Recurrence.yearly);
-    expect(eventMeta(e, e.start), 'весь день · каждый год');
   });
 
   test('pair: legacy «local» entries count as mine', () {

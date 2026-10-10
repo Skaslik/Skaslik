@@ -9,6 +9,7 @@ import '../../core/providers.dart';
 import '../../design_system/ms_format.dart';
 import '../../design_system/ms_theme.dart';
 import '../../design_system/widgets/widgets.dart';
+import '../calendar/calendar_model.dart';
 import '../calendar/event_row.dart';
 import 'candle_icon.dart';
 import 'home_texts.dart';
@@ -151,10 +152,9 @@ class TodaySheet extends ConsumerWidget {
           EventRow(
             day: '${occ.day}',
             sub: dateSub(occ, now),
-            // Until Phase 4 stores the creator, events are this phone's.
-            author: ref.read(pairProvider).me.author,
+            author: eventAuthor(e, ref.read(pairProvider)),
             title: e.title,
-            meta: eventMeta(e, occ),
+            meta: eventMetaLine(e, occ, ref.read(pairProvider), now),
             onTap: () => context.go('/calendar?day=${iso(occ)}'),
           ),
         ],

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../design_system/widgets/widgets.dart';
+import 'tab_badges.dart';
 
 /// The five tabs, in order (screens.md).
 enum MsTab {
@@ -18,30 +20,37 @@ enum MsTab {
   final String path;
 }
 
-/// App frame: the active branch above the [MsTabBar].
-///
-/// [badges] marks tabs where something new from the partner waits. Sources
-/// are wired as each tab gains author data (calendar owner in Phase 4,
-/// notes in Phase 7).
-class MsShell extends StatelessWidget {
-  const MsShell({super.key, required this.shell, this.badges = const {}});
+/// App frame: the active branch above the [MsTabBar]. Tabs with news from
+/// the partner carry a dot in the partner's colour, except the open one.
+class MsShell extends ConsumerWidget {
+  const MsShell({super.key, required this.shell});
 
   final StatefulNavigationShell shell;
-  final Map<MsTab, MsAuthor> badges;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final badges = ref.watch(tabBadgesProvider);
+    final current = MsTab.values[shell.currentIndex];
     return Scaffold(
       body: shell,
       bottomNavigationBar: MsTabBar(
         items: [
           for (final t in MsTab.values)
-            MsTabItem(icon: t.icon, label: t.label, badge: badges[t]),
+            MsTabItem(
+              icon: t.icon,
+              label: t.label,
+              badge: t == current ? null : badges[t],
+            ),
         ],
         currentIndex: shell.currentIndex,
-        // Tapping the active tab again returns to its first screen.
-        onTap: (i) =>
-            shell.goBranch(i, initialLocation: i == shell.currentIndex),
+        onTap: (i) {
+          final seen = ref.read(tabSeenProvider);
+          // Leaving a tab and entering one both count as having seen it.
+          seen.markSeen(current);
+          seen.markSeen(MsTab.values[i]);
+          // Tapping the active tab again returns to its first screen.
+          shell.goBranch(i, initialLocation: i == shell.currentIndex);
+        },
       ),
     );
   }
