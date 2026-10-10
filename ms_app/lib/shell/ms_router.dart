@@ -1,6 +1,10 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
+import '../design_system/ms_sizes.dart';
+
 import '../features/calendar/calendar_screen.dart';
+import '../features/cards/card_checkout_screen.dart';
 import '../features/files/files_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/messages/messages_screen.dart';
@@ -27,6 +31,18 @@ GoRouter buildMsRouter({String initialLocation = '/home'}) => GoRouter(
       routes: [
         for (final e in kLegacyRedirects.entries)
           GoRoute(path: e.key, redirect: (_, __) => e.value),
+        // The card at the checkout: full screen, over the tab bar, fast.
+        GoRoute(
+          path: '/card/:id',
+          pageBuilder: (_, state) => CustomTransitionPage<void>(
+            key: state.pageKey,
+            transitionDuration: MsMotion.fast,
+            reverseTransitionDuration: MsMotion.fast,
+            child: CardCheckoutScreen(cardId: state.pathParameters['id']!),
+            transitionsBuilder: (_, a, __, child) =>
+                FadeTransition(opacity: a, child: child),
+          ),
+        ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, shell) => MsShell(shell: shell),
           branches: [

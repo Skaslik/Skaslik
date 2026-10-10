@@ -137,6 +137,29 @@ abstract final class MsSize {
   static const double wheelItemH = 34;
   static const double wheelH = 150;
 
+  // Вместе: lists (prototype `.chk`, 44 px rows) and the cards grid.
+  static const double checkRowH = 44;
+  static const double checkBox = 22;
+  static const double checkRadius = 7;
+  static const double checkBorder = 1.5;
+  static const double checkIcon = 16;
+  static const double cardGridH = 112;
+  static const double cardGridPadV = 14;
+  static const double cardGridGap = 10;
+  static const double piggyListGap = 10;
+
+  // Checkout card (prototype `isCard`).
+  static const double cardNameTop = 36;
+  static const double cardBarcodeTop = 40;
+  static const double cardBarcodeGap = 10;
+  static const double barcodeBarH = 160;
+  static const double barcodeGuardH = 172;
+  static const double barcodeQuiet = 10;
+  static const double cardQr = 240;
+  static const double cardChipPadV = 6;
+  static const double cardChipPadH = 10;
+  static const double cardFootGap = 10;
+
   // Toast.
   static const double toastPadV = 12;
   static const double toastAboveTabbar = 14;
@@ -216,6 +239,14 @@ abstract final class MsTextX {
   /// Badge text: mono 10 w500 +0.04em («истекает через 54 дня»).
   static final TextStyle badge = MsText.meta.copyWith(
       fontSize: 10, height: 1, fontWeight: FontWeight.w500, letterSpacing: 0.4);
+
+  /// Number under the barcode: mono 22 w600 +0.12em.
+  static final TextStyle cardNumber = MsText.meta.copyWith(
+      fontSize: 22, height: 1.2, fontWeight: FontWeight.w600, letterSpacing: 2.64);
+
+  /// «Готово» on the checkout card: 15 w500.
+  static final TextStyle cardDone =
+      MsText.body.copyWith(fontWeight: FontWeight.w500, height: 1);
 
   /// Toast text: 14/19.
   static final TextStyle toast =

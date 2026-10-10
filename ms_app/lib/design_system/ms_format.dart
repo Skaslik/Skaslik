@@ -93,6 +93,15 @@ String formatWhen(DateTime then, DateTime now) {
   return DateFormat('LLLL y', kMsLocale).format(then);
 }
 
+/// «марту 2028» — month in the dative, for «цель к марту 2028».
+String formatMonthYearDative(DateTime d) {
+  const dative = [
+    'январю', 'февралю', 'марту', 'апрелю', 'маю', 'июню',
+    'июлю', 'августу', 'сентябрю', 'октябрю', 'ноябрю', 'декабрю',
+  ];
+  return '${dative[d.month - 1]} ${d.year}';
+}
+
 /// «1 декабря 2026».
 String formatFullDate(DateTime d) =>
     DateFormat('d MMMM y', kMsLocale).format(d);

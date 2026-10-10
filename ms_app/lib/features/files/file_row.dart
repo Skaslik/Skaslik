@@ -58,33 +58,6 @@ class FileThumb extends StatelessWidget {
   }
 }
 
-/// `warn` / `danger` pill with mono text.
-class MsBadge extends StatelessWidget {
-  const MsBadge(this.text, {super.key, this.danger = false});
-  final String text;
-  final bool danger;
-
-  @override
-  Widget build(BuildContext context) {
-    final ms = context.ms;
-    return Container(
-      height: MsSize.badgeH,
-      padding: const EdgeInsets.symmetric(horizontal: MsSize.badgePadH),
-      decoration: BoxDecoration(
-        color: danger ? ms.danger : ms.warn,
-        borderRadius: BorderRadius.circular(MsRadius.radiusSm),
-      ),
-      // Hug the text (`inline-flex`), centred vertically.
-      child: Center(
-        widthFactor: 1,
-        child: Text(text,
-            style:
-                MsTextX.badge.copyWith(color: danger ? ms.onDanger : ms.onWarn)),
-      ),
-    );
-  }
-}
-
 /// A file in the shared folder: thumbnail, name, author dot · size · tag ·
 /// when, an expiry badge on its own line, and ⋮.
 class FileRow extends StatelessWidget {
@@ -130,7 +103,10 @@ class FileRow extends StatelessWidget {
                   author: pair.memberOf(doc.uploadedBy).author),
               if (badge != null) ...[
                 const SizedBox(height: MsSpace.space1),
-                MsBadge(badge, danger: badge == 'срок истёк'),
+                MsBadge(badge,
+                    tone: badge == 'срок истёк'
+                        ? MsBadgeTone.danger
+                        : MsBadgeTone.warn),
               ],
             ],
           ),

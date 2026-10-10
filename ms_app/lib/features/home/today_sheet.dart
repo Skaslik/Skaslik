@@ -175,8 +175,7 @@ class TodaySheet extends ConsumerWidget {
           for (final card in cards)
             _CardTile(
               name: card.merchantName,
-              // The full-screen card arrives in Phase 6.
-              onTap: () => context.go('/together?seg=cards'),
+              onTap: () => context.push('/card/${card.id}'),
             ),
         ],
       ),

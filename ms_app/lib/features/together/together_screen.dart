@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import '../../design_system/ms_theme.dart';
 import '../../design_system/widgets/widgets.dart';
-import '../banks/banks_screen.dart';
-import '../cards/cards_screen.dart';
-import '../notes/notes_screen.dart';
+import 'banks_segment.dart';
+import 'cards_segment.dart';
+import 'lists_segment.dart';
 
 /// Segments of «Вместе»; `?seg=` selects one.
 enum TogetherSeg {
@@ -21,51 +22,48 @@ enum TogetherSeg {
 }
 
 /// «Вместе»: piggy banks, lists and loyalty cards behind one segmented
-/// control. Until Phase 6 each segment shows the old screen.
+/// control (decision #3: cards live here, top-3 on Home).
 class TogetherScreen extends StatelessWidget {
   const TogetherScreen({super.key, required this.seg});
 
   final TogetherSeg seg;
 
+  static const Map<TogetherSeg, String> _addLabel = {
+    TogetherSeg.banks: 'Новая копилка',
+    TogetherSeg.lists: 'Новый список',
+    TogetherSeg.cards: 'Новая карта',
+  };
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: EdgeInsets.fromLTRB(
-            MsSpace.space4,
-            MediaQuery.paddingOf(context).top + MsSpace.space1,
-            MsSpace.space4,
-            MsSpace.space2,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: MsSpace.space4,
-            children: [
-              const MsScreenHeader(eyebrow: 'наше общее', title: 'Вместе'),
-              MsSegmented<TogetherSeg>(
-                segments: [
-                  for (final s in TogetherSeg.values) MsSegment(s, s.label),
-                ],
-                value: seg,
-                onChanged: (s) => context.go('/together?seg=${s.name}'),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: MediaQuery.removePadding(
-            context: context,
-            removeTop: true,
-            child: switch (seg) {
-              TogetherSeg.banks => const BanksScreen(),
-              TogetherSeg.lists => const NotesScreen(),
-              TogetherSeg.cards => const CardsScreen(),
+    return MsScreen(children: [
+      MsScreenHeader(
+        eyebrow: 'наше общее',
+        title: 'Вместе',
+        actions: [
+          MsIconButton(
+            icon: Symbols.add_rounded,
+            label: _addLabel[seg]!,
+            onPressed: () => switch (seg) {
+              TogetherSeg.banks => showNewBankSheet(context),
+              TogetherSeg.lists => showNewListSheet(context),
+              TogetherSeg.cards => showNewCardSheet(context),
             },
           ),
-        ),
-      ],
-    );
+        ],
+      ),
+      const SizedBox(height: MsSpace.space4),
+      MsSegmented<TogetherSeg>(
+        segments: [for (final s in TogetherSeg.values) MsSegment(s, s.label)],
+        value: seg,
+        onChanged: (s) => context.go('/together?seg=${s.name}'),
+      ),
+      const SizedBox(height: MsSpace.space4),
+      switch (seg) {
+        TogetherSeg.banks => const BanksSegment(),
+        TogetherSeg.lists => const ListsSegment(),
+        TogetherSeg.cards => const CardsSegment(),
+      },
+    ]);
   }
 }

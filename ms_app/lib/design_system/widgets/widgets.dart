@@ -4,6 +4,7 @@ library;
 export 'ms_author.dart';
 export 'ms_author_bar.dart';
 export 'ms_author_dot.dart';
+export 'ms_badge.dart';
 export 'ms_button.dart';
 export 'ms_card.dart';
 export 'ms_chip.dart';

@@ -2,7 +2,7 @@
 ///
 /// «New» = the partner created or changed something after this phone last
 /// opened the tab. «Last opened» is local to the phone (not synced).
-/// Sources so far: calendar (Phase 4), files (Phase 5). Notes: Phase 7.
+/// Sources: calendar (4), files (5), piggy-bank contributions (6). Notes: 7.
 library;
 
 import 'dart:convert';
@@ -109,6 +109,16 @@ int? filesPartnerActivity(Iterable<DocMeta> docs, Pair pair) {
   return latest;
 }
 
+/// Latest time (ms) the partner put money into a piggy bank.
+int? togetherPartnerActivity(Iterable<BankEntry> entries, Pair pair) {
+  int? latest;
+  for (final e in entries) {
+    if (e.isFine || pair.isMine(e.by)) continue;
+    if (latest == null || e.at > latest) latest = e.at;
+  }
+  return latest;
+}
+
 /// Tabs with news from the partner, in the partner's colour.
 final tabBadgesProvider = Provider<Map<MsTab, MsAuthor>>((ref) {
   final pair = ref.watch(pairProvider);
@@ -123,6 +133,12 @@ final tabBadgesProvider = Provider<Map<MsTab, MsAuthor>>((ref) {
       filesPartnerActivity(DocsRepo(ref.watch(docsProvider).replica).all(), pair);
   if (files != null && files > seen.seenAt(MsTab.files)) {
     out[MsTab.files] = pair.partner.author;
+  }
+  final banks = BanksRepo(ref.watch(banksProvider).replica);
+  final together = togetherPartnerActivity(
+      [for (final b in banks.allBanks()) ...banks.history(b.id)], pair);
+  if (together != null && together > seen.seenAt(MsTab.together)) {
+    out[MsTab.together] = pair.partner.author;
   }
   return out;
 });
