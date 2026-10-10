@@ -7,6 +7,8 @@ import '../../core/providers.dart';
 import '../../core/sync/domain_store.dart';
 import '../../core/sync/sync_service.dart';
 import '../../design_system/ms_theme.dart';
+import '../../design_system/theme_controller.dart';
+import '../../design_system/widgets/widgets.dart';
 
 /// Настройки: статус семьи/синхронизации, безопасность, данные, «о нас».
 class SettingsScreen extends ConsumerWidget {
@@ -22,12 +24,24 @@ class SettingsScreen extends ConsumerWidget {
     final notes = ref.watch(notesProvider);
     final messages = ref.watch(messagesProvider);
     final sync = ref.watch(syncServiceProvider);
+    final theme = ref.watch(themeControllerProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Настройки')),
       body: ListView(
         padding: const EdgeInsets.all(MsTokens.spaceMd),
         children: [
+          // Temporary home of the theme switch until «Мы → Тема» (Phase 7).
+          const _Section('Тема'),
+          MsSegmented<MsThemeMode>(
+            segments: const [
+              MsSegment(MsThemeMode.auto, 'Авто'),
+              MsSegment(MsThemeMode.evening, 'Вечер'),
+              MsSegment(MsThemeMode.day, 'День'),
+            ],
+            value: theme.mode,
+            onChanged: theme.setMode,
+          ),
           const _Section('Семья'),
           const _Row(icon: Icons.people, title: 'Семья Афанасьевых', sub: 'Михаил & София · 2 устройства'),
           _Row(
@@ -304,7 +318,7 @@ class _Row extends StatelessWidget {
         subtitle: Text(sub, style: MsTypography.caption),
         onTap: onTap,
         trailing: onTap != null
-            ? const Icon(Icons.chevron_right, color: Colors.black38)
+            ? Icon(Icons.chevron_right, color: MsColors.muted)
             : null,
       ),
     );
