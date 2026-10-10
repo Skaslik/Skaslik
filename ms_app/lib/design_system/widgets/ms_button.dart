@@ -100,11 +100,14 @@ class MsButton extends StatelessWidget {
                       Icon(i,
                           size: small ? MsSize.iconSm : MsSize.buttonIcon,
                           color: fg),
-                    Text(
-                      label,
-                      style: (small ? MsTextX.buttonSm : MsTextX.button)
-                          .copyWith(color: fg),
-                      maxLines: 1,
+                    Flexible(
+                      child: Text(
+                        label,
+                        style: (small ? MsTextX.buttonSm : MsTextX.button)
+                            .copyWith(color: fg),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),

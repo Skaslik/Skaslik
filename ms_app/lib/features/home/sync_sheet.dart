@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../core/providers.dart';
 import '../../core/sync/sync_all.dart';
@@ -40,7 +39,7 @@ class SyncSheet extends ConsumerWidget {
           style: MsText.bodySm.copyWith(color: ms.inkMuted),
         ),
         const SizedBox(height: MsSpace.space5),
-        if (sync.connected)
+        if (sync.connected) ...[
           MsButton(
             label: 'Синхронизировать сейчас',
             expand: true,
@@ -50,15 +49,27 @@ class SyncSheet extends ConsumerWidget {
               Navigator.of(context).pop();
               MsToast.show(context, 'Готово: ${syncPill(sync.state).label}');
             },
-          )
-        else
+          ),
+          const SizedBox(height: MsSpace.space2),
+          MsButton(
+            label: 'Отключить Яндекс.Диск',
+            variant: MsButtonVariant.ghost,
+            expand: true,
+            onPressed: () => sync.logout(),
+          ),
+        ] else
           MsButton(
             label: 'Подключить Яндекс.Диск',
             variant: MsButtonVariant.secondary,
             expand: true,
-            onPressed: () {
-              Navigator.of(context).pop();
-              context.go('/us/settings');
+            onPressed: () async {
+              try {
+                await sync.login();
+              } catch (e) {
+                if (context.mounted) {
+                  MsToast.show(context, 'Не получилось подключить: $e');
+                }
+              }
             },
           ),
       ],

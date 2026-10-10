@@ -7,10 +7,8 @@ import '../features/calendar/calendar_screen.dart';
 import '../features/cards/card_checkout_screen.dart';
 import '../features/files/files_screen.dart';
 import '../features/home/home_screen.dart';
-import '../features/messages/messages_screen.dart';
-import '../features/room/room_screen.dart';
-import '../features/settings/settings_screen.dart';
 import '../features/together/together_screen.dart';
+import '../features/us/notes_screen.dart';
 import '../features/us/us_screen.dart';
 import 'ms_shell.dart';
 
@@ -76,13 +74,7 @@ GoRouter buildMsRouter({String initialLocation = '/home'}) => GoRouter(
                 builder: (_, __) => const UsScreen(),
                 routes: [
                   GoRoute(
-                      path: 'notes',
-                      builder: (_, __) => const MessagesScreen()),
-                  GoRoute(
-                      path: 'pulse', builder: (_, __) => const RoomScreen()),
-                  GoRoute(
-                      path: 'settings',
-                      builder: (_, __) => const SettingsScreen()),
+                      path: 'notes', builder: (_, __) => const NotesScreen()),
                 ],
               ),
             ]),

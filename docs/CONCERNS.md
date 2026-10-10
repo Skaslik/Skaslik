@@ -50,3 +50,31 @@ Running list of things that need your eye. Newest at the bottom; each entry says
 ### 10. Windows desktop needs a rebuild for the new plugins (Phase 6)
 - **What:** `wakelock_plus` and `screen_brightness` add native plugins, so the next `flutter run -d windows` runs a full native build (several minutes on this PC).
 - **Note:** on Windows, «keep the screen on» works but «brightness 100 %» usually doesn't on desktop monitors. The card screen handles failures silently.
+
+### 11. Leaving the fake calculator needs a PIN (Phase 7)
+- **What:** the way back is «PIN, then =». If no PIN was set in onboarding, there is no way back except closing the app. Fake mode is not saved, so a cold start opens «МС» again.
+- **Risk:** the cold-start escape also works for someone else holding the phone. The lock screen still asks for the fingerprint or PIN after it, so the data stays closed.
+- **Suggest:** keep it, or make the PIN required in onboarding.
+
+### 12. Recovery sheet without a PIN (Phase 7)
+- **What:** «Лист восстановления» asks for the PIN first. With no PIN set, it opens straight away, behind the app's own fingerprint lock only.
+- **Suggest:** ask for the fingerprint there too. `local_auth` is already in the app.
+
+### 13. Name endings are a heuristic (Phase 7)
+- **What:** «письмо от Софии», «у Сони на стене» come from a small rule for Russian first names. It is right for Михаил, Миша, София, Соня and common names. Unusual or foreign names are left as typed.
+- **Suggest:** if a phrase reads wrong on the phone, tell me the name and I'll add it.
+
+### 14. «Удалить все записи» also deletes them on the partner's phone (Phase 7)
+- **What:** this is the old «Сбросить все данные», moved to «Мы → Устройства». It deletes calendar, piggy banks, files, cards, lists and notes through the CRDT, so they disappear on both phones after a sync. Capsules, the pulse, the candle and the profile stay, as before.
+- **Suggest:** a separate «забыть этот телефон» that wipes only local files, if that's what you expect from the button.
+
+### 15. Lock-screen copy uses «ты» (Phase 7)
+- **What:** the lock screenshot says «приложите палец или введите PIN». The brand book and IMPLEMENTATION.md say «ты», so the app says «приложи палец или введи PIN».
+
+### 16. Onboarding and PIN aren't covered by widget tests (Phase 7)
+- **What:** the PIN is hashed with Argon2id at 128 MB. That is too heavy to run in tests on this PC, so the tests cover the lock screen, the keypad, fake-mode entry and the calculator, but not a full onboarding or a correct-PIN unlock.
+- **Check on the phone:** create a family, set a PIN, lock, unlock with the PIN, enter fake mode, leave it with «PIN =».
+
+### 17. The «думаю о тебе» history list is gone (Phase 7)
+- **What:** the old «Пульс» screen listed every «думаю о тебе». Now the pulse sheet shows the partner's latest one, and each one also appears in «Записки» as a bubble when sent from there. Nothing is deleted from the data.
+- **Suggest:** say if you want the full list back as a section of the pulse sheet.

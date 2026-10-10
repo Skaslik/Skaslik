@@ -13,8 +13,8 @@ import 'package:ms_app/design_system/widgets/widgets.dart';
 import 'package:ms_app/features/calendar/calendar_screen.dart';
 import 'package:ms_app/features/files/files_screen.dart';
 import 'package:ms_app/features/home/home_screen.dart';
-import 'package:ms_app/features/messages/messages_screen.dart';
 import 'package:ms_app/features/together/together_screen.dart';
+import 'package:ms_app/features/us/notes_screen.dart';
 import 'package:ms_app/features/us/us_screen.dart';
 import 'package:ms_app/shell/ms_router.dart';
 import 'package:ms_app/shell/ms_shell.dart';
@@ -77,15 +77,15 @@ void main() {
     final router = await pumpApp(tester, '/us');
     router.go('/us/notes');
     await tester.pumpAndSettle();
-    expect(find.byType(MessagesScreen), findsOneWidget);
+    expect(find.byType(NotesScreen), findsOneWidget);
 
     await tapTab(tester, MsTab.calendar);
     await tapTab(tester, MsTab.us);
-    expect(find.byType(MessagesScreen), findsOneWidget);
+    expect(find.byType(NotesScreen), findsOneWidget);
 
     await tapTab(tester, MsTab.us);
     expect(find.byType(UsScreen), findsOneWidget);
-    expect(find.byType(MessagesScreen), findsNothing);
+    expect(find.byType(NotesScreen), findsNothing);
   });
 
   testWidgets('«Вместе»: ?seg= picks the segment, tapping updates it',
@@ -109,7 +109,7 @@ void main() {
       '/banks': (MsTab.together, TogetherScreen, TogetherSeg.banks),
       '/notes': (MsTab.together, TogetherScreen, TogetherSeg.lists),
       '/cards': (MsTab.together, TogetherScreen, TogetherSeg.cards),
-      '/messages': (MsTab.us, MessagesScreen, null),
+      '/messages': (MsTab.us, NotesScreen, null),
       '/settings': (MsTab.us, UsScreen, null),
     };
     for (final c in cases.entries) {

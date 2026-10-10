@@ -2,7 +2,7 @@
 ///
 /// «New» = the partner created or changed something after this phone last
 /// opened the tab. «Last opened» is local to the phone (not synced).
-/// Sources: calendar (4), files (5), piggy-bank contributions (6). Notes: 7.
+/// Sources: calendar (4), files (5), piggy-bank contributions (6), notes (7).
 library;
 
 import 'dart:convert';
@@ -59,9 +59,9 @@ class TabSeen extends ChangeNotifier {
     // First run: older history doesn't count as news.
     final now = _clock().millisecondsSinceEpoch;
     var changed = false;
-    for (final t in MsTab.values) {
-      if (!_seen.containsKey(t.name)) {
-        _seen[t.name] = now;
+    for (final k in [for (final t in MsTab.values) t.name, notesSeenKey]) {
+      if (!_seen.containsKey(k)) {
+        _seen[k] = now;
         changed = true;
       }
     }
@@ -72,13 +72,31 @@ class TabSeen extends ChangeNotifier {
   final DateTime Function() _clock;
   late Map<String, int> _seen;
 
-  int seenAt(MsTab tab) => _seen[tab.name] ?? 0;
+  int seenAt(MsTab tab) => seenAtKey(tab.name);
 
-  void markSeen(MsTab tab) {
-    _seen[tab.name] = _clock().millisecondsSinceEpoch;
+  void markSeen(MsTab tab) => markSeenKey(tab.name);
+
+  /// For places inside a tab, e.g. [notesSeenKey].
+  int seenAtKey(String key) => _seen[key] ?? 0;
+
+  void markSeenKey(String key) {
+    _seen[key] = _clock().millisecondsSinceEpoch;
     _store.write(_seen);
     notifyListeners();
   }
+}
+
+/// «Записки» inside «Мы»: the count badge on its row.
+const notesSeenKey = 'us.notes';
+
+/// Latest time (ms) the partner sent a note or a «думаю о тебе».
+int? usPartnerActivity(Iterable<Message> messages, Pair pair) {
+  int? latest;
+  for (final m in messages) {
+    if (pair.isMine(m.from)) continue;
+    if (latest == null || m.at > latest) latest = m.at;
+  }
+  return latest;
 }
 
 final tabSeenProvider =
@@ -139,6 +157,14 @@ final tabBadgesProvider = Provider<Map<MsTab, MsAuthor>>((ref) {
       [for (final b in banks.allBanks()) ...banks.history(b.id)], pair);
   if (together != null && together > seen.seenAt(MsTab.together)) {
     out[MsTab.together] = pair.partner.author;
+  }
+  final notes = usPartnerActivity(
+      MessagesRepo(ref.watch(messagesProvider).replica,
+              deviceId: pair.myDeviceId)
+          .all(),
+      pair);
+  if (notes != null && notes > seen.seenAt(MsTab.us)) {
+    out[MsTab.us] = pair.partner.author;
   }
   return out;
 });

@@ -160,6 +160,40 @@ abstract final class MsSize {
   static const double cardChipPadH = 10;
   static const double cardFootGap = 10;
 
+  // Lock screen and PIN (prototype `isLock`, `.ms-keys`).
+  static const double lockTopGap = 28;
+  static const double lockMark = 96;
+  static const double lockTitleGap = 22;
+  static const double pinDot = 14;
+  static const double pinDotGap = 18;
+  static const double pinDotRing = 1.5;
+  static const double pinDotsTop = 28;
+  static const double key = 76;
+  static const double keyGapV = 16;
+  static const double keyGapH = 28;
+  static const double keysTop = 26;
+  static const double keyBioIcon = 32;
+  static const double keyBackIcon = 26;
+
+  // «Мы» (`.grp`, `.pair`, stats, capsule card).
+  static const double groupRowMin = 28;
+
+  /// The mono value on a group row («Я.Диск · ● ок») never pushes the
+  /// title; longer values end in «…».
+  static const double groupValueMax = 160;
+  static const double pairDisc = 30;
+  static const double pairRing = 2;
+  static const double countBadgeMin = 20;
+  static const double countBadgePadH = 6;
+  static const double capsulePadV = 14;
+  static const double capsuleGap = 10;
+
+  // Notes (записки) bubbles.
+  static const double bubbleMaxFraction = 0.78;
+  static const double bubbleRadius = 16;
+  static const double bubblePadV = 10;
+  static const double bubblePadH = 14;
+
   // Toast.
   static const double toastPadV = 12;
   static const double toastAboveTabbar = 14;
@@ -247,6 +281,21 @@ abstract final class MsTextX {
   /// «Готово» on the checkout card: 15 w500.
   static final TextStyle cardDone =
       MsText.body.copyWith(fontWeight: FontWeight.w500, height: 1);
+
+  /// Keypad digit: mono 30.
+  static final TextStyle keyDigit =
+      MsText.meta.copyWith(fontSize: 30, height: 1, fontWeight: FontWeight.w400);
+
+  /// Lock title: PT Serif 24/30 bold.
+  static final TextStyle lockTitle =
+      MsText.roomGreeting.copyWith(fontSize: 24, height: 30 / 24);
+
+  /// Group row title in «Мы»: 15 w500.
+  static final TextStyle groupTitle =
+      MsText.body.copyWith(fontWeight: FontWeight.w500, height: 20 / 15);
+
+  /// Bubble / capsule title: 15/20.
+  static final TextStyle bubble = MsText.body.copyWith(height: 20 / 15);
 
   /// Toast text: 14/19.
   static final TextStyle toast =
