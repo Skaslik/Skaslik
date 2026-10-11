@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:ms_core/ms_core.dart' hide Clip;
 
+import '../../core/box/private_box.dart';
 import '../../core/pair/pair.dart';
 import '../../core/providers.dart';
 import '../../design_system/ms_format.dart';
@@ -13,8 +17,8 @@ import 'file_row.dart';
 /// Tags offered by default (ScreenFiles annotation).
 const List<String> kDefaultFileTags = ['Паспорта', 'Дом', 'Налоги', 'Поездки'];
 
-/// Upload, scan and the private box need roadmap S3. Until then the app
-/// says so instead of pretending.
+/// Upload and scan into the shared folder need roadmap S3. Until then the
+/// app says so instead of pretending.
 const String kS3Toast =
     'Загрузка и скан появятся вместе с шифрованием файлов. Пока можно записать документ без файла';
 
@@ -312,25 +316,103 @@ class _FileSheetState extends ConsumerState<FileSheet> {
   }
 }
 
-class SafeSheet extends ConsumerWidget {
+/// «Личный сейф»: create it (password twice), open it, or — password
+/// forgotten — delete it and start over.
+class SafeSheet extends ConsumerStatefulWidget {
   const SafeSheet({super.key});
+  @override
+  ConsumerState<SafeSheet> createState() => _SafeSheetState();
+}
+
+class _SafeSheetState extends ConsumerState<SafeSheet> {
+  final _password = TextEditingController();
+  final _repeat = TextEditingController();
+  String? _error;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void dispose() {
+    _password.dispose();
+    _repeat.dispose();
+    super.dispose();
+  }
+
+  bool get _canCreate =>
+      _password.text.length >= kBoxMinPassword &&
+      _password.text == _repeat.text;
+
+  Future<void> _go(PrivateBox box) async {
+    final pw = _password.text;
+    if (box.state == BoxState.absent) {
+      await box.create(pw);
+    } else if (!await box.unlock(pw)) {
+      if (mounted) setState(() => _error = 'Не тот пароль');
+      return;
+    }
+    if (!mounted) return;
+    Navigator.of(context).pop();
+    unawaited(context.push('/safe'));
+  }
+
+  Future<void> _forgot(PrivateBox box) async {
+    final ms = context.ms;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Удалить сейф?'),
+        content: const Text('Без пароля файлы внутри не открыть. Можно удалить '
+            'сейф и завести новый — старые файлы пропадут навсегда.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Отмена')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text('Удалить сейф',
+                  style: MsTextX.link.copyWith(color: ms.danger))),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    await box.destroy();
+    if (!mounted) return;
+    _password.clear();
+    setState(() => _error = null);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final ms = context.ms;
     final partner = ref.watch(pairProvider).partner;
+    final box = ref.watch(privateBoxProvider);
+    final creating = box.state == BoxState.absent;
+    Widget field(TextEditingController c, String hint) => SizedBox(
+          height: MsSize.fieldH,
+          child: TextField(
+            controller: c,
+            obscureText: true,
+            autocorrect: false,
+            enableSuggestions: false,
+            style: MsText.body.copyWith(color: ms.ink),
+            decoration: InputDecoration(hintText: hint),
+            onChanged: (_) => setState(() => _error = null),
+          ),
+        );
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(
-          width: MsSize.sheetIconBox,
-          height: MsSize.sheetIconBox,
-          decoration: BoxDecoration(
-            color: ms.flameSoft,
-            borderRadius: BorderRadius.circular(MsRadius.radiusMd),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Container(
+            width: MsSize.sheetIconBox,
+            height: MsSize.sheetIconBox,
+            decoration: BoxDecoration(
+              color: ms.flameSoft,
+              borderRadius: BorderRadius.circular(MsRadius.radiusMd),
+            ),
+            child:
+                Icon(Symbols.lock_rounded, size: MsSize.icon, color: ms.ink),
           ),
-          child: Icon(Symbols.lock_rounded, size: MsSize.icon, color: ms.ink),
         ),
         const SizedBox(height: MsSpace.space3),
         Text('Личный сейф', style: MsText.title.copyWith(color: ms.ink)),
@@ -340,10 +422,40 @@ class SafeSheet extends ConsumerWidget {
           'а без пароля их не открыть даже с этого телефона.',
           style: MsText.bodySm.copyWith(color: ms.inkMuted),
         ),
-        const SizedBox(height: MsSpace.space3),
-        const MsMeta('появится вместе с шифрованием файлов', maxLines: 2),
-        const SizedBox(height: MsSpace.space4),
-        const MsButton(label: 'Открыть сейф', expand: true, onPressed: null),
+        _label(creating ? 'Придумай пароль сейфа' : 'Пароль сейфа'),
+        field(_password,
+            creating ? 'не короче $kBoxMinPassword символов' : ''),
+        if (creating) ...[
+          const SizedBox(height: MsSpace.space2),
+          field(_repeat, 'ещё раз'),
+          const SizedBox(height: MsSpace.space2),
+          MsMeta(
+              'Забудешь пароль — файлы не вернуть: ни ${partner.name}, '
+              'ни лист восстановления не помогут. Сейф живёт только '
+              'на этом телефоне.',
+              maxLines: 3),
+        ],
+        SizedBox(
+          height: MsSpace.space6,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: _error == null ? null : MsMeta(_error!, color: ms.danger),
+          ),
+        ),
+        MsButton(
+          label: box.busy
+              ? (creating ? 'Создаю…' : 'Открываю…')
+              : (creating ? 'Создать сейф' : 'Открыть сейф'),
+          expand: true,
+          onPressed:
+              box.busy || (creating ? !_canCreate : _password.text.isEmpty)
+                  ? null
+                  : () => _go(box),
+        ),
+        if (!creating) ...[
+          const SizedBox(height: MsSpace.space2),
+          Center(child: MsLink('Забыл пароль', onTap: () => _forgot(box))),
+        ],
       ],
     );
   }

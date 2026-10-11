@@ -30,6 +30,8 @@ dependencies:
   intl: ^0.20.3
   wakelock_plus: ^1.5.2
   screen_brightness: ^2.1.11
+  file_picker: ^11.0.3
+  open_filex: ^4.7.0
 
 dev_dependencies:
   flutter_test:
