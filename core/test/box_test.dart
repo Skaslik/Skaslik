@@ -125,6 +125,21 @@ void main() {
       await expectCorrupt(open(swapped, key, 'f1'));
     });
 
+    test('a file cut in the middle of a chunk is detected', () async {
+      final sealed = await seal(List.generate(40, (i) => i), key, 'f1');
+      for (final cut in [9, 30, 8 + 56 + 3, sealed.length - 1]) {
+        await expectCorrupt(open(sealed.sublist(0, cut), key, 'f1'));
+      }
+    });
+
+    test('bytes appended after the last chunk are detected', () async {
+      final sealed = await seal(List.generate(40, (i) => i), key, 'f1');
+      for (final extra in [1, 40, 56, 200]) {
+        await expectCorrupt(
+            open([...sealed, ...List.filled(extra, 7)], key, 'f1'));
+      }
+    });
+
     test('no header, or a cut header, is detected', () async {
       await expectCorrupt(open(const [], key, 'f1'));
       await expectCorrupt(open(const [0x4D, 0x53], key, 'f1'));

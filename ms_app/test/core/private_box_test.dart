@@ -216,6 +216,43 @@ void main() {
     box = make(); // tearDown-safe
   });
 
+  group('plain-copy file names', () {
+    test('slashes and characters other apps choke on become «_»', () {
+      expect(plainCopyName('Договор/аренда 🐕.pdf'), 'Договор_аренда 🐕.pdf');
+      expect(plainCopyName(r'a\b:c*d?e"f<g>h|i.txt'), 'a_b_c_d_e_f_g_h_i.txt');
+      expect(plainCopyName('tab\there.txt'), 'tab_here.txt');
+    });
+
+    test('empty, «.» and «..» get a plain name, keeping a kind if any', () {
+      expect(plainCopyName(''), 'файл');
+      expect(plainCopyName('.'), 'файл');
+      expect(plainCopyName('..'), 'файл');
+      expect(plainCopyName('   '), 'файл');
+      expect(plainCopyName('.pdf'), 'файл.pdf');
+    });
+
+    test('long names are cut to 255 bytes, keeping the extension', () {
+      final long = '${'Паспорт' * 60}.pdf';
+      final out = plainCopyName(long);
+      expect(utf8.encode(out).length, lessThanOrEqualTo(255));
+      expect(out, endsWith('.pdf'));
+      expect(out, startsWith('Паспорт'));
+      // Never cut inside a character: decodes cleanly.
+      expect(utf8.decode(utf8.encode(out)), out);
+      final emoji = '${'🐕' * 100}.jpg';
+      expect(utf8.encode(plainCopyName(emoji)).length, lessThanOrEqualTo(255));
+      expect(plainCopyName(emoji), endsWith('🐕.jpg'));
+    });
+
+    test('an odd name still exports and opens', () async {
+      await box.create('секрет12');
+      final e = await box.add(source('x.bin', [5]).path, '..');
+      final out = await box.exportTemp(e.id);
+      expect(p.basename(out.path), 'файл');
+      expect(out.readAsBytesSync(), [5]);
+    });
+  });
+
   group('review fixes', () {
     test('locking while a file is being added keeps the safe usable',
         () async {

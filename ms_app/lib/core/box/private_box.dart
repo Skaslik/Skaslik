@@ -13,6 +13,7 @@
 library;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 
@@ -36,6 +37,31 @@ class BoxTooLarge implements Exception {
 }
 
 typedef BoxRunner = Future<R> Function<R>(FutureOr<R> Function() task);
+
+/// A name every file system and viewer accepts for a plain copy: forbidden
+/// characters become «_», never empty, «.» or «..», at most 255 UTF-8 bytes
+/// with the extension kept.
+String plainCopyName(String name) {
+  const fallback = 'файл';
+  final n = name.replaceAll(RegExp(r'[\\/:*?"<>|\x00-\x1F]'), '_').trim();
+  if (n.isEmpty || RegExp(r'^\.+$').hasMatch(n)) return fallback;
+  final dot = n.lastIndexOf('.');
+  var ext = dot >= 0 ? n.substring(dot) : '';
+  if (ext.length < 2 || utf8.encode(ext).length > 32) ext = '';
+  var base = ext.isEmpty ? n : n.substring(0, dot);
+  if (RegExp(r'^[\s.]*$').hasMatch(base)) base = fallback;
+  final budget = 255 - utf8.encode(ext).length;
+  final out = StringBuffer();
+  var used = 0;
+  for (final r in base.runes) {
+    final ch = String.fromCharCode(r);
+    final len = utf8.encode(ch).length;
+    if (used + len > budget) break;
+    out.write(ch);
+    used += len;
+  }
+  return '$out$ext';
+}
 
 class PrivateBox extends ChangeNotifier {
   PrivateBox({
@@ -255,8 +281,7 @@ class PrivateBox extends ChangeNotifier {
       final tmp = await _tempDir();
       final sub = Directory(p.join(tmp.path, 'ms_box', newBoxId()));
       await sub.create(recursive: true);
-      final dst =
-          p.join(sub.path, entry.name.replaceAll(RegExp(r'[/\\]'), '_'));
+      final dst = p.join(sub.path, plainCopyName(entry.name));
       try {
         await _busyWhile(() => _run(_decryptTask(_path(id), dst, key, id)));
         _check(session);
