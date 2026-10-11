@@ -2,6 +2,29 @@
 
 Running list of things that need your eye. Newest at the bottom; each entry says the phase, what I saw, what I did for now, and what I suggest. Nothing here blocks the current phase.
 
+## Status (2026-10-11)
+
+| # | Status |
+|---|---|
+| 1 | **Fixed:** hybrid logical clock in `Replica` (approved «do your concerns»); tests in `core/test/replica_clock_test.dart`. |
+| 2 | **Fixed:** `SyncService.dispose` is a no-op, like `Family`. |
+| 3 | **Resolved:** the synced profile (Phase 7) decides who is «me». |
+| 4, 5, 10, 15, 18, 21 | **Information only:** nothing to do. |
+| 6 | **Open, roadmap S3:** upload and scan into the shared folder. The private box (part of 6) is done. |
+| 7 | **Fixed:** «несколько дней» in the event sheet sets the last day. |
+| 8 | **Fixed:** «Изменить событие»; emptied fields are cleared on both phones (`CalendarRepo.edit`). |
+| 9 | **Open, your call:** confirm the screenshot sizes. |
+| 11 | **Fixed:** without a PIN the triple tap does nothing; «Безопасность» says why. |
+| 12 | **Fixed:** with no PIN the recovery sheet asks for the fingerprint. |
+| 13 | **Open, on demand:** tell me any name that reads wrong. |
+| 14 | **Open, your call:** a local-only «забыть этот телефон» if you want one. |
+| 16 | **Fixed:** PIN set/verify/fake-exit are tested (cheap Argon2 cost in tests only). |
+| 17 | **Open, your call:** bring back the full «думаю о тебе» list? |
+| 19 | **Open, needs a phone:** QA-3, QA-5, cold start. Fingerprint unlock was broken on Android (plain FlutterActivity) — **fixed** with FlutterFragmentActivity. |
+| 20, 22 | **By design:** the safe is local only; pure-Dart crypto speed. |
+| 23 | **Fixed:** iPhone blurs the app-switcher snapshot while the safe is open (`AppDelegate.swift`). Screenshots can't be blocked on iOS. |
+| 24 | **Fixed:** no Google backup and no device transfer (see below). |
+
 ---
 
 ## Open
@@ -105,3 +128,7 @@ Running list of things that need your eye. Newest at the bottom; each entry says
 - **What:** while «Личный сейф» is open, Android blocks screenshots and blanks the recent-apps thumbnail (FLAG_SECURE). On iPhone the same call does nothing, so the app switcher snapshot can show the safe's list or an open photo.
 - **Why not yet:** iOS needs native code (a blur over the window when the app resigns active) that can't be built or tested on this PC; iOS is «later» in CLAUDE.md.
 - **Suggest:** add the blur in `ios/Runner/SceneDelegate.swift` behind the same `ms/secure_screen` channel when iPhone becomes a real target.
+
+### 24. Android backed up the app's data to Google
+- **What:** `allowBackup` was unset, so Android's Auto Backup uploaded the app folder to the user's Google account — including the local replicas, which are plain JSON (calendar, notes, lists). That breaks I2: only ciphertext may leave the phone.
+- **Done:** `allowBackup="false"`, `fullBackupContent="false"`, and `data_extraction_rules.xml` exclude everything from cloud backup and from device-to-device transfer. A new phone recovers through the recovery sheet and sync. A test pins the manifest.

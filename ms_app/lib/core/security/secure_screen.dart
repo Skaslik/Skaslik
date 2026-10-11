@@ -1,8 +1,10 @@
 import 'package:flutter/services.dart';
 
-/// Hides the app from screenshots, screen recording and the recent-apps
-/// thumbnail while something private is on screen (Android FLAG_SECURE,
-/// set in MainActivity.kt). Elsewhere it does nothing.
+/// Hides something private from prying: on Android it blocks screenshots,
+/// screen recording and the recent-apps thumbnail (FLAG_SECURE, set in
+/// MainActivity.kt); on iPhone it blurs the app-switcher snapshot
+/// (AppDelegate.swift; iOS can't block screenshots). Elsewhere it does
+/// nothing.
 abstract final class SecureScreen {
   static const _channel = MethodChannel('ms/secure_screen');
 
