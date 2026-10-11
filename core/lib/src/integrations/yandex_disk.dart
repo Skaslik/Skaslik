@@ -203,10 +203,11 @@ String yandexAuthorizeUrl({
   required String clientId,
   required String redirectUri,
   required String codeChallenge,
+  // Must be among the rights registered for the app at oauth.yandex.ru.
   List<String> scopes = const [
-    'disk:files_read',
-    'disk:files_upload',
-    'disk:files_info',
+    'cloud_api:disk.read',
+    'cloud_api:disk.write',
+    'cloud_api:disk.info',
   ],
   String? state,
 }) {
@@ -219,9 +220,8 @@ String yandexAuthorizeUrl({
     'code_challenge_method': 'S256',
     if (state != null) 'state': state,
   };
-  final uri = Uri.https('oauth.yandex.ru', '/authorize',
-      {for (final e in q.entries) Uri.encodeComponent(e.key): Uri.encodeComponent(e.value)});
-  return uri.toString();
+  // Uri.https encodes the query itself; encoding first would double it.
+  return Uri.https('oauth.yandex.ru', '/authorize', q).toString();
 }
 
 /// Обмен code на токены (параметры запроса; сетевой вызов — в app-слое).
