@@ -257,6 +257,70 @@ void main() {
         isEmpty);
   });
 
+  group('second review', () {
+    test('before start-up finishes the safe is «loading», and a create '
+        'racing it cannot overwrite an existing safe', () async {
+      await box.create('секрет12');
+      await box.add(source('a.txt', [1]).path, 'a.txt');
+      box.lock();
+      final fresh = make();
+      expect(fresh.state, BoxState.loading);
+      final starting = fresh.init();
+      final racing = fresh.create('другой12');
+      await starting;
+      await expectLater(racing, throwsStateError);
+      expect(fresh.state, BoxState.locked);
+      expect(await fresh.unlock('секрет12'), isTrue);
+      expect(fresh.entries.single.name, 'a.txt');
+    });
+
+    test('a listed file whose data is gone is dropped on unlock', () async {
+      await box.create('секрет12');
+      await box.add(source('a.txt', [1]).path, 'a.txt');
+      final b = await box.add(source('b.txt', [2]).path, 'b.txt');
+      // A remove that crashed after deleting the data, before the list.
+      File(p.join(root.path, 'box', 'files', '${b.id}.bin')).deleteSync();
+      box.lock();
+      expect(await box.unlock('секрет12'), isTrue);
+      expect(box.entries.map((e) => e.name), ['a.txt']);
+      box.lock();
+      expect(await box.unlock('секрет12'), isTrue);
+      expect(box.entries, hasLength(1));
+    });
+
+    test('an add cancelled by a lock does not hold up the next unlock',
+        () async {
+      await box.create('секрет12');
+      gate = Completer<void>();
+      final adding = box.add(source('big.bin', [1, 2]).path, 'big.bin');
+      await untilHeld();
+      box.lock();
+      // The encryption is still running; reopening must not wait for it.
+      final g = gate!;
+      gate = null;
+      expect(await box.unlock('секрет12').timeout(const Duration(seconds: 3)),
+          isTrue);
+      g.complete();
+      await expectLater(adding, throwsStateError);
+      expect(box.entries, isEmpty);
+    });
+
+    test('a file being read is removed only after the read', () async {
+      await box.create('секрет12');
+      final e = await box.add(source('a.jpg', [7, 8]).path, 'a.jpg');
+      gate = Completer<void>();
+      final reading = box.readBytes(e.id);
+      await untilHeld();
+      final removing = box.remove(e.id);
+      // Give an unordered remove every chance to delete the file first.
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      gate!.complete();
+      expect(await reading, [7, 8]);
+      await removing;
+      expect(box.entries, isEmpty);
+    });
+  });
+
   group('plain-copy file names', () {
     test('slashes and characters other apps choke on become «_»', () {
       expect(plainCopyName('Договор/аренда 🐕.pdf'), 'Договор_аренда 🐕.pdf');
@@ -319,9 +383,7 @@ void main() {
       gate = Completer<void>();
       final reading = box.readBytes(e.id);
       final exporting = box.exportTemp(e.id);
-      while (held < 2) {
-        await Future<void>.delayed(const Duration(milliseconds: 1));
-      }
+      await untilHeld(); // the read; the export is queued behind it
       box.lock();
       gate!.complete();
       await expectLater(reading, throwsStateError);

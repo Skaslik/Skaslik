@@ -245,6 +245,31 @@ void main() {
     expect(calls, ['set:true', 'set:false']);
   });
 
+  group('what the add says', () {
+    test('all in', () {
+      expect(safeAddSummary(added: 1, problems: const []),
+          'В сейфе: 1 файл. Оригинал остался на телефоне — удали его, если нужно.');
+      expect(safeAddSummary(added: 3, problems: const []),
+          'В сейфе: 3 файла. Оригиналы остались на телефоне — удали их, если нужно.');
+    });
+
+    test('some in, some not: both are said', () {
+      expect(
+          safeAddSummary(
+              added: 2, problems: const ['«кино.mp4» больше 200 МБ']),
+          'В сейфе: 2 файла. Не вошло: «кино.mp4» больше 200 МБ. '
+          'Оригиналы остались на телефоне — удали их, если нужно.');
+    });
+
+    test('nothing in', () {
+      expect(
+          safeAddSummary(added: 0, problems: const ['«a» не прочитать', '«b» не прочитать']),
+          'Не вошло: «a» не прочитать; «b» не прочитать.');
+      expect(safeAddSummary(added: 0, problems: const []),
+          'Не получилось прочитать выбранные файлы.');
+    });
+  });
+
   testWidgets('the lock button closes the safe', (tester) async {
     await tester.runAsync(() async {
       await box.init();

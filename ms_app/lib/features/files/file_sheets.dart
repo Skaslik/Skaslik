@@ -216,24 +216,11 @@ class _FileSheetState extends ConsumerState<FileSheet> {
   }
 
   Future<void> _delete(Pair pair) async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Убрать «${widget.doc.name}» из папки?'),
-        content: Text(
-            'У ${pair.partner.nameGenitive} запись тоже исчезнет после синка.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Отмена')),
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text('Убрать',
-                  style: MsTextX.link.copyWith(color: ctx.ms.danger))),
-        ],
-      ),
-    );
-    if (ok != true || !mounted) return;
+    final ok = await confirmDanger(context,
+        title: 'Убрать «${widget.doc.name}» из папки?',
+        body: 'У ${pair.partner.nameGenitive} запись тоже исчезнет после синка.',
+        action: 'Убрать');
+    if (!ok || !mounted) return;
     final store = ref.read(docsProvider);
     DocsRepo(store.replica).remove(widget.doc.id);
     store.persist();
@@ -370,26 +357,20 @@ class _SafeSheetState extends ConsumerState<SafeSheet> {
   }
 
   Future<void> _forgot(PrivateBox box) async {
-    final ms = context.ms;
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Удалить сейф?'),
-        content: const Text('Без пароля файлы внутри не открыть. Можно удалить '
-            'сейф и завести новый — старые файлы пропадут навсегда.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Отмена')),
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text('Удалить сейф',
-                  style: MsTextX.link.copyWith(color: ms.danger))),
-        ],
-      ),
-    );
-    if (ok != true) return;
-    await box.destroy();
+    final ok = await confirmDanger(context,
+        title: 'Удалить сейф?',
+        body: 'Без пароля файлы внутри не открыть. Можно удалить сейф и '
+            'завести новый — старые файлы пропадут навсегда.',
+        action: 'Удалить сейф');
+    if (!ok) return;
+    try {
+      await box.destroy();
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = 'Не получилось удалить сейф — попробуй ещё раз');
+      }
+      return;
+    }
     if (!mounted) return;
     _password.clear();
     setState(() => _error = null);
@@ -402,6 +383,8 @@ class _SafeSheetState extends ConsumerState<SafeSheet> {
     final partner = pair.partner;
     final box = ref.watch(privateBoxProvider);
     final creating = box.state == BoxState.absent;
+    // Still looking at the disk: neither form yet, nothing to press.
+    final loading = box.state == BoxState.loading;
     Widget field(TextEditingController c, String hint) => SizedBox(
           height: MsSize.fieldH,
           child: TextField(
@@ -461,16 +444,17 @@ class _SafeSheetState extends ConsumerState<SafeSheet> {
           ),
         ),
         MsButton(
-          label: box.busy
+          label: box.busy || loading
               ? (creating ? 'Создаю…' : 'Открываю…')
               : (creating ? 'Создать сейф' : 'Открыть сейф'),
           expand: true,
-          onPressed:
-              box.busy || (creating ? !_canCreate : _password.text.isEmpty)
-                  ? null
-                  : () => _go(box),
+          onPressed: box.busy ||
+                  loading ||
+                  (creating ? !_canCreate : _password.text.isEmpty)
+              ? null
+              : () => _go(box),
         ),
-        if (!creating) ...[
+        if (!creating && !loading) ...[
           const SizedBox(height: MsSpace.space2),
           Center(
               child: MsLink('${pair.me.verb('Забыл')} пароль',

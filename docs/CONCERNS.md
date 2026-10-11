@@ -100,3 +100,8 @@ Running list of things that need your eye. Newest at the bottom; each entry says
 
 ### 22. Pure-Dart crypto speed
 - **What:** files are encrypted in pure Dart in a background isolate. Fine for documents and photos; a 200 MB cap keeps it bearable. `cryptography_flutter` would make it native-fast if needed.
+
+### 23. Screenshot protection for the safe is Android-only
+- **What:** while «Личный сейф» is open, Android blocks screenshots and blanks the recent-apps thumbnail (FLAG_SECURE). On iPhone the same call does nothing, so the app switcher snapshot can show the safe's list or an open photo.
+- **Why not yet:** iOS needs native code (a blur over the window when the app resigns active) that can't be built or tested on this PC; iOS is «later» in CLAUDE.md.
+- **Suggest:** add the blur in `ios/Runner/SceneDelegate.swift` behind the same `ms/secure_screen` channel when iPhone becomes a real target.

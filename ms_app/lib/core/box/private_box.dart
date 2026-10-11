@@ -26,7 +26,8 @@ import 'package:path_provider/path_provider.dart';
 import '../storage/app_paths.dart';
 import 'box_io.dart';
 
-enum BoxState { absent, locked, unlocked }
+/// `loading` until [PrivateBox.init] has looked at the disk.
+enum BoxState { loading, absent, locked, unlocked }
 
 /// Per file. The crypto is pure Dart; bigger files would take minutes.
 const int kBoxMaxFileBytes = 200 * 1024 * 1024;
@@ -80,8 +81,11 @@ class PrivateBox extends ChangeNotifier {
   final BoxRunner _run;
   final DateTime Function() _clock;
 
-  BoxState _state = BoxState.absent;
+  BoxState _state = BoxState.loading;
   Uint8List? _key;
+
+  /// Files being encrypted right now: not orphans, even if unlisted.
+  final Set<String> _writing = {};
   List<BoxEntry> _entries = const [];
   int _busy = 0;
   int _away = 0;
@@ -123,18 +127,20 @@ class PrivateBox extends ChangeNotifier {
 
   /// Reads the state from disk, drops half-written files and old plain
   /// copies (ours and file_picker's).
-  Future<void> init() async {
-    _state = await _keyring.exists() ? BoxState.locked : BoxState.absent;
-    final indexPart = File('${_index.path}.part');
-    if (await indexPart.exists()) await indexPart.delete();
-    if (await _files.exists()) {
-      await for (final f in _files.list()) {
-        if (f.path.endsWith('.part')) await f.delete();
-      }
-    }
-    await wipeTemp();
-    if (!_disposed) notifyListeners();
-  }
+  /// Runs first in the queue, so nothing (a create, above all) can act on
+  /// the safe before its real state is known.
+  Future<void> init() => _serial(() async {
+        _state = await _keyring.exists() ? BoxState.locked : BoxState.absent;
+        if (!_disposed) notifyListeners();
+        final indexPart = File('${_index.path}.part');
+        if (await indexPart.exists()) await indexPart.delete();
+        if (await _files.exists()) {
+          await for (final f in _files.list()) {
+            if (f.path.endsWith('.part')) await f.delete();
+          }
+        }
+        await wipeTemp();
+      });
 
   Future<void> create(String password) async {
     if (password.length < kBoxMinPassword) {
@@ -162,8 +168,15 @@ class PrivateBox extends ChangeNotifier {
           final key = await _run(_unlockTask(keyring, password));
           if (key == null) return false;
           final listed = await _readIndex(key);
-          final all = await _withOrphans(listed);
-          if (all.length != listed.length) await _writeIndex(key, all);
+          // A crash can leave the list and the files out of step either way.
+          final present = [
+            for (final e in listed)
+              if (await File(_path(e.id)).exists()) e,
+          ];
+          final all = await _withOrphans(present);
+          if (present.length != listed.length || all.length != present.length) {
+            await _writeIndex(key, all);
+          }
           _open(key, all);
           return true;
         });
@@ -178,7 +191,7 @@ class PrivateBox extends ChangeNotifier {
     await for (final f in _files.list()) {
       if (f is! File || p.extension(f.path) != '.bin') continue;
       final id = p.basenameWithoutExtension(f.path);
-      if (known.contains(id)) continue;
+      if (known.contains(id) || _writing.contains(id)) continue;
       final raf = await f.open();
       final head = await raf.read(8);
       await raf.close();
@@ -253,37 +266,42 @@ class PrivateBox extends ChangeNotifier {
     }
   }
 
+  /// Encrypting runs outside the queue: a lock (and the next unlock) never
+  /// waits for a big file. Only the list update is queued.
   Future<BoxEntry> add(String sourcePath, String name) {
     final session = _session;
     final key = _keyCopy();
-    return _serial(() => _busyWhile(() async {
-          try {
+    return _busyWhile(() async {
+      final id = newBoxId();
+      _writing.add(id);
+      try {
+        final size = await File(sourcePath).length();
+        if (size > kBoxMaxFileBytes) throw BoxTooLarge(size);
+        try {
+          final written =
+              await _run(_encryptTask(sourcePath, _path(id), key, id));
+          return await _serial(() async {
             _check(session);
-            final size = await File(sourcePath).length();
-            if (size > kBoxMaxFileBytes) throw BoxTooLarge(size);
-            final id = newBoxId();
-            try {
-              final written =
-                  await _run(_encryptTask(sourcePath, _path(id), key, id));
-              _check(session);
-              final entry = BoxEntry(
-                  id: id,
-                  name: name,
-                  size: written,
-                  addedAt: _clock().millisecondsSinceEpoch);
-              final next = [..._entries, entry];
-              await _writeIndex(key, next);
-              if (session == _session) _entries = next;
-              return entry;
-            } catch (e, st) {
-              final f = File(_path(id));
-              if (await f.exists()) await f.delete();
-              _rethrowAs(session, e, st);
-            }
-          } finally {
-            key.fillRange(0, key.length, 0);
-          }
-        }));
+            final entry = BoxEntry(
+                id: id,
+                name: name,
+                size: written,
+                addedAt: _clock().millisecondsSinceEpoch);
+            final next = [..._entries, entry];
+            await _writeIndex(key, next);
+            if (session == _session) _entries = next;
+            return entry;
+          });
+        } catch (e, st) {
+          final f = File(_path(id));
+          if (await f.exists()) await f.delete();
+          _rethrowAs(session, e, st);
+        }
+      } finally {
+        _writing.remove(id);
+        key.fillRange(0, key.length, 0);
+      }
+    });
   }
 
   /// After a lock, whatever broke an in-flight operation (its temp folder
@@ -293,28 +311,40 @@ class PrivateBox extends ChangeNotifier {
     Error.throwWithStackTrace(e, st);
   }
 
-  Future<Uint8List> readBytes(String id) async {
+  /// Queued with the list changes, so a remove never deletes a file that is
+  /// being read.
+  Future<Uint8List> readBytes(String id) {
     final session = _session;
     final key = _keyCopy();
-    try {
-      final Uint8List bytes;
+    return _serial(() async {
       try {
-        bytes = await _busyWhile(() => _run(_bytesTask(_path(id), key, id)));
-      } catch (e, st) {
-        _rethrowAs(session, e, st);
+        _check(session);
+        final Uint8List bytes;
+        try {
+          bytes =
+              await _busyWhile(() => _run(_bytesTask(_path(id), key, id)));
+        } catch (e, st) {
+          _rethrowAs(session, e, st);
+        }
+        _check(session);
+        return bytes;
+      } finally {
+        key.fillRange(0, key.length, 0);
       }
-      _check(session);
-      return bytes;
-    } finally {
-      key.fillRange(0, key.length, 0);
-    }
+    });
   }
 
-  /// A plain copy for another app, under the file's own name.
-  Future<File> exportTemp(String id) async {
+  /// A plain copy for another app, under the file's own name. Queued like
+  /// [readBytes].
+  Future<File> exportTemp(String id) {
     final session = _session;
     final key = _keyCopy();
+    return _serial(() => _exportTemp(id, session, key));
+  }
+
+  Future<File> _exportTemp(String id, int session, Uint8List key) async {
     try {
+      _check(session);
       final entry = _entries.firstWhere((e) => e.id == id);
       final tmp = await _tempDir();
       final sub = Directory(p.join(tmp.path, 'ms_box', newBoxId()));
@@ -343,11 +373,14 @@ class PrivateBox extends ChangeNotifier {
     return _serial(() => _busyWhile(() async {
           try {
             _check(session);
+            // The data first: a crash in between leaves a listed entry
+            // without a file (dropped on unlock), never a deleted file that
+            // comes back as «Без имени».
+            final f = File(_path(id));
+            if (await f.exists()) await f.delete();
             final next = _entries.where((e) => e.id != id).toList();
             await _writeIndex(key, next);
             if (session == _session) _entries = next;
-            final f = File(_path(id));
-            if (await f.exists()) await f.delete();
           } finally {
             key.fillRange(0, key.length, 0);
           }
@@ -366,13 +399,9 @@ class PrivateBox extends ChangeNotifier {
   /// Deletes every plain copy: ours for other apps, and file_picker's
   /// (only the safe uses file_picker). Wipes run one at a time: two
   /// recursive deletes of one folder at once fail on Windows.
-  Future<void> wipeTemp() {
-    final next = _wiping.then((_) => _wipeNow(), onError: (_) => _wipeNow());
-    _wiping = next;
-    return next;
-  }
+  Future<void> wipeTemp() => _wipes.run(_wipeNow);
 
-  Future<void> _wiping = Future<void>.value();
+  final _Chain _wipes = _Chain();
 
   Future<void> _wipeNow() async {
     final tmp = (await _tempDir()).path;
@@ -404,13 +433,9 @@ class PrivateBox extends ChangeNotifier {
     }
   }
 
-  Future<void> _queue = Future<void>.value();
+  final _Chain _ops = _Chain();
 
-  Future<T> _serial<T>(Future<T> Function() f) {
-    final run = _queue.then((_) => f());
-    _queue = run.then<void>((_) {}, onError: (Object _) {});
-    return run;
-  }
+  Future<T> _serial<T>(Future<T> Function() f) => _ops.run(f);
 
   Future<T> _busyWhile<T>(Future<T> Function() f) async {
     _busy++;
@@ -433,6 +458,18 @@ class PrivateBox extends ChangeNotifier {
       await _index.exists()
           ? openBoxIndex(key, await _index.readAsBytes())
           : const <BoxEntry>[];
+}
+
+/// Runs tasks one after another; a failed task doesn't stop the next one,
+/// and its error still reaches its own caller.
+class _Chain {
+  Future<void> _tail = Future<void>.value();
+
+  Future<T> run<T>(Future<T> Function() f) {
+    final run = _tail.then((_) => f());
+    _tail = run.then<void>((_) {}, onError: (Object _) {});
+    return run;
+  }
 }
 
 final privateBoxProvider = ChangeNotifierProvider<PrivateBox>((ref) {

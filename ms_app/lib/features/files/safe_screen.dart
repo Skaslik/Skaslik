@@ -16,6 +16,23 @@ import '../../design_system/ms_theme.dart';
 import '../../design_system/widgets/widgets.dart';
 import 'file_row.dart';
 
+/// What «Добавить файл» says: how many went in, what didn't and why, and
+/// that the originals are still on the phone.
+String safeAddSummary({required int added, required List<String> problems}) {
+  final parts = <String>[
+    if (added > 0)
+      'В сейфе: $added ${ruPlural(added, 'файл', 'файла', 'файлов')}.',
+    if (problems.isNotEmpty) 'Не вошло: ${problems.join('; ')}.',
+    if (added == 1)
+      'Оригинал остался на телефоне — удали его, если нужно.'
+    else if (added > 1)
+      'Оригиналы остались на телефоне — удали их, если нужно.',
+  ];
+  return parts.isEmpty
+      ? 'Не получилось прочитать выбранные файлы.'
+      : parts.join(' ');
+}
+
 /// Inside «Личный сейф». Full screen over the tab bar; leaving it locks.
 class SafeScreen extends ConsumerStatefulWidget {
   const SafeScreen({super.key, this.clock});
@@ -69,10 +86,13 @@ class _SafeScreenState extends ConsumerState<SafeScreen> {
     if (picked == null || !mounted) return;
     var added = 0;
     var closed = false;
-    String? problem;
+    final problems = <String>[];
     for (final f in picked.files) {
       final path = f.path;
-      if (path == null) continue;
+      if (path == null) {
+        problems.add('«${f.name}» не прочитать');
+        continue;
+      }
       try {
         await _box.add(path, f.name);
         added++;
@@ -80,10 +100,10 @@ class _SafeScreenState extends ConsumerState<SafeScreen> {
         closed = true; // locked mid-way: the rest stays out
         break;
       } on BoxTooLarge {
-        problem = '«${f.name}» больше ${formatBytes(kBoxMaxFileBytes)} — '
-            'в сейф не влезет';
+        problems
+            .add('«${f.name}» больше ${formatBytes(kBoxMaxFileBytes)}');
       } catch (_) {
-        problem = 'Не получилось положить «${f.name}»';
+        problems.add('«${f.name}» не получилось зашифровать');
       }
     }
     // file_picker keeps plain copies in the cache: remove them now.
@@ -93,11 +113,7 @@ class _SafeScreenState extends ConsumerState<SafeScreen> {
       // Desktop has nothing to clear.
     }
     if (closed || !mounted) return;
-    MsToast.show(
-        context,
-        problem ??
-            'В сейфе: $added ${ruPlural(added, 'файл', 'файла', 'файлов')}. '
-                'Оригинал остался на телефоне — удали его, если нужно.');
+    MsToast.show(context, safeAddSummary(added: added, problems: problems));
   }
 
   /// Photos open inside МС from memory; the rest (or on request) in another
@@ -126,25 +142,19 @@ class _SafeScreenState extends ConsumerState<SafeScreen> {
   }
 
   Future<void> _remove(BoxEntry e) async {
-    final ms = context.ms;
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Удалить «${e.name}»?'),
-        content: const Text('Из сейфа он пропадёт насовсем.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Отмена')),
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text('Удалить',
-                  style: MsTextX.link.copyWith(color: ms.danger))),
-        ],
-      ),
-    );
-    if (ok != true) return;
-    await _box.remove(e.id);
+    final ok = await confirmDanger(context,
+        title: 'Удалить «${e.name}»?',
+        body: 'Из сейфа он пропадёт насовсем.',
+        action: 'Удалить');
+    if (!ok) return;
+    try {
+      await _box.remove(e.id);
+    } on StateError {
+      return; // locked meanwhile
+    } catch (_) {
+      if (mounted) MsToast.show(context, 'Не получилось удалить «${e.name}»');
+      return;
+    }
     if (mounted) MsToast.show(context, 'Удалено из сейфа');
   }
 

@@ -463,25 +463,12 @@ class _DevicesSheetState extends ConsumerState<_DevicesSheet> {
   }
 
   Future<void> _wipe(Pair pair) async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Удалить все записи?'),
-        content: Text(
-            'Календарь, копилки, файлы, карты, списки и записки исчезнут — '
-            'и у ${pair.partner.nameGenitive} после синка. Отменить нельзя.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Отмена')),
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text('Удалить',
-                  style: MsTextX.link.copyWith(color: ctx.ms.danger))),
-        ],
-      ),
-    );
-    if (ok != true || !mounted) return;
+    final ok = await confirmDanger(context,
+        title: 'Удалить все записи?',
+        body: 'Календарь, копилки, файлы, карты, списки и записки исчезнут — '
+            'и у ${pair.partner.nameGenitive} после синка. Отменить нельзя.',
+        action: 'Удалить');
+    if (!ok || !mounted) return;
     for (final p in [
       calendarProvider, banksProvider, cardsProvider, docsProvider,
       notesProvider, messagesProvider, clipsProvider,
