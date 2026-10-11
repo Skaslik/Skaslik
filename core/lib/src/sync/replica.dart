@@ -86,6 +86,10 @@ class Replica {
   final ClockFn _clock;
   int _lastTime;
   int _seq;
+
+  /// Latest time of any write from another device this replica has seen.
+  /// The next local write is stamped after it (hybrid logical clock).
+  int _maxRemoteTime = 0;
   final Map<String, _EntityState> _entities = HashMap();
   final List<Op> _opLog = [];
   final Set<String> _applied = HashSet();
@@ -118,9 +122,13 @@ class Replica {
 
   Op _newOp(String entityId, String? field, String? value, String kind) {
     // Гибридные часы: monotonically non-decreasing; при совпадении времени
-    // последующая запись всё равно «позже» благодаря растущему seq.
+    // своя последующая запись всё равно «позже» благодаря растущему seq.
+    // Чужие записи с тем же временем сравниваются по чужому seq, поэтому
+    // запись, сделанная после увиденной чужой, ставится минимум на +1 мс —
+    // иначе она могла бы проиграть (I8). Формат операций не меняется.
     final now = _clock();
     if (now > _lastTime) _lastTime = now;
+    if (_lastTime <= _maxRemoteTime) _lastTime = _maxRemoteTime + 1;
     _seq += 1;
     final op = Op(
       seq: _seq,
@@ -141,6 +149,9 @@ class Replica {
 
   void _apply(Op op) {
     if (op.time > _lastTime) _lastTime = op.time;
+    if (op.deviceId != deviceId && op.time > _maxRemoteTime) {
+      _maxRemoteTime = op.time;
+    }
     final e = _entities.putIfAbsent(op.entityId, () => _EntityState());
     if (op.kind == 'delete') {
       final cur = e.deleted;

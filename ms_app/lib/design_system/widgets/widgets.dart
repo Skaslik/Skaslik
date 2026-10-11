@@ -8,6 +8,7 @@ export 'ms_badge.dart';
 export 'ms_button.dart';
 export 'ms_card.dart';
 export 'ms_chip.dart';
+export 'ms_confirm.dart';
 export 'ms_date_wheel.dart';
 export 'ms_date_block.dart';
 export 'ms_eyebrow.dart';

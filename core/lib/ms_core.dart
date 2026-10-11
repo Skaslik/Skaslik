@@ -4,6 +4,7 @@ library ms_core;
 export 'src/crypto/primitives.dart';
 export 'src/crypto/pairing.dart';
 export 'src/crypto/seed_phrase.dart';
+export 'src/crypto/box.dart';
 export 'src/sync/replica.dart';
 export 'src/sync/engine.dart';
 export 'src/sync/sync_blob.dart';

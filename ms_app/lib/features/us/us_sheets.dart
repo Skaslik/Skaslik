@@ -339,9 +339,12 @@ class _SecuritySheet extends StatelessWidget {
         MsMeta(appLock.pinSet ? 'вход: отпечаток или PIN' : 'вход: отпечаток · PIN не задан'),
         const SizedBox(height: MsSpace.space3),
         Text(
-          'Фейк-режим: три быстрых касания по рамке с монограммой в комнате — '
-          'и вместо «МС» откроется обычный калькулятор. Чтобы вернуться, '
-          'набери на нём свой PIN и нажми «=».',
+          appLock.pinSet
+              ? 'Фейк-режим: три быстрых касания по рамке с монограммой в '
+                  'комнате — и вместо «МС» откроется обычный калькулятор. '
+                  'Чтобы вернуться, набери на нём свой PIN и нажми «=».'
+              : 'Фейк-режим работает только с PIN: без него из калькулятора '
+                  'не вернуться. PIN задаётся при первом запуске.',
           style: MsText.bodySm.copyWith(color: ms.inkMuted),
         ),
         const SizedBox(height: MsSpace.space5),
@@ -359,25 +362,52 @@ class _SecuritySheet extends StatelessWidget {
   }
 }
 
-Future<void> showRecoverySheet(BuildContext context) => showMsSheet<void>(
-    context, title: 'Лист восстановления', builder: (_) => const _RecoverySheet());
+Future<void> showRecoverySheet(BuildContext context, {AppLock? lock}) =>
+    showMsSheet<void>(context,
+        title: 'Лист восстановления',
+        builder: (_) => _RecoverySheet(lock: lock ?? appLock));
 
+/// The recovery sheet opens only after the PIN — or, with no PIN set, the
+/// fingerprint (or the phone's own screen lock).
 class _RecoverySheet extends StatefulWidget {
-  const _RecoverySheet();
+  const _RecoverySheet({required this.lock});
+  final AppLock lock;
   @override
   State<_RecoverySheet> createState() => _RecoverySheetState();
 }
 
 class _RecoverySheetState extends State<_RecoverySheet> {
   String _pin = '';
-  bool _open = !appLock.pinSet;
+  bool _open = false;
   String? _error;
+
+  AppLock get _lock => widget.lock;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!_lock.pinSet) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _askFinger());
+    }
+  }
+
+  Future<void> _askFinger() async {
+    // A phone with no fingerprint and no screen lock has nothing to ask.
+    final can = await _lock.canUnlock();
+    final ok =
+        !can || await _lock.tryUnlock(reason: 'Открыть лист восстановления');
+    if (!mounted) return;
+    setState(() {
+      _open = ok;
+      _error = ok ? null : 'Отпечаток не подошёл';
+    });
+  }
 
   Future<void> _digit(String d) async {
     if (_pin.length >= kPinLength) return;
     setState(() => _pin += d);
     if (_pin.length < kPinLength) return;
-    final ok = await appLock.verifyPin(_pin);
+    final ok = await _lock.verifyPin(_pin);
     if (!mounted) return;
     setState(() {
       _open = ok;
@@ -389,6 +419,27 @@ class _RecoverySheetState extends State<_RecoverySheet> {
   @override
   Widget build(BuildContext context) {
     final ms = context.ms;
+    if (!_open && !_lock.pinSet) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const MsMeta('12 слов и секрет семьи — сначала отпечаток'),
+          SizedBox(
+            height: MsSpace.space6,
+            child: Center(
+                child:
+                    _error == null ? null : MsMeta(_error!, color: ms.danger)),
+          ),
+          MsButton(
+            label: 'Открыть по отпечатку',
+            icon: Symbols.fingerprint_rounded,
+            expand: true,
+            onPressed: _askFinger,
+          ),
+        ],
+      );
+    }
     if (!_open) {
       return Column(mainAxisSize: MainAxisSize.min, children: [
         const MsMeta('12 слов и секрет семьи — сначала PIN'),
@@ -463,25 +514,12 @@ class _DevicesSheetState extends ConsumerState<_DevicesSheet> {
   }
 
   Future<void> _wipe(Pair pair) async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Удалить все записи?'),
-        content: Text(
-            'Календарь, копилки, файлы, карты, списки и записки исчезнут — '
-            'и у ${pair.partner.nameGenitive} после синка. Отменить нельзя.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Отмена')),
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text('Удалить',
-                  style: MsTextX.link.copyWith(color: ctx.ms.danger))),
-        ],
-      ),
-    );
-    if (ok != true || !mounted) return;
+    final ok = await confirmDanger(context,
+        title: 'Удалить все записи?',
+        body: 'Календарь, копилки, файлы, карты, списки и записки исчезнут — '
+            'и у ${pair.partner.nameGenitive} после синка. Отменить нельзя.',
+        action: 'Удалить');
+    if (!ok || !mounted) return;
     for (final p in [
       calendarProvider, banksProvider, cardsProvider, docsProvider,
       notesProvider, messagesProvider, clipsProvider,

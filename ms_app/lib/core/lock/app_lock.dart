@@ -25,9 +25,18 @@ class AppLock extends ChangeNotifier {
   int _monogramTaps = 0;
   DateTime _lastTap = DateTime.fromMillisecondsSinceEpoch(0);
 
-  AppLock({LocalAuthentication? auth, FakeMode? fake})
-      : _auth = auth ?? LocalAuthentication(),
+  AppLock({
+    LocalAuthentication? auth,
+    FakeMode? fake,
+    this.pinKdfMemoryKib = 128 * 1024,
+    this.pinKdfIterations = 3,
+  })  : _auth = auth ?? LocalAuthentication(),
         _fake = fake ?? FakeMode('0000');
+
+  /// Argon2id cost of the PIN hash. Tests pass a cheap one; the app keeps
+  /// the default (changing it would invalidate stored PINs).
+  final int pinKdfMemoryKib;
+  final int pinKdfIterations;
 
   bool get unlocked => _unlocked;
   bool get inFake => _inFake;
@@ -80,7 +89,8 @@ class AppLock extends ChangeNotifier {
       throw ArgumentError('PIN: 4–6 цифр');
     }
     const salt = _pinSalt;
-    final hash = await argon2id32(pin, salt);
+    final hash = await argon2id32(pin, salt,
+        memoryKib: pinKdfMemoryKib, iterations: pinKdfIterations);
     await SecureVault.write(_pinHash, bytesToHex(hash));
     _pinSet = true;
     notifyListeners();
@@ -92,7 +102,8 @@ class AppLock extends ChangeNotifier {
     if (h == null || h.isEmpty) return false;
     const salt = _pinSalt;
     final expect = hexToBytes(h);
-    final actual = await argon2id32(pin, salt);
+    final actual = await argon2id32(pin, salt,
+        memoryKib: pinKdfMemoryKib, iterations: pinKdfIterations);
     if (!_timingSafe(expect, actual)) return false;
     _unlocked = true;
     notifyListeners();
@@ -119,8 +130,10 @@ class AppLock extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Тройное нажатие на монограмму → fake mode.
+  /// Тройное нажатие на монограмму → fake mode. Only with a PIN: «PIN =»
+  /// is the calculator's only way back.
   void onMonogramTap() {
+    if (!_pinSet) return;
     final now = DateTime.now();
     if (now.difference(_lastTap) > kFakeModeTapWindow) {
       _monogramTaps = 0;

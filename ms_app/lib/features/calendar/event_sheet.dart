@@ -68,6 +68,18 @@ class EventSheet extends ConsumerWidget {
         if (e.note != null) line('Заметка', e.note!),
         const SizedBox(height: MsSpace.space6),
         MsButton(
+          label: 'Изменить событие',
+          variant: MsButtonVariant.secondary,
+          expand: true,
+          onPressed: () {
+            // The page under this sheet opens the edit sheet.
+            final under = Navigator.of(context, rootNavigator: true).context;
+            Navigator.of(context).pop();
+            showEditEventSheet(under, e);
+          },
+        ),
+        const SizedBox(height: MsSpace.space2),
+        MsButton(
           label: 'Удалить событие',
           variant: MsButtonVariant.danger,
           expand: true,
@@ -79,25 +91,12 @@ class EventSheet extends ConsumerWidget {
 
   Future<void> _confirmDelete(
       BuildContext context, WidgetRef ref, Pair pair) async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Удалить «${event.title}»?'),
-        content: Text(
-            'У ${pair.partner.nameGenitive} оно тоже исчезнет после синка.'
-            '${event.recurrence == Recurrence.none ? '' : ' Удалятся все повторы.'}'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Отмена')),
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text('Удалить',
-                  style: MsTextX.link.copyWith(color: ctx.ms.danger))),
-        ],
-      ),
-    );
-    if (ok != true || !context.mounted) return;
+    final ok = await confirmDanger(context,
+        title: 'Удалить «${event.title}»?',
+        body: 'У ${pair.partner.nameGenitive} оно тоже исчезнет после синка.'
+            '${event.recurrence == Recurrence.none ? '' : ' Удалятся все повторы.'}',
+        action: 'Удалить');
+    if (!ok || !context.mounted) return;
     final store = ref.read(calendarProvider);
     CalendarRepo(store.replica).remove(event.id);
     store.persist();
