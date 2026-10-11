@@ -20,6 +20,14 @@ Future<void> showAddEventSheet(BuildContext context, DateTime day) =>
       builder: (_) => AddEventSheet(day: day),
     );
 
+/// «Изменить событие»: the same form, filled in.
+Future<void> showEditEventSheet(BuildContext context, CalEvent e) =>
+    showMsSheet<void>(
+      context,
+      title: 'Изменить событие',
+      builder: (_) => AddEventSheet(day: dayOf(e.start), editing: e),
+    );
+
 /// Reminder choices (PLAN 5.3): за день / за час / за 15 мин.
 const List<(int, String)> kReminderChoices = [
   (1440, 'за день'),
@@ -31,10 +39,14 @@ const List<(int, String)> kReminderChoices = [
 const Set<int> kDefaultReminders = {1440};
 
 class AddEventSheet extends ConsumerStatefulWidget {
-  const AddEventSheet({super.key, required this.day, this.clock});
+  const AddEventSheet({super.key, required this.day, this.clock, this.editing});
 
   final DateTime day;
   final DateTime Function()? clock;
+
+  /// Set when editing: the form starts from it and «Сохранить» keeps its
+  /// id, author and creation time.
+  final CalEvent? editing;
 
   @override
   ConsumerState<AddEventSheet> createState() => _AddEventSheetState();
@@ -50,11 +62,28 @@ class _AddEventSheetState extends ConsumerState<AddEventSheet> {
   Recurrence _repeat = Recurrence.none;
   final Set<int> _remind = {...kDefaultReminders};
 
+  /// Last day of a multi-day event; null for a one-day event.
+  DateTime? _endDay;
+
   DateTime get _now => (widget.clock ?? DateTime.now)();
 
   @override
   void initState() {
     super.initState();
+    final e = widget.editing;
+    if (e != null) {
+      _title.text = e.title;
+      _note.text = e.note ?? '';
+      _shared = e.shared;
+      _allDay = e.allDay;
+      _time = Duration(hours: e.start.hour, minutes: e.start.minute);
+      _repeat = e.recurrence;
+      _remind
+        ..clear()
+        ..addAll(e.reminders.offsetsMin);
+      if (spanDays(e) > 1) _endDay = dayOf(e.end!);
+      return;
+    }
     final now = _now;
     final sameDay = dayOf(now) == dayOf(widget.day);
     // Today: the next full hour; another day: 10:00.
@@ -75,24 +104,59 @@ class _AddEventSheetState extends ConsumerState<AddEventSheet> {
     if (title.isEmpty) return;
     final pair = ref.read(pairProvider);
     final store = ref.read(calendarProvider);
+    final repo = CalendarRepo(store.replica);
     final now = _now;
     final d = dayOf(widget.day);
     final start = _allDay ? d : d.add(_time);
     final note = _note.text.trim();
-    final e = CalEvent(
-      id: 'evt-${now.microsecondsSinceEpoch}',
-      title: title,
-      start: start,
-      allDay: _allDay,
-      recurrence: _repeat,
-      reminders: ReminderRules(
-          kReminderChoices.map((c) => c.$1).where(_remind.contains).toList()),
-      note: note.isEmpty ? null : note,
-      ownerId: pair.myDeviceId,
-      createdAt: now.millisecondsSinceEpoch,
-      shared: _shared,
-    );
-    CalendarRepo(store.replica).upsert(e);
+    final endDay = _endDay;
+    final end =
+        endDay != null && dayOf(endDay).isAfter(d) ? dayOf(endDay) : null;
+    final reminders = ReminderRules(
+        kReminderChoices.map((c) => c.$1).where(_remind.contains).toList());
+    final was = widget.editing;
+    final CalEvent e;
+    if (was == null) {
+      e = CalEvent(
+        id: 'evt-${now.microsecondsSinceEpoch}',
+        title: title,
+        start: start,
+        end: end,
+        allDay: _allDay,
+        recurrence: _repeat,
+        reminders: reminders,
+        note: note.isEmpty ? null : note,
+        ownerId: pair.myDeviceId,
+        createdAt: now.millisecondsSinceEpoch,
+        shared: _shared,
+      );
+      repo.upsert(e);
+    } else {
+      // Keep what the form doesn't show: id, author, place, invite.
+      e = CalEvent(
+        id: was.id,
+        title: title,
+        start: start,
+        end: end,
+        allDay: _allDay,
+        locationName: was.locationName,
+        lat: was.lat,
+        lng: was.lng,
+        timezone: was.timezone,
+        recurrence: _repeat,
+        reminders: reminders,
+        inviteStatus: was.inviteStatus,
+        ownerColor: was.ownerColor,
+        note: note.isEmpty ? null : note,
+        ownerId: was.ownerId,
+        createdAt: was.createdAt,
+        editedBy: pair.myDeviceId,
+        editedAt: now.millisecondsSinceEpoch,
+        shared: _shared,
+      );
+      repo.edit(e);
+      MsNotifications.cancelEvent(e.id).catchError((_) {});
+    }
     store.persist();
     MsNotifications.scheduleEvent(
       id: e.id,
@@ -101,8 +165,11 @@ class _AddEventSheetState extends ConsumerState<AddEventSheet> {
       offsetsMin: e.reminders.offsetsMin,
     ).catchError((_) {});
     Navigator.of(context).pop();
-    MsToast.show(context,
-        'Добавлено. У ${pair.partner.nameGenitive} появится после синка');
+    MsToast.show(
+        context,
+        was == null
+            ? 'Добавлено. У ${pair.partner.nameGenitive} появится после синка'
+            : 'Сохранено');
   }
 
   Widget _label(String text) => Padding(
@@ -130,15 +197,18 @@ class _AddEventSheetState extends ConsumerState<AddEventSheet> {
               autofocus: true,
               textCapitalization: TextCapitalization.sentences,
               style: MsText.body.copyWith(color: ms.ink),
-              decoration: const InputDecoration(
-                  hintText: 'Например: ужин в «Пушкине»'),
+              decoration:
+                  const InputDecoration(hintText: 'Например: ужин в «Пушкине»'),
               onChanged: (_) => setState(() {}),
               onSubmitted: (_) => _add(),
             ),
           ),
           _label('Чьё'),
           MsSegmented<bool>(
-            segments: const [MsSegment(false, 'Моё'), MsSegment(true, 'Вместе')],
+            segments: const [
+              MsSegment(false, 'Моё'),
+              MsSegment(true, 'Вместе')
+            ],
             value: _shared,
             onChanged: (v) => setState(() => _shared = v),
           ),
@@ -161,8 +231,26 @@ class _AddEventSheetState extends ConsumerState<AddEventSheet> {
                   selected: _pickTime,
                   onTap: () => setState(() => _pickTime = !_pickTime),
                 ),
+              MsChip(
+                label: _endDay == null
+                    ? 'несколько дней'
+                    : 'до ${formatDayMonth(_endDay!)}',
+                selected: _endDay != null,
+                onTap: () => setState(() => _endDay = _endDay == null
+                    ? dayOf(widget.day).add(const Duration(days: 1))
+                    : null),
+              ),
             ],
           ),
+          if (_endDay != null) ...[
+            const SizedBox(height: MsSpace.space2),
+            MsDateWheel(
+              initial: _endDay!,
+              firstYear: widget.day.year,
+              years: 3,
+              onChanged: (d) => setState(() => _endDay = d),
+            ),
+          ],
           if (_pickTime && !_allDay)
             SizedBox(
               height: MsSize.timePickerH,
@@ -211,8 +299,9 @@ class _AddEventSheetState extends ConsumerState<AddEventSheet> {
                 MsChip(
                   label: label,
                   selected: _remind.contains(min),
-                  onTap: () => setState(() =>
-                      _remind.contains(min) ? _remind.remove(min) : _remind.add(min)),
+                  onTap: () => setState(() => _remind.contains(min)
+                      ? _remind.remove(min)
+                      : _remind.add(min)),
                 ),
             ],
           ),
@@ -225,8 +314,13 @@ class _AddEventSheetState extends ConsumerState<AddEventSheet> {
             decoration: const InputDecoration(hintText: 'Необязательно'),
           ),
           const SizedBox(height: MsSpace.space5),
+          if (widget.editing != null &&
+              widget.editing!.recurrence != Recurrence.none) ...[
+            const MsMeta('изменения коснутся всех повторов'),
+            const SizedBox(height: MsSpace.space2),
+          ],
           MsButton(
-            label: 'Добавить событие',
+            label: widget.editing == null ? 'Добавить событие' : 'Сохранить',
             expand: true,
             onPressed: _title.text.trim().isEmpty ? null : _add,
           ),

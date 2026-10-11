@@ -8,6 +8,8 @@ import 'package:ms_app/core/providers.dart';
 import 'package:ms_app/core/storage/app_paths.dart';
 import 'package:ms_app/design_system/ms_format.dart';
 import 'package:ms_app/design_system/ms_theme.dart';
+import 'package:ms_app/design_system/widgets/widgets.dart';
+import 'package:ms_app/features/calendar/calendar_model.dart';
 import 'package:ms_app/features/calendar/calendar_screen.dart';
 import 'package:ms_app/features/calendar/event_row.dart';
 import 'package:ms_app/features/calendar/month_grid.dart';
@@ -115,6 +117,62 @@ void main() {
     expect(added.start, DateTime(2026, 10, 8, 10));
     expect(find.text('Добавлено. У Софии появится после синка'), findsOneWidget);
     expect(find.text('10:00 · вместе'), findsOneWidget);
+    await finish(tester);
+  });
+
+  testWidgets('edit: the form comes filled in; saving keeps the owner',
+      (tester) async {
+    final c = await pumpCal(tester);
+    final repo = CalendarRepo(c.read(calendarProvider).replica);
+    repo.upsert(repo.get('dinner')!.copyWith(note: 'взять торт'));
+    c.read(calendarProvider).persist(); // saves and tells the screen
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ужин у мамы Софии'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Изменить событие'));
+    await tester.pumpAndSettle();
+    expect(find.text('Изменить событие'), findsOneWidget); // sheet title
+    final fields = find.byType(TextField);
+    expect(tester.widget<TextField>(fields.first).controller!.text,
+        'Ужин у мамы Софии');
+    expect(tester.widget<TextField>(fields.last).controller!.text,
+        'взять торт');
+    await tester.enterText(fields.first, 'Ужин у мамы');
+    await tester.enterText(fields.last, '');
+    await tester.pump();
+    await tester.tap(find.text('Сохранить'));
+    await tester.pumpAndSettle();
+
+    final e = repo.get('dinner')!;
+    expect(e.title, 'Ужин у мамы');
+    expect(e.note, isNull);
+    expect(e.start, DateTime(2026, 10, 8, 19, 30));
+    expect(e.ownerId, 'B'); // still Sofia's event
+    expect(e.createdAt, 1);
+    expect(e.editedBy, 'A');
+    expect(e.editedAt, isNotNull); // the real clock: the sheet takes none
+    expect(find.text('Сохранено'), findsOneWidget);
+    await finish(tester);
+  });
+
+  testWidgets('a trip over several days: «до …» sets the last day',
+      (tester) async {
+    final c = await pumpCal(tester);
+    await tester.tap(find.text('+ Добавить'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, 'Поездка на дачу');
+    await tester.tap(find.text('несколько дней'));
+    await tester.pumpAndSettle();
+    expect(find.byType(MsDateWheel), findsOneWidget);
+    // The wheel starts on the next day.
+    expect(find.text('до 9 октября'), findsOneWidget);
+    await tester.tap(find.text('Добавить событие'));
+    await tester.pumpAndSettle();
+    final trip = CalendarRepo(c.read(calendarProvider).replica)
+        .all()
+        .singleWhere((e) => e.title == 'Поездка на дачу');
+    expect(trip.end, DateTime(2026, 10, 9));
+    expect(spanDays(trip), 2);
     await finish(tester);
   });
 
