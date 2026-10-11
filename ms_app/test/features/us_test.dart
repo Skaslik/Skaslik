@@ -82,14 +82,8 @@ void main() {
       expect(await lock.exitFakeWithPin('1234'), isFalse);
     });
 
-    test('triple tap enters fake mode and locks', () {
-      final lock = AppLock()..unlockManually();
-      for (var i = 0; i < 3; i++) {
-        lock.onMonogramTap();
-      }
-      expect(lock.inFake, isTrue);
-      expect(lock.unlocked, isFalse);
-    });
+    // Entering fake mode (only with a PIN) and leaving it with «PIN =»:
+    // test/core/app_lock_test.dart.
   });
 
   testWidgets('lock screen: title, four dots, keypad; no PIN → plain entry',
