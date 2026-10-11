@@ -284,7 +284,26 @@ Stream<List<int>> openBoxStream(
   yield await _openChunk(key, fileId, index, true, rest);
 }
 
+/// The plaintext size of a box file from its first 8 bytes and its length,
+/// without decrypting. Null when [header] isn't a box header.
+int? boxPlainSize(List<int> header, int sealedLength) {
+  final int chunk;
+  try {
+    chunk = _readHeader(Uint8List.fromList(header.take(_headerLength).toList()));
+  } catch (_) {
+    return null;
+  }
+  final n = sealedLength - _headerLength;
+  if (n < _overhead) return null;
+  final full = chunk + _overhead;
+  // Every chunk but the last is full; the last holds 0…chunk bytes.
+  final chunks = n % full == 0 ? n ~/ full : n ~/ full + 1;
+  final plain = n - chunks * _overhead;
+  return plain < 0 ? null : plain;
+}
+
 int _readHeader(Uint8List h) {
+  if (h.length < _headerLength) throw const BoxCorrupt('не файл сейфа');
   for (var i = 0; i < 4; i++) {
     if (h[i] != _magic[i]) throw const BoxCorrupt('не файл сейфа');
   }

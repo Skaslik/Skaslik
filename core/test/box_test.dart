@@ -81,6 +81,17 @@ void main() {
       });
     }
 
+    test('the plain size can be told from the header and the length',
+        () async {
+      for (final size in [0, 1, 15, 16, 17, 32, 53, 1000]) {
+        final sealed = await seal(List.filled(size, 1), key, 'f1');
+        expect(boxPlainSize(sealed.sublist(0, 8), sealed.length), size,
+            reason: '$size');
+      }
+      expect(boxPlainSize(utf8.encode('не сейф!'), 100), isNull);
+      expect(boxPlainSize(const [0x4D], 100), isNull);
+    });
+
     test('ciphertext does not contain the plaintext', () async {
       final plain = utf8.encode('ПАСПОРТ-СЕРИЯ-4510 ' * 20);
       final sealed = await seal(plain, key, 'f1');

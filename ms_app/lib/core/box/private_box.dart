@@ -161,10 +161,37 @@ class PrivateBox extends ChangeNotifier {
         return _busyWhile(() async {
           final key = await _run(_unlockTask(keyring, password));
           if (key == null) return false;
-          _open(key, await _readIndex(key));
+          final listed = await _readIndex(key);
+          final all = await _withOrphans(listed);
+          if (all.length != listed.length) await _writeIndex(key, all);
+          _open(key, all);
           return true;
         });
       });
+
+  /// A crash between writing a file and updating the list leaves a file
+  /// nobody knows about. Nothing gets lost: it comes back as «Без имени».
+  Future<List<BoxEntry>> _withOrphans(List<BoxEntry> listed) async {
+    if (!await _files.exists()) return listed;
+    final known = {for (final e in listed) e.id};
+    final out = [...listed];
+    await for (final f in _files.list()) {
+      if (f is! File || p.extension(f.path) != '.bin') continue;
+      final id = p.basenameWithoutExtension(f.path);
+      if (known.contains(id)) continue;
+      final raf = await f.open();
+      final head = await raf.read(8);
+      await raf.close();
+      final size = boxPlainSize(head, await f.length());
+      if (size == null) continue; // not a box file: leave it alone
+      out.add(BoxEntry(
+          id: id,
+          name: 'Без имени',
+          size: size,
+          addedAt: (await f.lastModified()).millisecondsSinceEpoch));
+    }
+    return out;
+  }
 
   /// Starts a session with [key] — unless the app went to the background
   /// meanwhile (Argon2id takes seconds): then the key is dropped at once.
@@ -248,10 +275,10 @@ class PrivateBox extends ChangeNotifier {
               await _writeIndex(key, next);
               if (session == _session) _entries = next;
               return entry;
-            } catch (_) {
+            } catch (e, st) {
               final f = File(_path(id));
               if (await f.exists()) await f.delete();
-              rethrow;
+              _rethrowAs(session, e, st);
             }
           } finally {
             key.fillRange(0, key.length, 0);
@@ -259,12 +286,23 @@ class PrivateBox extends ChangeNotifier {
         }));
   }
 
+  /// After a lock, whatever broke an in-flight operation (its temp folder
+  /// wiped under it, say) is just «сейф закрыт».
+  Never _rethrowAs(int session, Object e, StackTrace st) {
+    if (_disposed || session != _session) throw StateError('сейф закрыт');
+    Error.throwWithStackTrace(e, st);
+  }
+
   Future<Uint8List> readBytes(String id) async {
     final session = _session;
     final key = _keyCopy();
     try {
-      final bytes =
-          await _busyWhile(() => _run(_bytesTask(_path(id), key, id)));
+      final Uint8List bytes;
+      try {
+        bytes = await _busyWhile(() => _run(_bytesTask(_path(id), key, id)));
+      } catch (e, st) {
+        _rethrowAs(session, e, st);
+      }
       _check(session);
       return bytes;
     } finally {
@@ -285,9 +323,13 @@ class PrivateBox extends ChangeNotifier {
       try {
         await _busyWhile(() => _run(_decryptTask(_path(id), dst, key, id)));
         _check(session);
-      } catch (_) {
-        if (await sub.exists()) await sub.delete(recursive: true);
-        rethrow;
+      } catch (e, st) {
+        try {
+          await sub.delete(recursive: true);
+        } on FileSystemException {
+          // Already wiped by the lock.
+        }
+        _rethrowAs(session, e, st);
       }
       return File(dst);
     } finally {

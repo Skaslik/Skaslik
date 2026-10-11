@@ -216,6 +216,29 @@ void main() {
     box = make(); // tearDown-safe
   });
 
+  test('a file left out of the list by a crash comes back as «Без имени»',
+      () async {
+    await box.create('секрет12');
+    await box.add(source('a.txt', [1]).path, 'a.txt');
+    final index = File(p.join(root.path, 'box', 'index.bin'));
+    final before = index.readAsBytesSync();
+    now = now.add(const Duration(minutes: 1));
+    await box.add(source('b.txt', [2, 3]).path, 'b.txt');
+    // The crash: b's file is written, the list never learnt about it.
+    index.writeAsBytesSync(before);
+    box.lock();
+    expect(await box.unlock('секрет12'), isTrue);
+    final names = box.entries.map((e) => e.name).toList();
+    expect(names, containsAll(['a.txt', 'Без имени']));
+    final lost = box.entries.firstWhere((e) => e.name == 'Без имени');
+    expect(lost.size, 2);
+    expect(await box.readBytes(lost.id), [2, 3]);
+    // The recovered entry is saved, not found again on every unlock.
+    box.lock();
+    expect(await box.unlock('секрет12'), isTrue);
+    expect(box.entries, hasLength(2));
+  });
+
   group('plain-copy file names', () {
     test('slashes and characters other apps choke on become «_»', () {
       expect(plainCopyName('Договор/аренда 🐕.pdf'), 'Договор_аренда 🐕.pdf');
