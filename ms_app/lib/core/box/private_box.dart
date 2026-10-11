@@ -130,14 +130,28 @@ class PrivateBox extends ChangeNotifier {
   /// Drops the key. [wipe] = false keeps a copy another app may be reading;
   /// it goes on the next resume.
   void lock({bool wipe = true}) {
-    if (_state != BoxState.unlocked) return;
+    if (_disposed || _state != BoxState.unlocked) return;
+    _forgetKey();
+    if (wipe) _wipeLater();
+    notifyListeners();
+  }
+
+  void _forgetKey() {
     final k = _key;
     if (k != null) k.fillRange(0, k.length, 0);
     _key = null;
     _entries = const [];
     _state = BoxState.locked;
-    if (wipe) _wipeLater();
-    notifyListeners();
+  }
+
+  bool _disposed = false;
+
+  /// A deferred lock (a screen closing) may arrive after this; it's ignored.
+  @override
+  void dispose() {
+    if (_state == BoxState.unlocked) _forgetKey();
+    _disposed = true;
+    super.dispose();
   }
 
   void onAppHidden() {

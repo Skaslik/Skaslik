@@ -4,12 +4,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:ms_app/core/box/private_box.dart';
 import 'package:ms_app/core/pair/pair.dart';
 import 'package:ms_app/design_system/ms_format.dart';
 import 'package:ms_app/design_system/ms_theme.dart';
 import 'package:ms_app/design_system/widgets/widgets.dart';
 import 'package:ms_app/features/files/file_sheets.dart';
+import 'package:ms_app/features/files/safe_screen.dart';
 import 'package:ms_core/ms_core.dart' hide Clip;
 import 'package:path/path.dart' as p;
 
@@ -87,6 +89,88 @@ void main() {
     expect(find.text('Открыть сейф'), findsOneWidget);
     expect(find.text('Забыл пароль'), findsOneWidget);
     expect(find.textContaining('София не видит'), findsOneWidget);
+  });
+
+  Future<void> pumpScreen(WidgetTester tester) async {
+    tester.view.physicalSize = const Size(390 * 3, 844 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        pairProvider.overrideWithValue(pair),
+        privateBoxProvider.overrideWith((_) => box),
+      ],
+      child: MaterialApp(
+        theme: MsTheme.evening(),
+        home: SafeScreen(clock: () => DateTime(2026, 10, 11, 12)),
+      ),
+    ));
+    await tester.pump();
+  }
+
+  testWidgets('open safe, empty: a warm sentence and «Добавить файл»',
+      (tester) async {
+    await tester.runAsync(() async {
+      await box.init();
+      await box.create('секрет12');
+    });
+    await pumpScreen(tester);
+    expect(find.text('Личный сейф'), findsOneWidget);
+    expect(find.textContaining('Пусто'), findsOneWidget);
+    expect(find.text('Добавить файл'), findsOneWidget);
+  });
+
+  testWidgets('lists files with kind, size and when', (tester) async {
+    await tester.runAsync(() async {
+      await box.init();
+      await box.create('секрет12');
+      final f = File(p.join(root.path, 'скан.pdf'))
+        ..writeAsBytesSync(List.filled(2048, 1));
+      await box.add(f.path, 'Паспорт.pdf');
+    });
+    await pumpScreen(tester);
+    expect(find.text('Паспорт.pdf'), findsOneWidget);
+    expect(find.text('PDF'), findsOneWidget);
+    expect(find.textContaining('2$kThousandsSepКБ'), findsOneWidget);
+  });
+
+  testWidgets('the lock button closes the safe', (tester) async {
+    await tester.runAsync(() async {
+      await box.init();
+      await box.create('секрет12');
+    });
+    await pumpScreen(tester);
+    await tester.tap(find.byIcon(Symbols.lock_rounded));
+    await tester.pump();
+    expect(box.state, BoxState.locked);
+  });
+
+  testWidgets('leaving the screen locks the safe', (tester) async {
+    await tester.runAsync(() async {
+      await box.init();
+      await box.create('секрет12');
+    });
+    // The provider (and the safe) stay alive; only the screen goes away.
+    final show = ValueNotifier(true);
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        pairProvider.overrideWithValue(pair),
+        privateBoxProvider.overrideWith((_) => box),
+      ],
+      child: MaterialApp(
+        theme: MsTheme.evening(),
+        home: ValueListenableBuilder<bool>(
+          valueListenable: show,
+          builder: (_, on, __) => on ? const SafeScreen() : const SizedBox(),
+        ),
+      ),
+    ));
+    await tester.pump();
+    expect(box.state, BoxState.unlocked);
+    show.value = false;
+    await tester.pump();
+    await tester.pump(); // the lock runs right after the screen is gone
+    expect(box.state, BoxState.locked);
   });
 
   testWidgets('wrong password says so and keeps the sheet', (tester) async {

@@ -182,6 +182,16 @@ void main() {
     expect(Directory(p.join(root.path, 'box')).existsSync(), isFalse);
   });
 
+  test('disposed: the key is dropped and later calls are harmless', () async {
+    await box.create('секрет12');
+    box.dispose();
+    expect(box.state, BoxState.locked);
+    box.lock(); // e.g. a screen's deferred lock arriving late
+    box.onAppHidden();
+    expect(() => box.readBytes('x'), throwsStateError);
+    box = make(); // tearDown-safe
+  });
+
   test('locked: reading or adding is refused', () async {
     await box.create('секрет12');
     box.lock();

@@ -31,8 +31,16 @@ String fileMeta(DocMeta d, DateTime now) => [
 
 /// 44 × 52 type thumbnail with the type in mono 8 (components/FileRow.md).
 class FileThumb extends StatelessWidget {
-  const FileThumb({super.key, required this.doc});
-  final DocMeta doc;
+  FileThumb({super.key, required DocMeta doc})
+      : label = doc.kindLabel,
+        image = doc.isImage;
+
+  /// For files that aren't in the shared folder (the private box).
+  const FileThumb.kind({super.key, required this.label, required this.image});
+
+  /// «PDF», «JPG», «ФАЙЛ».
+  final String label;
+  final bool image;
 
   @override
   Widget build(BuildContext context) {
@@ -46,11 +54,11 @@ class FileThumb extends StatelessWidget {
         borderRadius: BorderRadius.circular(MsRadius.radiusSm),
       ),
       child: Stack(alignment: Alignment.center, children: [
-        Icon(doc.isImage ? Symbols.image_rounded : Symbols.description_rounded,
+        Icon(image ? Symbols.image_rounded : Symbols.description_rounded,
             size: MsSize.icon, color: ms.inkMuted),
         Positioned(
           bottom: MsSize.fileThumbLabelBottom,
-          child: Text(doc.kindLabel,
+          child: Text(label,
               style: MsTextX.fileKind.copyWith(color: ms.inkMuted)),
         ),
       ]),

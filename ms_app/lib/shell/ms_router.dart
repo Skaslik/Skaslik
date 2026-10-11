@@ -6,6 +6,7 @@ import '../design_system/ms_sizes.dart';
 import '../features/calendar/calendar_screen.dart';
 import '../features/cards/card_checkout_screen.dart';
 import '../features/files/files_screen.dart';
+import '../features/files/safe_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/together/together_screen.dart';
 import '../features/us/notes_screen.dart';
@@ -41,6 +42,8 @@ GoRouter buildMsRouter({String initialLocation = '/home'}) => GoRouter(
                 FadeTransition(opacity: a, child: child),
           ),
         ),
+        // The private box: full screen over the tab bar; leaving it locks.
+        GoRoute(path: '/safe', builder: (_, __) => const SafeScreen()),
         StatefulShellRoute.indexedStack(
           builder: (context, state, shell) => MsShell(shell: shell),
           branches: [
