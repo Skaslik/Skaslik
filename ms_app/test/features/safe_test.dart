@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
@@ -207,6 +208,41 @@ void main() {
     expect(find.text('база'), findsOneWidget);
     expect(cache.currentSize + cache.pendingImageCount + cache.liveImageCount,
         0);
+  });
+
+  testWidgets('while the safe is open, Android hides it from screenshots',
+      (tester) async {
+    final calls = <Object?>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        const MethodChannel('ms/secure_screen'), (call) async {
+      calls.add('${call.method}:${call.arguments}');
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger
+        .setMockMethodCallHandler(const MethodChannel('ms/secure_screen'), null));
+    await tester.runAsync(() async {
+      await box.init();
+      await box.create('секрет12');
+    });
+    final show = ValueNotifier(true);
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        pairProvider.overrideWithValue(pair),
+        privateBoxProvider.overrideWith((_) => box),
+      ],
+      child: MaterialApp(
+        theme: MsTheme.evening(),
+        home: ValueListenableBuilder<bool>(
+          valueListenable: show,
+          builder: (_, on, __) => on ? const SafeScreen() : const SizedBox(),
+        ),
+      ),
+    ));
+    await tester.pump();
+    expect(calls, ['set:true']);
+    show.value = false;
+    await tester.pump();
+    expect(calls, ['set:true', 'set:false']);
   });
 
   testWidgets('the lock button closes the safe', (tester) async {

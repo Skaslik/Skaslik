@@ -10,6 +10,7 @@ import 'package:ms_core/ms_core.dart' hide Clip;
 import 'package:open_filex/open_filex.dart';
 
 import '../../core/box/private_box.dart';
+import '../../core/security/secure_screen.dart';
 import '../../design_system/ms_format.dart';
 import '../../design_system/ms_theme.dart';
 import '../../design_system/widgets/widgets.dart';
@@ -31,10 +32,12 @@ class _SafeScreenState extends ConsumerState<SafeScreen> {
   void initState() {
     super.initState();
     _box = ref.read(privateBoxProvider);
+    unawaited(SecureScreen.set(true));
   }
 
   @override
   void dispose() {
+    unawaited(SecureScreen.set(false));
     // Not inside dispose itself: lock() notifies listeners, and the widget
     // tree is locked while it is being torn down.
     final box = _box;
