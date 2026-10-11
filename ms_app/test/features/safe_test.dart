@@ -25,13 +25,13 @@ void main() {
 
   setUpAll(initMsFormat);
 
-  Future<void> pumpSheet(WidgetTester tester) async {
+  Future<void> pumpSheet(WidgetTester tester, {Pair who = pair}) async {
     tester.view.physicalSize = const Size(390 * 3, 844 * 3);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(ProviderScope(
       overrides: [
-        pairProvider.overrideWithValue(pair),
+        pairProvider.overrideWithValue(who),
         privateBoxProvider.overrideWith((_) => box),
       ],
       child: MaterialApp(
@@ -171,6 +171,73 @@ void main() {
     await tester.pump();
     await tester.pump(); // the lock runs right after the screen is gone
     expect(box.state, BoxState.locked);
+  });
+
+  testWidgets('«Забыла пароль» for Sofia', (tester) async {
+    await tester.runAsync(() async {
+      await box.init();
+      await box.create('секрет12');
+      box.lock();
+    });
+    await pumpSheet(tester,
+        who: const Pair(
+            me: kSofia,
+            partner: kMichael,
+            myDeviceId: 'B',
+            partnerDeviceId: 'A'));
+    expect(find.text('Забыла пароль'), findsOneWidget);
+    expect(find.textContaining('Михаил не видит'), findsOneWidget);
+  });
+
+  testWidgets('a damaged safe says so instead of doing nothing',
+      (tester) async {
+    await tester.runAsync(() async {
+      await box.init();
+      await box.create('секрет12');
+      box.lock();
+      File(p.join(root.path, 'box', 'index.bin')).writeAsBytesSync([1, 2, 3]);
+    });
+    await pumpSheet(tester);
+    await tester.enterText(find.byType(TextField), 'секрет12');
+    await tester.pump();
+    await tester.runAsync(() async {
+      await tester.tap(find.text('Открыть сейф'));
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+    });
+    await tester.pump();
+    expect(find.textContaining('Сейф повреждён'), findsOneWidget);
+  });
+
+  testWidgets('when the safe locks, it closes with whatever is open over it',
+      (tester) async {
+    await tester.runAsync(() async {
+      await box.init();
+      await box.create('секрет12');
+    });
+    final nav = GlobalKey<NavigatorState>();
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        pairProvider.overrideWithValue(pair),
+        privateBoxProvider.overrideWith((_) => box),
+      ],
+      child: MaterialApp(
+        navigatorKey: nav,
+        theme: MsTheme.evening(),
+        home: const Scaffold(body: Text('база')),
+      ),
+    ));
+    unawaited(nav.currentState!
+        .push(MaterialPageRoute<void>(builder: (_) => const SafeScreen())));
+    await tester.pumpAndSettle();
+    // A photo (or a dialog) open over the safe.
+    unawaited(nav.currentState!.push(MaterialPageRoute<void>(
+        builder: (_) => const Scaffold(body: Text('фото')))));
+    await tester.pumpAndSettle();
+    box.lock(); // the app was hidden
+    await tester.pumpAndSettle();
+    expect(find.text('фото'), findsNothing);
+    expect(find.byType(SafeScreen), findsNothing);
+    expect(find.text('база'), findsOneWidget);
   });
 
   testWidgets('wrong password says so and keeps the sheet', (tester) async {

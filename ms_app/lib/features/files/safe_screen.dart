@@ -47,8 +47,12 @@ class _SafeScreenState extends ConsumerState<SafeScreen> {
     _leave();
   }
 
+  /// Closes the safe and anything opened over it (a photo, a dialog, the
+  /// file menu) — nothing private stays on screen.
   void _leave() {
     final nav = Navigator.of(context);
+    final me = ModalRoute.of(context);
+    if (me != null && me.isActive) nav.popUntil((r) => r == me);
     if (nav.canPop()) {
       nav.pop();
     } else {
@@ -61,6 +65,7 @@ class _SafeScreenState extends ConsumerState<SafeScreen> {
         await _box.away(() => FilePicker.pickFiles(allowMultiple: true));
     if (picked == null || !mounted) return;
     var added = 0;
+    var closed = false;
     String? problem;
     for (final f in picked.files) {
       final path = f.path;
@@ -68,6 +73,9 @@ class _SafeScreenState extends ConsumerState<SafeScreen> {
       try {
         await _box.add(path, f.name);
         added++;
+      } on StateError {
+        closed = true; // locked mid-way: the rest stays out
+        break;
       } on BoxTooLarge {
         problem = '«${f.name}» больше ${formatBytes(kBoxMaxFileBytes)} — '
             'в сейф не влезет';
@@ -81,7 +89,7 @@ class _SafeScreenState extends ConsumerState<SafeScreen> {
     } catch (_) {
       // Desktop has nothing to clear.
     }
-    if (!mounted) return;
+    if (closed || !mounted) return;
     MsToast.show(
         context,
         problem ??
@@ -107,6 +115,8 @@ class _SafeScreenState extends ConsumerState<SafeScreen> {
       }
     } on BoxCorrupt {
       if (mounted) MsToast.show(context, 'Файл повреждён — открыть не выйдет');
+    } on StateError {
+      // The safe locked meanwhile; the screen is closing.
     } catch (_) {
       if (mounted) MsToast.show(context, 'Не получилось открыть «${e.name}»');
     }

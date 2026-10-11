@@ -2,6 +2,14 @@
 ///
 /// Not synced and not in the recovery sheet (PLAN.md §2 п.5: P_box is not
 /// derived from S). Forgetting the password loses the files; the UI says so.
+///
+/// Concurrency rules:
+/// - every change to the list (create, unlock, add, remove) runs through one
+///   queue, so two writes of the sealed index never overlap;
+/// - each lock starts a new session; work that finishes in an old session is
+///   dropped (and the file it wrote deleted) instead of touching the safe;
+/// - each operation works on its own copy of the key, so zeroing the key on
+///   lock can never seal anything with zeros.
 library;
 
 import 'dart:async';
@@ -49,15 +57,21 @@ class PrivateBox extends ChangeNotifier {
   BoxState _state = BoxState.absent;
   Uint8List? _key;
   List<BoxEntry> _entries = const [];
-  bool _busy = false;
+  int _busy = 0;
   int _away = 0;
+  bool _hidden = false;
+  bool _disposed = false;
+
+  /// Bumped on every lock and unlock: work from an older session is stale.
+  int _session = 0;
 
   BoxState get state => _state;
-  bool get busy => _busy;
+  bool get busy => _busy > 0;
 
   /// Newest first. Empty unless unlocked.
-  List<BoxEntry> get entries =>
-      [..._entries]..sort((a, b) => b.addedAt.compareTo(a.addedAt));
+  List<BoxEntry> get entries => _state != BoxState.unlocked
+      ? const []
+      : ([..._entries]..sort((a, b) => b.addedAt.compareTo(a.addedAt)));
 
   File get _keyring => File(p.join(dir.path, 'keyring.json'));
   File get _index => File(p.join(dir.path, 'index.bin'));
@@ -81,7 +95,8 @@ class PrivateBox extends ChangeNotifier {
           String src, Uint8List key, String id) =>
       () => decryptFileToBytes(src: src, key: key, fileId: id);
 
-  /// Reads the state from disk, drops half-written files and old temp copies.
+  /// Reads the state from disk, drops half-written files and old plain
+  /// copies (ours and file_picker's).
   Future<void> init() async {
     _state = await _keyring.exists() ? BoxState.locked : BoxState.absent;
     final indexPart = File('${_index.path}.part');
@@ -92,39 +107,50 @@ class PrivateBox extends ChangeNotifier {
       }
     }
     await wipeTemp();
-    notifyListeners();
+    if (!_disposed) notifyListeners();
   }
 
   Future<void> create(String password) async {
-    if (_state != BoxState.absent) throw StateError('сейф уже есть');
     if (password.length < kBoxMinPassword) {
       throw ArgumentError('пароль короче $kBoxMinPassword символов');
     }
-    await _busyWhile(() async {
-      final made = await _run(_createTask(password, kdf));
-      await _files.create(recursive: true);
-      // Index first: a crash before the keyring leaves «no safe».
-      await _writeIndex(made.key, const []);
-      await _keyring.writeAsString(made.keyring.toJson(), flush: true);
-      _key = made.key;
-      _entries = const [];
-      _state = BoxState.unlocked;
-    });
+    await _serial(() => _busyWhile(() async {
+          if (_state != BoxState.absent) throw StateError('сейф уже есть');
+          final made = await _run(_createTask(password, kdf));
+          await _files.create(recursive: true);
+          // Index first: a crash before the keyring leaves «no safe».
+          await _writeIndex(made.key, const []);
+          await _keyring.writeAsString(made.keyring.toJson(), flush: true);
+          _state = BoxState.locked;
+          _open(made.key, const []);
+        }));
   }
 
-  /// False when the password is wrong.
-  Future<bool> unlock(String password) async {
-    if (_state == BoxState.unlocked) return true;
-    if (_state == BoxState.absent) return false;
-    final keyring = BoxKeyring.fromJson(await _keyring.readAsString());
-    return _busyWhile(() async {
-      final key = await _run(_unlockTask(keyring, password));
-      if (key == null) return false;
-      _entries = await _readIndex(key);
-      _key = key;
-      _state = BoxState.unlocked;
-      return true;
-    });
+  /// False when the password is wrong. Throws [BoxCorrupt] when the safe's
+  /// key or list is damaged.
+  Future<bool> unlock(String password) => _serial(() async {
+        if (_state == BoxState.unlocked) return true;
+        if (_state == BoxState.absent) return false;
+        final keyring = BoxKeyring.fromJson(await _keyring.readAsString());
+        return _busyWhile(() async {
+          final key = await _run(_unlockTask(keyring, password));
+          if (key == null) return false;
+          _open(key, await _readIndex(key));
+          return true;
+        });
+      });
+
+  /// Starts a session with [key] — unless the app went to the background
+  /// meanwhile (Argon2id takes seconds): then the key is dropped at once.
+  void _open(Uint8List key, List<BoxEntry> entries) {
+    _session++;
+    if (_disposed || (_hidden && _away == 0)) {
+      key.fillRange(0, key.length, 0);
+      return;
+    }
+    _key = key;
+    _entries = entries;
+    _state = BoxState.unlocked;
   }
 
   /// Drops the key. [wipe] = false keeps a copy another app may be reading;
@@ -142,9 +168,8 @@ class PrivateBox extends ChangeNotifier {
     _key = null;
     _entries = const [];
     _state = BoxState.locked;
+    _session++;
   }
-
-  bool _disposed = false;
 
   /// A deferred lock (a screen closing) may arrive after this; it's ignored.
   @override
@@ -155,17 +180,15 @@ class PrivateBox extends ChangeNotifier {
   }
 
   void onAppHidden() {
+    _hidden = true;
     if (_away > 0) return;
     lock(wipe: false);
   }
 
   void onAppResumed() {
+    _hidden = false;
     if (_state != BoxState.unlocked) _wipeLater();
   }
-
-  /// A failed wipe (a viewer still holds the file) is retried on the next
-  /// resume, lock or start.
-  void _wipeLater() => unawaited(wipeTemp().catchError((Object _) {}));
 
   /// For the system file picker: hiding the app inside [f] doesn't lock.
   Future<T> away<T>(Future<T> Function() f) async {
@@ -177,63 +200,105 @@ class PrivateBox extends ChangeNotifier {
     }
   }
 
-  Future<BoxEntry> add(String sourcePath, String name) async {
-    final key = _requireKey();
-    final size = await File(sourcePath).length();
-    if (size > kBoxMaxFileBytes) throw BoxTooLarge(size);
-    final id = newBoxId();
-    return _busyWhile(() async {
-      await _run(_encryptTask(sourcePath, _path(id), key, id));
-      final entry = BoxEntry(
-          id: id,
-          name: name,
-          size: size,
-          addedAt: _clock().millisecondsSinceEpoch);
-      final next = [..._entries, entry];
-      await _writeIndex(key, next);
-      _entries = next;
-      return entry;
-    });
+  Future<BoxEntry> add(String sourcePath, String name) {
+    final session = _session;
+    final key = _keyCopy();
+    return _serial(() => _busyWhile(() async {
+          try {
+            _check(session);
+            final size = await File(sourcePath).length();
+            if (size > kBoxMaxFileBytes) throw BoxTooLarge(size);
+            final id = newBoxId();
+            try {
+              final written =
+                  await _run(_encryptTask(sourcePath, _path(id), key, id));
+              _check(session);
+              final entry = BoxEntry(
+                  id: id,
+                  name: name,
+                  size: written,
+                  addedAt: _clock().millisecondsSinceEpoch);
+              final next = [..._entries, entry];
+              await _writeIndex(key, next);
+              if (session == _session) _entries = next;
+              return entry;
+            } catch (_) {
+              final f = File(_path(id));
+              if (await f.exists()) await f.delete();
+              rethrow;
+            }
+          } finally {
+            key.fillRange(0, key.length, 0);
+          }
+        }));
   }
 
-  Future<Uint8List> readBytes(String id) {
-    final key = _requireKey();
-    return _busyWhile(() => _run(_bytesTask(_path(id), key, id)));
+  Future<Uint8List> readBytes(String id) async {
+    final session = _session;
+    final key = _keyCopy();
+    try {
+      final bytes =
+          await _busyWhile(() => _run(_bytesTask(_path(id), key, id)));
+      _check(session);
+      return bytes;
+    } finally {
+      key.fillRange(0, key.length, 0);
+    }
   }
 
   /// A plain copy for another app, under the file's own name.
   Future<File> exportTemp(String id) async {
-    final key = _requireKey();
-    final entry = _entries.firstWhere((e) => e.id == id);
-    final tmp = await _tempDir();
-    final sub = Directory(p.join(tmp.path, 'ms_box', newBoxId()));
-    await sub.create(recursive: true);
-    final dst = p.join(sub.path, entry.name.replaceAll(RegExp(r'[/\\]'), '_'));
-    await _busyWhile(() => _run(_decryptTask(_path(id), dst, key, id)));
-    return File(dst);
+    final session = _session;
+    final key = _keyCopy();
+    try {
+      final entry = _entries.firstWhere((e) => e.id == id);
+      final tmp = await _tempDir();
+      final sub = Directory(p.join(tmp.path, 'ms_box', newBoxId()));
+      await sub.create(recursive: true);
+      final dst =
+          p.join(sub.path, entry.name.replaceAll(RegExp(r'[/\\]'), '_'));
+      try {
+        await _busyWhile(() => _run(_decryptTask(_path(id), dst, key, id)));
+        _check(session);
+      } catch (_) {
+        if (await sub.exists()) await sub.delete(recursive: true);
+        rethrow;
+      }
+      return File(dst);
+    } finally {
+      key.fillRange(0, key.length, 0);
+    }
   }
 
-  Future<void> remove(String id) async {
-    final key = _requireKey();
-    final next = _entries.where((e) => e.id != id).toList();
-    await _writeIndex(key, next);
-    _entries = next;
-    final f = File(_path(id));
-    if (await f.exists()) await f.delete();
-    notifyListeners();
+  Future<void> remove(String id) {
+    final session = _session;
+    final key = _keyCopy();
+    return _serial(() => _busyWhile(() async {
+          try {
+            _check(session);
+            final next = _entries.where((e) => e.id != id).toList();
+            await _writeIndex(key, next);
+            if (session == _session) _entries = next;
+            final f = File(_path(id));
+            if (await f.exists()) await f.delete();
+          } finally {
+            key.fillRange(0, key.length, 0);
+          }
+        }));
   }
 
   /// «Забыл пароль»: the files can't be opened anyway; remove them.
-  Future<void> destroy() async {
-    lock();
-    if (await dir.exists()) await dir.delete(recursive: true);
-    await wipeTemp();
-    _state = BoxState.absent;
-    notifyListeners();
-  }
+  Future<void> destroy() => _serial(() async {
+        lock();
+        if (await dir.exists()) await dir.delete(recursive: true);
+        await wipeTemp();
+        _state = BoxState.absent;
+        if (!_disposed) notifyListeners();
+      });
 
-  /// Deletes every plain copy made for other apps. Wipes run one at a time:
-  /// two recursive deletes of one folder at once fail on Windows.
+  /// Deletes every plain copy: ours for other apps, and file_picker's
+  /// (only the safe uses file_picker). Wipes run one at a time: two
+  /// recursive deletes of one folder at once fail on Windows.
   Future<void> wipeTemp() {
     final next = _wiping.then((_) => _wipeNow(), onError: (_) => _wipeNow());
     _wiping = next;
@@ -243,30 +308,51 @@ class PrivateBox extends ChangeNotifier {
   Future<void> _wiping = Future<void>.value();
 
   Future<void> _wipeNow() async {
-    final d = Directory(p.join((await _tempDir()).path, 'ms_box'));
-    try {
-      await d.delete(recursive: true);
-    } on PathNotFoundException {
-      // Nothing to wipe.
+    final tmp = (await _tempDir()).path;
+    for (final name in const ['ms_box', 'file_picker']) {
+      try {
+        await Directory(p.join(tmp, name)).delete(recursive: true);
+      } on PathNotFoundException {
+        // Nothing to wipe.
+      }
     }
   }
 
-  Uint8List _requireKey() {
+  /// A failed wipe (a viewer still holds the file) is retried on the next
+  /// resume, lock or start.
+  void _wipeLater() => unawaited(wipeTemp().catchError((Object _) {}));
+
+  /// The caller's own copy of the key; it zeroes it when done.
+  Uint8List _keyCopy() {
     final k = _key;
     if (_state != BoxState.unlocked || k == null) {
       throw StateError('сейф закрыт');
     }
-    return k;
+    return Uint8List.fromList(k);
+  }
+
+  void _check(int session) {
+    if (_disposed || session != _session || _state != BoxState.unlocked) {
+      throw StateError('сейф закрыт');
+    }
+  }
+
+  Future<void> _queue = Future<void>.value();
+
+  Future<T> _serial<T>(Future<T> Function() f) {
+    final run = _queue.then((_) => f());
+    _queue = run.then<void>((_) {}, onError: (Object _) {});
+    return run;
   }
 
   Future<T> _busyWhile<T>(Future<T> Function() f) async {
-    _busy = true;
-    notifyListeners();
+    _busy++;
+    if (!_disposed) notifyListeners();
     try {
       return await f();
     } finally {
-      _busy = false;
-      notifyListeners();
+      _busy--;
+      if (!_disposed) notifyListeners();
     }
   }
 
@@ -287,6 +373,6 @@ final privateBoxProvider = ChangeNotifierProvider<PrivateBox>((ref) {
     dir: Directory(p.join(AppPaths.dataDir ?? Directory.current.path, 'box')),
     tempDir: getTemporaryDirectory,
   );
-  unawaited(box.init());
+  unawaited(box.init().catchError((Object _) {}));
   return box;
 });

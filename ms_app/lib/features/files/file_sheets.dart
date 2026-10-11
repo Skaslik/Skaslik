@@ -342,13 +342,29 @@ class _SafeSheetState extends ConsumerState<SafeSheet> {
 
   Future<void> _go(PrivateBox box) async {
     final pw = _password.text;
-    if (box.state == BoxState.absent) {
-      await box.create(pw);
-    } else if (!await box.unlock(pw)) {
-      if (mounted) setState(() => _error = 'Не тот пароль');
+    final creating = box.state == BoxState.absent;
+    try {
+      if (creating) {
+        await box.create(pw);
+      } else if (!await box.unlock(pw)) {
+        if (mounted) setState(() => _error = 'Не тот пароль');
+        return;
+      }
+    } on BoxCorrupt {
+      if (mounted) {
+        setState(() => _error = 'Сейф повреждён — файлы не открыть');
+      }
+      return;
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = creating
+            ? 'Не получилось создать сейф'
+            : 'Не получилось открыть сейф');
+      }
       return;
     }
-    if (!mounted) return;
+    // Opened while the app was in the background: it stays closed.
+    if (!mounted || box.state != BoxState.unlocked) return;
     Navigator.of(context).pop();
     unawaited(context.push('/safe'));
   }
@@ -382,7 +398,8 @@ class _SafeSheetState extends ConsumerState<SafeSheet> {
   @override
   Widget build(BuildContext context) {
     final ms = context.ms;
-    final partner = ref.watch(pairProvider).partner;
+    final pair = ref.watch(pairProvider);
+    final partner = pair.partner;
     final box = ref.watch(privateBoxProvider);
     final creating = box.state == BoxState.absent;
     Widget field(TextEditingController c, String hint) => SizedBox(
@@ -454,7 +471,9 @@ class _SafeSheetState extends ConsumerState<SafeSheet> {
         ),
         if (!creating) ...[
           const SizedBox(height: MsSpace.space2),
-          Center(child: MsLink('Забыл пароль', onTap: () => _forgot(box))),
+          Center(
+              child: MsLink('${pair.me.verb('Забыл')} пароль',
+                  onTap: () => _forgot(box))),
         ],
       ],
     );

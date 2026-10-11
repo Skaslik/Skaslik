@@ -7,7 +7,26 @@ import 'package:ms_app/core/box/private_box.dart';
 import 'package:ms_core/ms_core.dart' hide Clip;
 import 'package:path/path.dart' as p;
 
-Future<R> inline<R>(FutureOr<R> Function() task) async => task();
+/// Holds background work until [gate] completes (null: run at once).
+Completer<void>? gate;
+
+/// How many tasks are waiting at the gate right now.
+var held = 0;
+Future<R> gated<R>(FutureOr<R> Function() task) async {
+  final g = gate;
+  if (g != null) {
+    held++;
+    await g.future;
+    held--;
+  }
+  return task();
+}
+
+Future<void> untilHeld() async {
+  while (held == 0) {
+    await Future<void>.delayed(const Duration(milliseconds: 1));
+  }
+}
 
 void main() {
   late Directory root;
@@ -19,9 +38,14 @@ void main() {
         dir: Directory(p.join(root.path, 'box')),
         tempDir: () async => temp,
         kdf: const BoxKdf(memoryKib: 64, iterations: 1),
-        runner: inline,
+        runner: gated,
         clock: () => now,
       );
+
+  tearDown(() {
+    gate = null;
+    held = 0;
+  });
 
   File source(String name, List<int> bytes) =>
       File(p.join(root.path, 'src', name))
@@ -190,6 +214,106 @@ void main() {
     box.onAppHidden();
     expect(() => box.readBytes('x'), throwsStateError);
     box = make(); // tearDown-safe
+  });
+
+  group('review fixes', () {
+    test('locking while a file is being added keeps the safe usable',
+        () async {
+      await box.create('секрет12');
+      await box.add(source('a.txt', [1]).path, 'a.txt');
+      gate = Completer<void>();
+      final adding = box.add(source('big.bin', [2, 3]).path, 'big.bin');
+      await untilHeld();
+      box.lock(); // back / Home / app lock while «Шифрую…»
+      gate!.complete();
+      gate = null;
+      await expectLater(adding, throwsStateError);
+      expect(await box.unlock('секрет12'), isTrue);
+      expect(box.entries.map((e) => e.name), ['a.txt']);
+      // No orphan file from the cancelled add.
+      expect(
+          Directory(p.join(root.path, 'box', 'files')).listSync(), hasLength(1));
+    });
+
+    test('a read that finishes after the lock is refused', () async {
+      await box.create('секрет12');
+      final e = await box.add(source('a.jpg', [1, 2]).path, 'a.jpg');
+      gate = Completer<void>();
+      final reading = box.readBytes(e.id);
+      final exporting = box.exportTemp(e.id);
+      while (held < 2) {
+        await Future<void>.delayed(const Duration(milliseconds: 1));
+      }
+      box.lock();
+      gate!.complete();
+      await expectLater(reading, throwsStateError);
+      await expectLater(exporting, throwsStateError);
+      await box.wipeTemp(); // settle the lock's own wipe
+      final left = Directory(p.join(temp.path, 'ms_box'));
+      expect(
+          left.existsSync()
+              ? left.listSync(recursive: true).whereType<File>()
+              : const <File>[],
+          isEmpty);
+    });
+
+    test('two adds at once both stay in the list', () async {
+      await box.create('секрет12');
+      await Future.wait([
+        box.add(source('a.txt', [1]).path, 'a.txt'),
+        box.add(source('b.txt', [2]).path, 'b.txt'),
+        box.add(source('c.txt', [3]).path, 'c.txt'),
+      ]);
+      box.lock();
+      expect(await box.unlock('секрет12'), isTrue);
+      expect(box.entries.map((e) => e.name).toSet(), {'a.txt', 'b.txt', 'c.txt'});
+    });
+
+    test('an add and a remove at once both take effect', () async {
+      await box.create('секрет12');
+      final a = await box.add(source('a.txt', [1]).path, 'a.txt');
+      await Future.wait([
+        box.remove(a.id),
+        box.add(source('b.txt', [2]).path, 'b.txt'),
+      ]);
+      box.lock();
+      expect(await box.unlock('секрет12'), isTrue);
+      expect(box.entries.map((e) => e.name), ['b.txt']);
+    });
+
+    test('busy stays on until every operation is done', () async {
+      await box.create('секрет12');
+      final e = await box.add(source('a.txt', [1]).path, 'a.txt');
+      final hold = gate = Completer<void>();
+      final slow = box.add(source('b.txt', [2]).path, 'b.txt');
+      await untilHeld();
+      gate = null; // the read isn't held back
+      await box.readBytes(e.id);
+      expect(box.busy, isTrue); // the add is still running
+      hold.complete();
+      await slow;
+      expect(box.busy, isFalse);
+    });
+
+    test('an unlock that finishes while the app is hidden keeps it locked',
+        () async {
+      await box.create('секрет12');
+      box.lock();
+      box.onAppHidden();
+      await box.unlock('секрет12');
+      expect(box.state, BoxState.locked);
+      box.onAppResumed();
+      expect(await box.unlock('секрет12'), isTrue);
+      expect(box.state, BoxState.unlocked);
+    });
+
+    test("file_picker's plain copies are wiped on start", () async {
+      final copy = File(p.join(temp.path, 'file_picker', '123', 'паспорт.pdf'))
+        ..createSync(recursive: true)
+        ..writeAsBytesSync([1]);
+      await make().init();
+      expect(copy.existsSync(), isFalse);
+    });
   });
 
   test('locked: reading or adding is refused', () async {
