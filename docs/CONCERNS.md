@@ -89,3 +89,14 @@ Running list of things that need your eye. Newest at the bottom; each entry says
 - **QA-5, offline reminder:** not checkable here. Event reminders still go through the same local scheduler as before. Check: flight mode, an event 2 minutes ahead with «за 1 мин», wait.
 - **QA-12, fake mode:** covered by tests as far as possible. The calculator is its own tiny app with no МС colours, fonts or text, and it never builds the real screens. Not covered: the Android recents thumbnail may still show the last real screen, because the app doesn't set FLAG_SECURE. Suggest adding it if that matters.
 - **Cold start under 1.5 s:** not measurable without a device. Nothing new waits on the network at start-up: the weather loads from its cache and refreshes in the background, and the room is local SVGs.
+
+### 20. The private box lives on one phone only
+- **What:** «Личный сейф» is not synced, not on Yandex.Disk and not in the recovery sheet. By design its password is not derived from the family secret (PLAN.md §2 п.5). A lost phone or a forgotten password loses the files. The create sheet says so.
+- **Suggest:** an optional encrypted export to the Disk later, still behind the box password.
+
+### 21. Opening a document briefly makes a plain copy
+- **What:** PDFs and other non-images open in another app, which needs a readable file. МС writes it to its cache and deletes it when you come back to the app, when the safe locks, and on the next start. Photos open inside МС from memory only.
+- **Also:** `file_picker` copies picked files to the cache; МС clears that right after encrypting. The original stays where it was, and the toast says so.
+
+### 22. Pure-Dart crypto speed
+- **What:** files are encrypted in pure Dart in a background isolate. Fine for documents and photos; a 200 MB cap keeps it bearable. `cryptography_flutter` would make it native-fast if needed.
