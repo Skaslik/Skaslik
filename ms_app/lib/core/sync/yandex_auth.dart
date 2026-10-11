@@ -27,7 +27,8 @@ import '../security/secure_vault.dart';
 ///
 /// Зарегистрировать приложение на https://oauth.yandex.ru/ и вписать сюда
 /// client_id. Redirect URI — `http://127.0.0.1:8450/oauth` (см. [kRedirectPort]).
-const String kYandexClientId = 'ВСТАВЬТЕ_CLIENT_ID';
+/// Public by design: with PKCE the app never uses the client secret.
+const String kYandexClientId = '0c97d98b5637463ca5e9b5c2044e61e6';
 
 /// Loopback-порт для OAuth redirect (фиксируется в настройках Yandex-приложения).
 const int kRedirectPort = 8450;
