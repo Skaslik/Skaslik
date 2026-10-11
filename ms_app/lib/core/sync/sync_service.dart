@@ -35,6 +35,12 @@ enum SyncState {
 class SyncService extends ChangeNotifier {
   SyncService();
 
+  /// One global for the app's lifetime (like [Family]): a provider scope
+  /// going away must not kill it for everyone else.
+  @override
+  // ignore: must_call_super
+  void dispose() {}
+
   final YandexAuth _auth = YandexAuth.instance;
   late Uint8List _syncKey;
   late String _familyId;
