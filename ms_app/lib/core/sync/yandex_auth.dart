@@ -18,6 +18,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/widgets.dart';
 import 'package:ms_core/ms_core.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -40,6 +41,49 @@ const String _tokenEndpoint = 'https://oauth.yandex.ru/token';
 const String _kAccess = 'ms/yandex/access';
 const String _kRefresh = 'ms/yandex/refresh';
 
+
+/// Yandex's authorization code lives 10 minutes; leave a margin.
+const Duration kAuthCodeWait = Duration(minutes: 9);
+
+/// Completes when the app is on screen again.
+///
+/// The browser hands the code to the app while the app is in the
+/// background, and Android cuts network for background apps under Data
+/// Saver and with some VPNs («Failed host lookup»). So the token request
+/// waits until the user is back in МС.
+Future<void> waitForForeground({Duration max = kAuthCodeWait}) async {
+  if (WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed) {
+    return;
+  }
+  final back = Completer<void>();
+  final listener = AppLifecycleListener(onResume: () {
+    if (!back.isCompleted) back.complete();
+  });
+  try {
+    await back.future.timeout(max, onTimeout: () {});
+  } finally {
+    listener.dispose();
+  }
+}
+
+/// Runs [request], retrying while the network is still waking up. Only
+/// network failures are retried; an answer from Yandex is final.
+Future<T> retryOnNetworkError<T>(
+  Future<T> Function() request, {
+  List<Duration> delays = const [Duration(seconds: 1), Duration(seconds: 3)],
+}) async {
+  for (var attempt = 0;; attempt++) {
+    try {
+      return await request();
+    } on SocketException {
+      if (attempt >= delays.length) rethrow;
+      await Future<void>.delayed(delays[attempt]);
+    } on HttpException {
+      if (attempt >= delays.length) rethrow;
+      await Future<void>.delayed(delays[attempt]);
+    }
+  }
+}
 
 /// Ошибка OAuth-флоу.
 class YandexAuthError implements Exception {
@@ -91,7 +135,10 @@ class YandexAuth {
         final err = q['error'];
         req.response
           ..statusCode = 200
-          ..write('МС · авторизация завершена. Можно закрыть это окно.');
+          ..headers.contentType = ContentType.text
+          ..write(code != null && code.isNotEmpty
+              ? 'МС · вход почти готов. Вернись в «МС» — там он закончится.'
+              : 'МС · вход не удался. Вернись в «МС» и попробуй ещё раз.');
         await req.response.close();
         if (!codeCompleter.isCompleted) {
           if (code != null && code.isNotEmpty) {
@@ -117,7 +164,8 @@ class YandexAuth {
           onTimeout: () =>
               throw YandexAuthError('таймаут: браузер не завершил вход'));
 
-      await _exchangeCode(code, verifier);
+      await waitForForeground();
+      await retryOnNetworkError(() => _exchangeCode(code, verifier));
     } finally {
       _authorizing = false;
       await server?.close(force: true);
