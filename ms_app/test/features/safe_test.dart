@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image/image.dart' as img;
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:ms_app/core/box/private_box.dart';
 import 'package:ms_app/core/pair/pair.dart';
@@ -139,6 +140,73 @@ void main() {
     expect(find.text('Паспорт.pdf'), findsOneWidget);
     expect(find.text('PDF'), findsOneWidget);
     expect(find.textContaining('2$kThousandsSepКБ'), findsOneWidget);
+  });
+
+  testWidgets('a damaged file says so when opened', (tester) async {
+    late BoxEntry e;
+    await tester.runAsync(() async {
+      await box.init();
+      await box.create('секрет12');
+      final f = File(p.join(root.path, 'договор.pdf'))
+        ..writeAsBytesSync(List.filled(100, 1));
+      e = await box.add(f.path, 'Договор.pdf');
+      final bin = File(p.join(root.path, 'box', 'files', '${e.id}.bin'));
+      final bytes = bin.readAsBytesSync();
+      bytes[bytes.length - 5] ^= 1;
+      bin.writeAsBytesSync(bytes);
+    });
+    await pumpScreen(tester);
+    await tester.runAsync(() async {
+      await tester.tap(find.text('Договор.pdf'));
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+    });
+    await tester.pump();
+    expect(find.textContaining('Файл повреждён'), findsOneWidget);
+    await tester.pump(MsMotion.toast);
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('a viewed photo leaves the image cache when the viewer closes',
+      (tester) async {
+    final cache = PaintingBinding.instance.imageCache..clear();
+    await tester.runAsync(() async {
+      await box.init();
+      await box.create('секрет12');
+      final png = img.encodePng(img.Image(width: 2, height: 2));
+      final f = File(p.join(root.path, 'фото.png'))..writeAsBytesSync(png);
+      await box.add(f.path, 'фото.png');
+    });
+    final nav = GlobalKey<NavigatorState>();
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        pairProvider.overrideWithValue(pair),
+        privateBoxProvider.overrideWith((_) => box),
+      ],
+      child: MaterialApp(
+        navigatorKey: nav,
+        theme: MsTheme.evening(),
+        home: const Scaffold(body: Text('база')),
+      ),
+    ));
+    unawaited(nav.currentState!
+        .push(MaterialPageRoute<void>(builder: (_) => const SafeScreen())));
+    await tester.pumpAndSettle();
+    await tester.runAsync(() async {
+      await tester.tap(find.text('фото.png'));
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+    });
+    await tester.pumpAndSettle();
+    await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 300)));
+    await tester.pump();
+    expect(find.byType(Image), findsOneWidget);
+    expect(cache.currentSize + cache.pendingImageCount + cache.liveImageCount,
+        greaterThan(0));
+    box.lock(); // the app was hidden: viewer and safe close
+    await tester.pumpAndSettle();
+    expect(find.text('база'), findsOneWidget);
+    expect(cache.currentSize + cache.pendingImageCount + cache.liveImageCount,
+        0);
   });
 
   testWidgets('the lock button closes the safe', (tester) async {

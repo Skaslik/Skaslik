@@ -239,6 +239,24 @@ void main() {
     expect(box.entries, hasLength(2));
   });
 
+  test('a damaged file is BoxCorrupt, in memory and as a copy', () async {
+    await box.create('секрет12');
+    final e = await box.add(source('d.pdf', List.filled(100, 1)).path, 'd.pdf');
+    final bin = File(p.join(root.path, 'box', 'files', '${e.id}.bin'));
+    final bytes = bin.readAsBytesSync();
+    bytes[bytes.length - 5] ^= 1;
+    bin.writeAsBytesSync(bytes);
+    await expectLater(box.readBytes(e.id), throwsA(isA<BoxCorrupt>()));
+    await expectLater(box.exportTemp(e.id), throwsA(isA<BoxCorrupt>()));
+    // No half-written plain copy is left behind.
+    final left = Directory(p.join(temp.path, 'ms_box'));
+    expect(
+        left.existsSync()
+            ? left.listSync(recursive: true).whereType<File>()
+            : const <File>[],
+        isEmpty);
+  });
+
   group('plain-copy file names', () {
     test('slashes and characters other apps choke on become «_»', () {
       expect(plainCopyName('Договор/аренда 🐕.pdf'), 'Договор_аренда 🐕.pdf');

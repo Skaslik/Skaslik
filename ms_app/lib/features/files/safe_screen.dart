@@ -263,15 +263,30 @@ class _SafeScreenState extends ConsumerState<SafeScreen> {
   }
 }
 
-/// A photo from the safe, decrypted into memory only.
-class _ImageView extends StatelessWidget {
+/// A photo from the safe, decrypted into memory only — and dropped from
+/// Flutter's image cache when the viewer closes.
+class _ImageView extends StatefulWidget {
   const _ImageView({required this.name, required this.bytes});
   final String name;
   final Uint8List bytes;
 
   @override
+  State<_ImageView> createState() => _ImageViewState();
+}
+
+class _ImageViewState extends State<_ImageView> {
+  late final MemoryImage _image = MemoryImage(widget.bytes);
+
+  @override
+  void dispose() {
+    unawaited(_image.evict());
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final ms = context.ms;
+    final name = widget.name;
     return Scaffold(
       backgroundColor: ms.ground,
       appBar: AppBar(
@@ -282,8 +297,8 @@ class _ImageView extends StatelessWidget {
       body: InteractiveViewer(
         maxScale: 5,
         child: Center(
-          child: Image.memory(
-            bytes,
+          child: Image(
+            image: _image,
             errorBuilder: (_, __, ___) => Padding(
               padding: const EdgeInsets.all(MsSpace.space5),
               child: Text(

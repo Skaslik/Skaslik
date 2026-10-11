@@ -27,7 +27,7 @@ Future<int> encryptFileTo({
     await sink.flush();
     await sink.close();
   } catch (_) {
-    await sink.close();
+    await _closeQuietly(sink);
     if (await part.exists()) await part.delete();
     rethrow;
   }
@@ -50,9 +50,19 @@ Future<void> decryptFileTo({
     await sink.flush();
     await sink.close();
   } catch (_) {
-    await sink.close();
+    await _closeQuietly(sink);
     if (await out.exists()) await out.delete();
     rethrow;
+  }
+}
+
+/// After a failed write the sink may already be closed; closing it again
+/// throws «File closed», which would hide the real error.
+Future<void> _closeQuietly(IOSink sink) async {
+  try {
+    await sink.close();
+  } catch (_) {
+    // Already closed.
   }
 }
 
