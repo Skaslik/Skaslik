@@ -30,7 +30,12 @@ dependencies:
   intl: ^0.20.3
   wakelock_plus: ^1.5.2
   screen_brightness: ^2.1.11
-  file_picker: ^11.0.3
+  # 10.3.x, not 11+: from 11 the plugin relies on AGP 9's built-in Kotlin,
+  # which this app keeps off (android.builtInKotlin=false) because the other
+  # plugins still apply the Kotlin plugin themselves — its Android code
+  # would not compile. Revisit when Flutter turns built-in Kotlin on.
+  # (10.3.11 was retracted by its author.)
+  file_picker: ">=10.3.10 <11.0.0"
   open_filex: ^4.7.0
 
 dev_dependencies:

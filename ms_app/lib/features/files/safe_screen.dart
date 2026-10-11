@@ -81,8 +81,8 @@ class _SafeScreenState extends ConsumerState<SafeScreen> {
   }
 
   Future<void> _add() async {
-    final picked =
-        await _box.away(() => FilePicker.pickFiles(allowMultiple: true));
+    final picked = await _box
+        .away(() => FilePicker.platform.pickFiles(allowMultiple: true));
     if (picked == null || !mounted) return;
     var added = 0;
     var closed = false;
@@ -100,15 +100,14 @@ class _SafeScreenState extends ConsumerState<SafeScreen> {
         closed = true; // locked mid-way: the rest stays out
         break;
       } on BoxTooLarge {
-        problems
-            .add('«${f.name}» больше ${formatBytes(kBoxMaxFileBytes)}');
+        problems.add('«${f.name}» больше ${formatBytes(kBoxMaxFileBytes)}');
       } catch (_) {
         problems.add('«${f.name}» не получилось зашифровать');
       }
     }
     // file_picker keeps plain copies in the cache: remove them now.
     try {
-      await FilePicker.clearTemporaryFiles();
+      await FilePicker.platform.clearTemporaryFiles();
     } catch (_) {
       // Desktop has nothing to clear.
     }
