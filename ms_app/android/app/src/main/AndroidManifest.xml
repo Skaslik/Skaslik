@@ -1,4 +1,11 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- open_filex просит доступ к хранилищу и медиа; МС открывает только
+         свои файлы из кэша — эти разрешения не нужны. -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" tools:node="remove"/>
     <!-- Сеть: Яндекс.Диск (вход и синк), погода. Без неё в release-сборке
          даже локальный приёмник входа (127.0.0.1) не открывается. -->
     <uses-permission android:name="android.permission.INTERNET"/>
