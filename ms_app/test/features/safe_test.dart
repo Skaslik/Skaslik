@@ -75,6 +75,13 @@ void main() {
     await tester.enterText(fields.at(1), 'секрет12');
     await tester.pump();
     expect(create().onPressed, isNotNull);
+    // The keyboard must not learn or suggest the password.
+    for (final f in tester.widgetList<TextField>(fields)) {
+      expect(f.obscureText, isTrue);
+      expect(f.enableIMEPersonalizedLearning, isFalse);
+      expect(f.enableSuggestions, isFalse);
+      expect(f.autocorrect, isFalse);
+    }
   });
 
   testWidgets('locked: one field, «Открыть сейф», «Забыл пароль»',

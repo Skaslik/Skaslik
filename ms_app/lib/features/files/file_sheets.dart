@@ -409,6 +409,7 @@ class _SafeSheetState extends ConsumerState<SafeSheet> {
             obscureText: true,
             autocorrect: false,
             enableSuggestions: false,
+            enableIMEPersonalizedLearning: false,
             style: MsText.body.copyWith(color: ms.ink),
             decoration: InputDecoration(hintText: hint),
             onChanged: (_) => setState(() => _error = null),
