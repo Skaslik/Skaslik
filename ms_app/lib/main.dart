@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide Family;
 
 import 'app.dart';
+import 'core/box/private_box.dart';
 import 'core/lock/app_lock.dart';
 import 'core/lock/fake_calculator.dart';
 import 'core/notify/notifications.dart';
@@ -70,9 +71,16 @@ class _MsRootState extends ConsumerState<MsRoot> {
       onResume: () {
         ref.read(themeControllerProvider).refresh();
         if (ref.exists(weatherProvider)) ref.read(weatherProvider).refresh();
+        if (ref.exists(privateBoxProvider)) {
+          ref.read(privateBoxProvider).onAppResumed();
+        }
       },
       onHide: () {
         if (ref.exists(weatherProvider)) ref.read(weatherProvider).pause();
+        // The safe never stays open behind another app.
+        if (ref.exists(privateBoxProvider)) {
+          ref.read(privateBoxProvider).onAppHidden();
+        }
       },
     );
   }
@@ -88,6 +96,12 @@ class _MsRootState extends ConsumerState<MsRoot> {
     final lock = ref.watch(appLockProvider);
     final fam = ref.watch(familyProvider);
     final theme = ref.watch(themeControllerProvider);
+    // Locking the app or entering fake mode closes the safe as well.
+    ref.listen<AppLock>(appLockProvider, (_, l) {
+      if ((l.inFake || !l.unlocked) && ref.exists(privateBoxProvider)) {
+        ref.read(privateBoxProvider).lock();
+      }
+    });
 
     // Fake mode: калькулятор — реальных данных нет. A neutral system look:
     // no МС theme, fonts or mark (components/ScreenLock.md).
