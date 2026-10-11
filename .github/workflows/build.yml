@@ -2,10 +2,12 @@ name: МС build
 
 # Release builds of the app on every push to the main branch: a signed
 # Android APK, an unsigned iPhone IPA and a Windows folder, all as
-# downloadable artifacts.
+# downloadable artifacts. Pull requests build too, so native code (Kotlin,
+# Swift, C++) is compiled before it is merged, not after.
 on:
   push:
     branches: [main, master]
+  pull_request:
   workflow_dispatch:
 
 concurrency:

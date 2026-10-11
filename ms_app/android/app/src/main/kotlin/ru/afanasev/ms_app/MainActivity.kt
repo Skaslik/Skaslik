@@ -1,11 +1,13 @@
 package ru.afanasev.ms_app
 
 import android.view.WindowManager
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
-class MainActivity : FlutterActivity() {
+// FlutterFragmentActivity: local_auth (fingerprint unlock) works only with a
+// FragmentActivity.
+class MainActivity : FlutterFragmentActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         // «Личный сейф»: no screenshots and a blank recent-apps thumbnail
