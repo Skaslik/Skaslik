@@ -73,4 +73,39 @@ void main() {
     expect(merged.editedBy, 'B');
     expect(rb.get('e')!.title, merged.title);
   });
+
+  test('an edit can clear the note and the end date, on both phones', () {
+    final ra = Replica('A', clock: () => 1000);
+    final rb = Replica('B', clock: () => 1000);
+    final a = CalendarRepo(ra);
+    a.upsert(CalEvent(
+        id: 'trip', title: 'Поездка', start: start,
+        end: DateTime(2026, 10, 12), note: 'взять зарядку', ownerId: 'A'));
+    rb.mergeIn(ra.allOps());
+    final b = CalendarRepo(rb);
+    final was = b.get('trip')!;
+    b.edit(CalEvent(
+        id: was.id, title: 'Поездка к морю', start: was.start,
+        ownerId: was.ownerId, editedBy: 'B', editedAt: 2000));
+    ra.mergeIn(rb.allOps());
+    for (final repo in [a, b]) {
+      final e = repo.get('trip')!;
+      expect(e.title, 'Поездка к морю');
+      expect(e.note, isNull);
+      expect(e.end, isNull);
+      expect(e.ownerId, 'A');
+      expect(e.editedBy, 'B');
+    }
+  });
+
+  test('an empty stored note reads as no note', () {
+    final e = CalEvent.fromFields('x', {
+      'title': 't',
+      'startTs': '${start.millisecondsSinceEpoch}',
+      'note': '',
+      'endTs': '',
+    })!;
+    expect(e.note, isNull);
+    expect(e.end, isNull);
+  });
 }

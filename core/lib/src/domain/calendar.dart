@@ -237,7 +237,8 @@ class CalEvent {
       reminders: ReminderRules.parse(f['remind']),
       inviteStatus: f['invite'],
       ownerColor: f['color'],
-      note: f['note'],
+      // An edit that removed the note writes '' (fields are never deleted).
+      note: (f['note'] ?? '').isEmpty ? null : f['note'],
       ownerId: f['owner'],
       createdAt: int.tryParse(f['createdAt'] ?? ''),
       editedBy: f['editedBy'],
@@ -303,6 +304,15 @@ class CalendarRepo {
     for (final entry in e.toFields().entries) {
       replica.set(_p + e.id, entry.key, entry.value);
     }
+  }
+
+  /// Saves an edited event. Unlike [upsert], a field the edit emptied (the
+  /// note, the end date) is written as '' — fields are never deleted in the
+  /// CRDT, so silence would keep the old value. Additive: '' reads as none.
+  void edit(CalEvent e) {
+    upsert(e);
+    if (e.note == null) replica.set(_p + e.id, 'note', '');
+    if (e.end == null) replica.set(_p + e.id, 'endTs', '');
   }
 
   void remove(String id) => replica.delete(_p + id);
